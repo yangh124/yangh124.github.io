@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>SpringBoot+Elasticsearch实战 | yangh&#39;s Blog</title>
+  <meta name="description" content="一、引入依赖本文使用的SpringBoot版本为2.5.4，elasticsearch版本为7.15.0">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringBoot+Elasticsearch实战">
+<meta property="og:url" content="https://yh124.space/2021/10/26/SpringBoot%20ES%E5%AE%9E%E6%88%98/index.html">
+<meta property="og:site_name" content="yangh&#39;s Blog">
+<meta property="og:description" content="一、引入依赖本文使用的SpringBoot版本为2.5.4，elasticsearch版本为7.15.0">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352546351035.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352570339401.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352575817746.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352577179296.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352579192385.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352580418359.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352578138427.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352583920483.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/27/16353396396063.jpg">
+<meta property="article:published_time" content="2021-10-25T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-14T14:25:29.000Z">
+<meta property="article:author" content="yangh">
+<meta property="article:tag" content="elastic search">
+<meta property="article:tag" content="实战">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352546351035.jpg">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://yh124.space/2021/10/26/SpringBoot%20ES%E5%AE%9E%E6%88%98/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
+  
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-green" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/yangh124" target="_blank">
+          <img class="img-circle img-rotate" src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">yangh124</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md"></h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> 浙江，杭州</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/yangh124" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E7%A1%80/">基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%84%9A%E6%9C%AC%E8%AF%AD%E8%A8%80/">脚本语言</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k3s/" rel="tag">k3s</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%9E%E6%88%98/" rel="tag">实战</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" rel="tag">网络编程</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">五月 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/06/06/MySQL%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/" class="title">MySQL性能分析工具的使用</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-06-05T16:00:00.000Z" itemprop="datePublished">2022-06-06</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/30/Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%EF%BC%89/" class="title">Redisson分布式锁（使用注解方式）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-29T16:00:00.000Z" itemprop="datePublished">2022-05-30</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/22/k3s%E5%AE%9E%E6%88%98/" class="title">k3s实战</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-21T16:00:00.000Z" itemprop="datePublished">2022-05-22</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/20/Docker%E5%AE%9E%E6%88%98/" class="title">Docker实战</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/15/InnoDB%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/" class="title">InnoDB数据存储结构</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-14T16:00:00.000Z" itemprop="datePublished">2022-01-15</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%BC%95%E5%85%A5%E4%BE%9D%E8%B5%96"><span class="toc-number">1.</span> <span class="toc-text">一、引入依赖</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-pom%E6%96%87%E4%BB%B6%E5%A6%82%E4%B8%8B"><span class="toc-number">1.1.</span> <span class="toc-text">1. pom文件如下</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-application-yml%E9%85%8D%E7%BD%AE%E5%A6%82%E4%B8%8B"><span class="toc-number">1.2.</span> <span class="toc-text">2. application.yml配置如下</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81ES-SpringBoot%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">二、ES SpringBoot配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%85%8D%E7%BD%AEES%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%9C%B0%E5%9D%80"><span class="toc-number">2.1.</span> <span class="toc-text">1. 配置ES服务器地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AERestHighLevelClient"><span class="toc-number">2.2.</span> <span class="toc-text">2. 配置RestHighLevelClient</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81ES%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">三、ES基本使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B4%A2%E5%BC%95%E6%93%8D%E4%BD%9C"><span class="toc-number">3.1.</span> <span class="toc-text">索引操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BA%E7%B4%A2%E5%BC%95"><span class="toc-number">3.1.1.</span> <span class="toc-text">1. 创建索引</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%88%A0%E9%99%A4%E7%B4%A2%E5%BC%95"><span class="toc-number">3.1.2.</span> <span class="toc-text">2. 删除索引</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A2%9E%E5%88%A0%E6%94%B9%E6%9F%A5"><span class="toc-number">3.2.</span> <span class="toc-text">增删改查</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%B7%BB%E5%8A%A0%E6%95%B0%E6%8D%AE%EF%BC%88%E5%8D%95%E4%B8%AA%EF%BC%89"><span class="toc-number">3.2.1.</span> <span class="toc-text">1. 添加数据（单个）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E6%89%B9%E9%87%8F%E6%B7%BB%E5%8A%A0%E6%95%B0%E6%8D%AE"><span class="toc-number">3.2.2.</span> <span class="toc-text">2. 批量添加数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E4%BF%AE%E6%94%B9%E6%95%B0%E6%8D%AE"><span class="toc-number">3.2.3.</span> <span class="toc-text">3. 修改数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE"><span class="toc-number">3.2.4.</span> <span class="toc-text">4. 获取数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E7%9B%B4%E6%8E%A5%E8%8E%B7%E5%8F%96source"><span class="toc-number">3.2.5.</span> <span class="toc-text">5. 直接获取source</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8"><span class="toc-number">3.3.</span> <span class="toc-text">判断是否存在</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81ES%E7%AE%80%E5%8D%95%E6%90%9C%E7%B4%A2"><span class="toc-number">4.</span> <span class="toc-text">四、ES简单搜索</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B9%E6%8D%AE%E6%9D%A1%E4%BB%B6%E6%90%9C%E7%B4%A2"><span class="toc-number">4.1.</span> <span class="toc-text">根据条件搜索</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E6%89%80%E6%9C%89"><span class="toc-number">4.2.</span> <span class="toc-text">查询所有</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81ES%E8%81%9A%E5%90%88%E6%90%9C%E7%B4%A2"><span class="toc-number">5.</span> <span class="toc-text">五、ES聚合搜索</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-SpringBoot ES实战" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      SpringBoot+Elasticsearch实战
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/10/26/SpringBoot%20ES%E5%AE%9E%E6%88%98/" class="article-date">
+	  <time datetime="2021-10-25T16:00:00.000Z" itemprop="datePublished">2021-10-26</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/elastic-search/" rel="tag">elastic search</a>, <a class="article-tag-link-link" href="/tags/%E5%AE%9E%E6%88%98/" rel="tag">实战</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2021/10/26/SpringBoot%20ES%E5%AE%9E%E6%88%98/" class="leancloud_visitors"  data-flag-title="SpringBoot+Elasticsearch实战">
+			<span class="leancloud-visitors-count">0</span>
+		</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/10/26/SpringBoot%20ES%E5%AE%9E%E6%88%98/#comments" class="article-comment-link">评论</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 2.2k(字)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 12(分)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="一、引入依赖"><a href="#一、引入依赖" class="headerlink" title="一、引入依赖"></a>一、引入依赖</h2><p>本文使用的SpringBoot版本为2.5.4，elasticsearch版本为7.15.0</p>
+<span id="more"></span>
+<h3 id="1-pom文件如下"><a href="#1-pom文件如下" class="headerlink" title="1. pom文件如下"></a>1. pom文件如下</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;</span><br><span class="line">    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;</span><br><span class="line">    &lt;parent&gt;</span><br><span class="line">        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;</span><br><span class="line">        &lt;version&gt;2.5.4&lt;/version&gt;</span><br><span class="line">        &lt;relativePath/&gt; &lt;!-- lookup parent from repository --&gt;</span><br><span class="line">    &lt;/parent&gt;</span><br><span class="line">    &lt;groupId&gt;com.yh&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;es-demo&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;</span><br><span class="line">    &lt;name&gt;es-demo&lt;/name&gt;</span><br><span class="line">    &lt;description&gt;es-demo&lt;/description&gt;</span><br><span class="line">    &lt;properties&gt;</span><br><span class="line">        &lt;java.version&gt;1.8&lt;/java.version&gt;</span><br><span class="line">        &lt;elasticsearch.version&gt;7.15.0&lt;/elasticsearch.version&gt;</span><br><span class="line">    &lt;/properties&gt;</span><br><span class="line">    &lt;dependencies&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-boot-configuration-processor&lt;/artifactId&gt;</span><br><span class="line">            &lt;optional&gt;true&lt;/optional&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;lombok&lt;/artifactId&gt;</span><br><span class="line">            &lt;optional&gt;true&lt;/optional&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;</span><br><span class="line">            &lt;scope&gt;test&lt;/scope&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;!--使用的rest-high-level-client--&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.elasticsearch.client&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;elasticsearch-rest-high-level-client&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;$&#123;elasticsearch.version&#125;&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.elasticsearch&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;elasticsearch&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;$&#123;elasticsearch.version&#125;&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;com.alibaba&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;fastjson&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;1.2.70&lt;/version&gt;</span><br><span class="line">            &lt;scope&gt;test&lt;/scope&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">    &lt;/dependencies&gt;</span><br><span class="line"></span><br><span class="line">    &lt;build&gt;</span><br><span class="line">        &lt;plugins&gt;</span><br><span class="line">            &lt;plugin&gt;</span><br><span class="line">                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">                &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">                &lt;configuration&gt;</span><br><span class="line">                    &lt;excludes&gt;</span><br><span class="line">                        &lt;exclude&gt;</span><br><span class="line">                            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;</span><br><span class="line">                            &lt;artifactId&gt;lombok&lt;/artifactId&gt;</span><br><span class="line">                        &lt;/exclude&gt;</span><br><span class="line">                    &lt;/excludes&gt;</span><br><span class="line">                &lt;/configuration&gt;</span><br><span class="line">            &lt;/plugin&gt;</span><br><span class="line">        &lt;/plugins&gt;</span><br><span class="line">    &lt;/build&gt;</span><br><span class="line"></span><br><span class="line">&lt;/project&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="2-application-yml配置如下"><a href="#2-application-yml配置如下" class="headerlink" title="2. application.yml配置如下"></a>2. application.yml配置如下</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">elasticsearch:</span><br><span class="line">  host-arr:</span><br><span class="line">    - 127.0.0.1:9200</span><br></pre></td></tr></table></figure>
+<h2 id="二、ES-SpringBoot配置"><a href="#二、ES-SpringBoot配置" class="headerlink" title="二、ES SpringBoot配置"></a>二、ES SpringBoot配置</h2><h3 id="1-配置ES服务器地址"><a href="#1-配置ES服务器地址" class="headerlink" title="1. 配置ES服务器地址"></a>1. 配置ES服务器地址</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">package com.yh.esdemo.config;</span><br><span class="line"></span><br><span class="line">import lombok.Getter;</span><br><span class="line">import lombok.Setter;</span><br><span class="line">import org.springframework.boot.context.properties.ConfigurationProperties;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author : yh</span><br><span class="line"> * @date : 2021/8/30 20:35</span><br><span class="line"> */</span><br><span class="line">@Component</span><br><span class="line">@Getter</span><br><span class="line">@Setter</span><br><span class="line">@ConfigurationProperties(prefix = &quot;elasticsearch&quot;)</span><br><span class="line">public class EsHostConfig &#123;</span><br><span class="line"></span><br><span class="line">    private String[] hostArr;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-配置RestHighLevelClient"><a href="#2-配置RestHighLevelClient" class="headerlink" title="2. 配置RestHighLevelClient"></a>2. 配置RestHighLevelClient</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">package com.yh.esdemo.config;</span><br><span class="line"></span><br><span class="line">import org.apache.http.HttpHost;</span><br><span class="line">import org.elasticsearch.client.RestClient;</span><br><span class="line">import org.elasticsearch.client.RestHighLevelClient;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.context.annotation.Bean;</span><br><span class="line">import org.springframework.context.annotation.Configuration;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 定义RestClient Bean</span><br><span class="line"> *</span><br><span class="line"> * @author : yh</span><br><span class="line"> * @date : 2021/8/30 20:32</span><br><span class="line"> */</span><br><span class="line">@Configuration</span><br><span class="line">public class EsRestClientConfig &#123;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    private EsHostConfig esHostConfig;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public RestHighLevelClient restHighLevelClient() &#123;</span><br><span class="line">        String[] hostArr = esHostConfig.getHostArr();</span><br><span class="line">        int size = hostArr.length;</span><br><span class="line">        HttpHost[] httpHostArr = new HttpHost[size];</span><br><span class="line">        for (int i = 0; i &lt; size; i++) &#123;</span><br><span class="line">            String[] split = hostArr[i].split(&quot;:&quot;);</span><br><span class="line">            httpHostArr[i] = new HttpHost(split[0], Integer.parseInt(split[1]), &quot;http&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        return new RestHighLevelClient(RestClient.builder(httpHostArr));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><em><strong>配置完成后只需在相关业务中注入RestHighLevelClient即可使用</strong></em></p>
+<h2 id="三、ES基本使用"><a href="#三、ES基本使用" class="headerlink" title="三、ES基本使用"></a>三、ES基本使用</h2><h3 id="索引操作"><a href="#索引操作" class="headerlink" title="索引操作"></a>索引操作</h3><h4 id="1-创建索引"><a href="#1-创建索引" class="headerlink" title="1. 创建索引"></a>1. 创建索引</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void addIndex() throws Exception &#123;</span><br><span class="line">    //获取 IndicesClient ，用于创建 Index</span><br><span class="line">    IndicesClient indices = restHighLevelClient.indices();</span><br><span class="line">    //定义一个 CreateIndexRequest ，参数为索引的名称</span><br><span class="line">    CreateIndexRequest createIndexRequest = new CreateIndexRequest(&quot;yh_customer&quot;);</span><br><span class="line">    //CreateIndexRequest配置相关参数 number_of_shards：分片数  number_of_replicas：每个分片的副本数</span><br><span class="line">    createIndexRequest.settings(</span><br><span class="line">            Settings.builder()</span><br><span class="line">                    .put(&quot;index.number_of_shards&quot;, 1)</span><br><span class="line">                    .put(&quot;index.number_of_replicas&quot;, 0)</span><br><span class="line">    );</span><br><span class="line">    Map&lt;String, Object&gt; name = new HashMap&lt;&gt;();</span><br><span class="line">    name.put(&quot;type&quot;, &quot;text&quot;);</span><br><span class="line">    name.put(&quot;analyzer&quot;, &quot;ik_max_word&quot;);//指定分词器</span><br><span class="line">    name.put(&quot;search_analyzer&quot;, &quot;ik_smart&quot;);</span><br><span class="line">    Map&lt;String, Object&gt; timestamp = new HashMap&lt;&gt;();</span><br><span class="line">    timestamp.put(&quot;type&quot;, &quot;date&quot;);</span><br><span class="line">    timestamp.put(&quot;format&quot;, &quot;yyyy-MM-dd HH:mm:ss&quot;);//指定时间格式</span><br><span class="line">    Map&lt;String, Object&gt; uuid = new HashMap&lt;&gt;();</span><br><span class="line">    uuid.put(&quot;type&quot;, &quot;keyword&quot;);</span><br><span class="line">    Map&lt;String, Object&gt; properties = new HashMap&lt;&gt;();</span><br><span class="line">    properties.put(&quot;name&quot;, name);</span><br><span class="line">    properties.put(&quot;timestamp&quot;, timestamp);</span><br><span class="line">    properties.put(&quot;uuid&quot;, uuid);</span><br><span class="line">    Map&lt;String, Object&gt; mapping = new HashMap&lt;&gt;();</span><br><span class="line">    mapping.put(&quot;properties&quot;, properties);</span><br><span class="line">    //创建mapping  mapping可以理解为此索引中数据的数据结构</span><br><span class="line">    createIndexRequest.mapping(mapping);</span><br><span class="line">    //创建索引 此方法同步返回结果  异步使用 createAsync</span><br><span class="line">    CreateIndexResponse createIndexResponse = indices.create(createIndexRequest, RequestOptions.DEFAULT);</span><br><span class="line">    //创建结果（true/false）</span><br><span class="line">    System.out.println(createIndexResponse.isAcknowledged());</span><br><span class="line">    //输出创建成功的索引名称</span><br><span class="line">    System.out.println(createIndexResponse.index());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出:<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352546351035.jpg" alt="16352546351035"></p>
+<h4 id="2-删除索引"><a href="#2-删除索引" class="headerlink" title="2. 删除索引"></a>2. 删除索引</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void delIndex() throws Exception &#123;</span><br><span class="line">    IndicesClient indices = restHighLevelClient.indices();</span><br><span class="line">    DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(&quot;yh_customer&quot;);</span><br><span class="line">    AcknowledgedResponse deleteIndexResponse = indices.delete(deleteIndexRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(deleteIndexResponse.isAcknowledged());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="增删改查"><a href="#增删改查" class="headerlink" title="增删改查"></a>增删改查</h3><h4 id="1-添加数据（单个）"><a href="#1-添加数据（单个）" class="headerlink" title="1. 添加数据（单个）"></a>1. 添加数据（单个）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void addDoc() throws Exception &#123;</span><br><span class="line">    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);</span><br><span class="line">    String timestamp = simpleDateFormat.format(new Date());</span><br><span class="line">    Map&lt;String, Object&gt; jsonMap = new HashMap&lt;&gt;();</span><br><span class="line">    jsonMap.put(&quot;uuid&quot;, &quot;534523dqw4qweq24324&quot;);</span><br><span class="line">    jsonMap.put(&quot;name&quot;, &quot;张三&quot;);</span><br><span class="line">    jsonMap.put(&quot;timestamp&quot;, timestamp);</span><br><span class="line">    //创建 IndexRequest 指定id</span><br><span class="line">    IndexRequest indexRequest = new IndexRequest(&quot;yh_customer&quot;).id(&quot;1&quot;).source(jsonMap);</span><br><span class="line">    IndexResponse indexResponse = restHighLevelClient.index(indexRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(indexResponse);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352570339401.jpg" alt="16352570339401"></p>
+<h4 id="2-批量添加数据"><a href="#2-批量添加数据" class="headerlink" title="2. 批量添加数据"></a>2. 批量添加数据</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">    @Test</span><br><span class="line">    public void bulkTest() &#123;</span><br><span class="line">        //批量添加使用 BulkRequest</span><br><span class="line">        BulkRequest bulkRequest = new BulkRequest();</span><br><span class="line">        for (int i = 0; i &lt; 100; i++) &#123;</span><br><span class="line">            Customer customer = new Customer(UUID.randomUUID().toString().replace(&quot;-&quot;, &quot;&quot;), i + &quot;号客户&quot;, LocalDateTime.now());</span><br><span class="line">            //String data = JSONObject.toJSONString(customer);</span><br><span class="line">            String data = JSONObject.toJSONStringWithDateFormat(customer, &quot;yyyy-MM-dd HH:mm:ss&quot;);</span><br><span class="line">            IndexRequest request = new IndexRequest(&quot;yh_customer&quot;).source(data, XContentType.JSON);</span><br><span class="line">            bulkRequest.add(request);</span><br><span class="line">        &#125;</span><br><span class="line">        //同步</span><br><span class="line">//        try &#123;</span><br><span class="line">//            BulkResponse bulk = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);</span><br><span class="line">//            boolean hasFailures = bulk.hasFailures();</span><br><span class="line">//            if (hasFailures) &#123;</span><br><span class="line">//                List&lt;BulkItemResponse&gt; collect = Arrays.stream(bulk.getItems()).filter(BulkItemResponse::isFailed).collect(Collectors.toList());</span><br><span class="line">//                System.out.println(collect.size());</span><br><span class="line">//                String msg = bulk.buildFailureMessage();</span><br><span class="line">//                System.out.println(msg);</span><br><span class="line">//            &#125;</span><br><span class="line">//        &#125; catch (IOException e) &#123;</span><br><span class="line">//            e.printStackTrace();</span><br><span class="line">//        &#125;</span><br><span class="line"></span><br><span class="line">        //异步</span><br><span class="line">        restHighLevelClient.bulkAsync(bulkRequest, RequestOptions.DEFAULT, new ActionListener&lt;BulkResponse&gt;() &#123;</span><br><span class="line">            //成功回调</span><br><span class="line">            @Override</span><br><span class="line">            public void onResponse(BulkResponse bulkItemResponses) &#123;</span><br><span class="line">                System.out.println(&quot;success&quot;);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            //失败回调</span><br><span class="line">            @Override</span><br><span class="line">            public void onFailure(Exception e) &#123;</span><br><span class="line">                System.out.println(&quot;failure&quot;);</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            TimeUnit.MINUTES.sleep(5);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352575817746.jpg" alt="16352575817746"></p>
+<h4 id="3-修改数据"><a href="#3-修改数据" class="headerlink" title="3. 修改数据"></a>3. 修改数据</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void updateDoc() throws Exception &#123;</span><br><span class="line">    UpdateRequest updateRequest = new UpdateRequest(&quot;yh_customer&quot;, &quot;1&quot;);</span><br><span class="line">    Map&lt;String, Object&gt; jsonMap = new HashMap&lt;&gt;();</span><br><span class="line">    jsonMap.put(&quot;name&quot;, &quot;李四&quot;);</span><br><span class="line">    updateRequest.doc(jsonMap);</span><br><span class="line">    UpdateResponse update = restHighLevelClient.update(updateRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(update);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出:<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352577179296.jpg" alt="16352577179296"></p>
+<h4 id="4-获取数据"><a href="#4-获取数据" class="headerlink" title="4. 获取数据"></a>4. 获取数据</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void get() throws Exception &#123;</span><br><span class="line">    GetRequest getRequest = new GetRequest(&quot;yh_customer&quot;);</span><br><span class="line">    getRequest.id(&quot;1&quot;);</span><br><span class="line">    GetResponse getResponse = restHighLevelClient.get(getRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(getResponse);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352579192385.jpg" alt="16352579192385"></p>
+<h4 id="5-直接获取source"><a href="#5-直接获取source" class="headerlink" title="5. 直接获取source"></a>5. 直接获取source</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void getSource() throws Exception &#123;</span><br><span class="line">    GetSourceRequest getRequest = new GetSourceRequest(&quot;yh_customer&quot;, &quot;1&quot;);</span><br><span class="line">    GetSourceResponse source = restHighLevelClient.getSource(getRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(source);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352580418359.jpg" alt="16352580418359"></p>
+<h3 id="判断是否存在"><a href="#判断是否存在" class="headerlink" title="判断是否存在"></a>判断是否存在</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void exists() throws Exception &#123;</span><br><span class="line">    GetRequest getRequest = new GetRequest(&quot;yh_customer&quot;);</span><br><span class="line">    getRequest.id(&quot;1&quot;);</span><br><span class="line">    boolean exists = restHighLevelClient.exists(getRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(exists);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出:<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352578138427.jpg" alt="16352578138427"></p>
+<h2 id="四、ES简单搜索"><a href="#四、ES简单搜索" class="headerlink" title="四、ES简单搜索"></a>四、ES简单搜索</h2><h3 id="根据条件搜索"><a href="#根据条件搜索" class="headerlink" title="根据条件搜索"></a>根据条件搜索</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void search() throws Exception &#123;</span><br><span class="line">    SearchRequest searchRequest = new SearchRequest(&quot;yh_customer&quot;);//没有参数，查询所有索引</span><br><span class="line">    //构建搜索条件</span><br><span class="line">    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();</span><br><span class="line">    //根据name字段搜索</span><br><span class="line">    searchSourceBuilder.query(QueryBuilders.matchQuery(&quot;name&quot;, &quot;1&quot;));</span><br><span class="line">    searchRequest.source(searchSourceBuilder);</span><br><span class="line">    SearchResponse search = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);</span><br><span class="line">    //返回命中数据</span><br><span class="line">    SearchHits hits = search.getHits();</span><br><span class="line">    for (SearchHit hit : hits.getHits()) &#123;</span><br><span class="line">        String sourceAsString = hit.getSourceAsString();</span><br><span class="line">        Customer customer = JSONObject.parseObject(sourceAsString, Customer.class);</span><br><span class="line">        System.out.println(customer);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出:<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352583920483.jpg" alt="16352583920483"></p>
+<h3 id="查询所有"><a href="#查询所有" class="headerlink" title="查询所有"></a>查询所有</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void simpleSearch() throws Exception &#123;</span><br><span class="line">    //创建搜索request</span><br><span class="line">    SearchRequest searchRequest = new SearchRequest(&quot;bank&quot;);</span><br><span class="line">    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();</span><br><span class="line">    searchSourceBuilder.query(QueryBuilders.matchAllQuery());//检索所有字段</span><br><span class="line">    SearchRequest request = searchRequest.source(searchSourceBuilder);</span><br><span class="line">    SearchResponse search = restHighLevelClient.search(request, RequestOptions.DEFAULT);</span><br><span class="line">    SearchHits hits = search.getHits();//命中条数</span><br><span class="line">    System.out.println(&quot;总条数：&quot; + hits.getTotalHits().value);</span><br><span class="line">    for (SearchHit hit : hits) &#123;//默认只检索出10条</span><br><span class="line">        Staff staff = JSONObject.parseObject(hit.getSourceAsString(), Staff.class);</span><br><span class="line">        System.out.println(staff);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/27/16353396396063.jpg" alt="16353396396063"></p>
+<h2 id="五、ES聚合搜索"><a href="#五、ES聚合搜索" class="headerlink" title="五、ES聚合搜索"></a>五、ES聚合搜索</h2><p><em><strong>需要先导入官方提供的测试数据（使用kibana）</strong></em></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">    @Test</span><br><span class="line">    public void aggSearch() throws Exception &#123;</span><br><span class="line">        //创建搜索request</span><br><span class="line">        SearchRequest searchRequest = new SearchRequest(&quot;bank&quot;);</span><br><span class="line">        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();</span><br><span class="line">        //查询条件</span><br><span class="line">        searchSourceBuilder.query(QueryBuilders.matchAllQuery());</span><br><span class="line">        //统计各个年龄的平均工资</span><br><span class="line">        searchSourceBuilder.aggregation(AggregationBuilders.terms(&quot;ageAgg&quot;).field(&quot;age&quot;).subAggregation(AggregationBuilders.avg(&quot;balanceAvgAgg&quot;).field(&quot;balance&quot;)));</span><br><span class="line">        //所有人平均工资</span><br><span class="line">        searchSourceBuilder.aggregation(AggregationBuilders.avg(&quot;allBalanceAvgAgg&quot;).field(&quot;balance&quot;));</span><br><span class="line">        //构建request</span><br><span class="line">        SearchRequest request = searchRequest.source(searchSourceBuilder);</span><br><span class="line">        //search</span><br><span class="line">        SearchResponse searchResponse = restHighLevelClient.search(request, RequestOptions.DEFAULT);</span><br><span class="line">        //Aggregations aggregations = searchResponse.getAggregations();</span><br><span class="line">        //Aggregation接口有很多实现类  Avg（平均值）</span><br><span class="line">//        Avg avg = aggregations.get(&quot;balanceAgg&quot;);</span><br><span class="line">//        System.out.println(avg.getValue());</span><br><span class="line">        Aggregations aggregations = searchResponse.getAggregations();</span><br><span class="line">        Terms ageAgg = aggregations.get(&quot;ageAgg&quot;);</span><br><span class="line">        List&lt;? extends Terms.Bucket&gt; buckets = ageAgg.getBuckets();</span><br><span class="line">        for (Terms.Bucket bucket : buckets) &#123;//只查出了10条数据</span><br><span class="line">            System.out.println(&quot;年龄:&quot; + bucket.getKey());</span><br><span class="line">            System.out.println(&quot;人数:&quot; + bucket.getDocCount());</span><br><span class="line">            Avg avg = bucket.getAggregations().get(&quot;balanceAvgAgg&quot;);</span><br><span class="line">            System.out.println(&quot;平均工资:&quot; + avg.getValue());</span><br><span class="line">            System.out.println(&quot;=================================&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        Avg avg = aggregations.get(&quot;allBalanceAvgAgg&quot;);</span><br><span class="line">        System.out.println(&quot;所有人平均工资:&quot; + avg.getValue());</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">年龄:31</span><br><span class="line">人数:61</span><br><span class="line">平均工资:28312.918032786885</span><br><span class="line">=================================</span><br><span class="line">年龄:39</span><br><span class="line">人数:60</span><br><span class="line">平均工资:25269.583333333332</span><br><span class="line">=================================</span><br><span class="line">年龄:26</span><br><span class="line">人数:59</span><br><span class="line">平均工资:23194.813559322032</span><br><span class="line">=================================</span><br><span class="line">年龄:32</span><br><span class="line">人数:52</span><br><span class="line">平均工资:23951.346153846152</span><br><span class="line">=================================</span><br><span class="line">年龄:35</span><br><span class="line">人数:52</span><br><span class="line">平均工资:22136.69230769231</span><br><span class="line">=================================</span><br><span class="line">年龄:36</span><br><span class="line">人数:52</span><br><span class="line">平均工资:22174.71153846154</span><br><span class="line">=================================</span><br><span class="line">年龄:22</span><br><span class="line">人数:51</span><br><span class="line">平均工资:24731.07843137255</span><br><span class="line">=================================</span><br><span class="line">年龄:28</span><br><span class="line">人数:51</span><br><span class="line">平均工资:28273.882352941175</span><br><span class="line">=================================</span><br><span class="line">年龄:33</span><br><span class="line">人数:50</span><br><span class="line">平均工资:25093.94</span><br><span class="line">=================================</span><br><span class="line">年龄:34</span><br><span class="line">人数:49</span><br><span class="line">平均工资:26809.95918367347</span><br><span class="line">=================================</span><br><span class="line">所有人平均工资:25714.837</span><br></pre></td></tr></table></figure>
+<p>demo地址：<a target="_blank" rel="noopener" href="https://github.com/yangh124/es-demo">https://github.com/yangh124/es-demo</a></p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://yh124.space/2021/10/26/SpringBoot%20ES%E5%AE%9E%E6%88%98/" title="SpringBoot+Elasticsearch实战" target="_blank" rel="external">https://yh124.space/2021/10/26/SpringBoot ES实战/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/yangh124" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/yangh124" target="_blank"><span class="text-dark">yangh124</span><small class="ml-1x"></small></a></h3>
+        <div>你还有好多未完成的梦，你有什么道理停下脚步。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2021/10/29/SpringBoot%20RabbitMQ%E5%AE%9E%E6%88%98/" title="SpringBoot+RabbitMQ实战"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2021/09/14/Netty/" title="Netty"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn collapsed" data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">
+        <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+    
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/yangh124" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+        <div class="copyright">
+            
+                &copy; 2023
+                    yangh
+                        
+                            | <a href="http://beian.miit.gov.cn/" target="_blank">浙ICP备2021031092号-2</a>
+                            <div class="publishby">
+                                Theme by <a href="https://github.com/cofess" target="_blank">
+                                        cofess </a>
+                                    base on <a href="https://github.com/cofess/hexo-theme-pure"
+                                            target="_blank">pure</a>.
+                            </div>
+        </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'HXqdy9Gelr3kb7pii3TOj4fl-9Nh9j0Va',
+    appKey: 'CY8JtaywMBlw476SSnU4X9RH',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: true
+  });
+  </script>
+
+     
+
+
+
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
+  <script>
+  //利用 FancyBox 实现点击图片放大
+  $(document).ready(function() {
+    $('article img').not('[hidden]').not('.panel-body img').each(function() {
+      var $image = $(this);
+      var imageCaption = $image.attr('alt');
+      var $imageWrapLink = $image.parent('a');
+      if ($imageWrapLink.length < 1) {
+        var src = this.getAttribute('src');
+        var idx = src.lastIndexOf('?');
+        if (idx != -1) {
+          src = src.substring(0, idx);
+        }
+        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
+      }
+      $imageWrapLink.attr('data-fancybox', 'images');
+      if (imageCaption) {
+        $imageWrapLink.attr('data-caption', imageCaption);
+      }
+    });
+    $().fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+    });
+  });
+  </script>
+
+
+
+
+
+</body>
+</html>

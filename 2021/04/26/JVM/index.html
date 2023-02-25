@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>JVM | yangh&#39;s Blog</title>
+  <meta name="description" content="Java内存模型（JMM）主内存（main memory）、本地内存（local memory）（抽象概念）  本地内存涵盖了缓存，写缓冲区，寄存器以及其他的硬件和编译器优化。 Java编译器输入的指令流基本是一种基于栈的指令架构，另外一种指令架构师基于寄存器的指令架构。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM">
+<meta property="og:url" content="https://yh124.space/2021/04/26/JVM/index.html">
+<meta property="og:site_name" content="yangh&#39;s Blog">
+<meta property="og:description" content="Java内存模型（JMM）主内存（main memory）、本地内存（local memory）（抽象概念）  本地内存涵盖了缓存，写缓冲区，寄存器以及其他的硬件和编译器优化。 Java编译器输入的指令流基本是一种基于栈的指令架构，另外一种指令架构师基于寄存器的指令架构。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/1.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/2.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/3.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/4.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/5.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/6.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/7.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/8.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/9.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200202132002577.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/10.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/11.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/12.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/13.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/14.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/15.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/16.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/17.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/18.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/19.png">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/20.png">
+<meta property="article:published_time" content="2021-04-25T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-14T14:24:25.000Z">
+<meta property="article:author" content="yangh">
+<meta property="article:tag" content="JVM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/1.png">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://yh124.space/2021/04/26/JVM/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
+  
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-green" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/yangh124" target="_blank">
+          <img class="img-circle img-rotate" src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">yangh124</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md"></h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> 浙江，杭州</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/yangh124" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E7%A1%80/">基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%84%9A%E6%9C%AC%E8%AF%AD%E8%A8%80/">脚本语言</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k3s/" rel="tag">k3s</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%9E%E6%88%98/" rel="tag">实战</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" rel="tag">网络编程</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">五月 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/06/06/MySQL%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/" class="title">MySQL性能分析工具的使用</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-06-05T16:00:00.000Z" itemprop="datePublished">2022-06-06</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/30/Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%EF%BC%89/" class="title">Redisson分布式锁（使用注解方式）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-29T16:00:00.000Z" itemprop="datePublished">2022-05-30</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/22/k3s%E5%AE%9E%E6%88%98/" class="title">k3s实战</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-21T16:00:00.000Z" itemprop="datePublished">2022-05-22</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/20/Docker%E5%AE%9E%E6%88%98/" class="title">Docker实战</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/15/InnoDB%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/" class="title">InnoDB数据存储结构</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-14T16:00:00.000Z" itemprop="datePublished">2022-01-15</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Java%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%EF%BC%88JMM%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">Java内存模型（JMM）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E-Execution-Engine"><span class="toc-number">2.</span> <span class="toc-text">执行引擎(Execution Engine)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F%EF%BC%88Class-Loader%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">类加载子系统（Class Loader）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA-Runtime-Data-Area"><span class="toc-number">4.</span> <span class="toc-text">运行时数据区(Runtime Data Area)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Minor-GC%E3%80%81Major-GC%E3%80%81Full-GC"><span class="toc-number">4.0.1.</span> <span class="toc-text">Minor GC、Major GC、Full GC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A0%86%E7%A9%BA%E9%97%B4%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0%E6%80%BB%E7%BB%93"><span class="toc-number">4.0.2.</span> <span class="toc-text">堆空间常用参数总结</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A0%86%E6%98%AF%E5%88%86%E9%85%8D%E5%AF%B9%E8%B1%A1%E5%AD%98%E5%82%A8%E7%9A%84%E5%94%AF%E4%B8%80%E9%80%89%E6%8B%A9%E5%90%97%EF%BC%88%E9%80%83%E9%80%B8%E5%88%86%E6%9E%90%E6%8A%80%E6%9C%AF-XX-DoEscapeAnalysis%E9%BB%98%E8%AE%A4%E5%BC%80%E5%90%AF%EF%BC%89"><span class="toc-number">4.0.3.</span> <span class="toc-text">堆是分配对象存储的唯一选择吗（逃逸分析技术-XX:+DoEscapeAnalysis默认开启）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%83%E9%80%B8%E5%88%86%E6%9E%90%EF%BC%9A%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96"><span class="toc-number">4.0.4.</span> <span class="toc-text">逃逸分析：代码优化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E5%8C%BA-1-8%E5%85%83%E7%A9%BA%E9%97%B4"><span class="toc-number">4.1.</span> <span class="toc-text">方法区(1.8元空间)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%AE%9E%E4%BE%8B%E5%8C%96"><span class="toc-number">5.</span> <span class="toc-text">对象的实例化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B4%E6%8E%A5%E5%86%85%E5%AD%98"><span class="toc-number">6.</span> <span class="toc-text">直接内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%B3%BB%E7%BB%9F"><span class="toc-number">7.</span> <span class="toc-text">垃圾回收系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%95%E7%94%A8%E8%AE%A1%E6%95%B0%E6%B3%95"><span class="toc-number">7.1.</span> <span class="toc-text">引用计数法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E8%BE%BE%E6%80%A7%E5%88%86%E6%9E%90%E7%AE%97%E6%B3%95"><span class="toc-number">7.2.</span> <span class="toc-text">可达性分析算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SafePoint"><span class="toc-number">7.3.</span> <span class="toc-text">SafePoint</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GC%E7%AE%97%E6%B3%95"><span class="toc-number">7.4.</span> <span class="toc-text">GC算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GC%E6%94%B6%E9%9B%86%E5%99%A8"><span class="toc-number">7.5.</span> <span class="toc-text">GC收集器</span></a></li></ol></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-JVM" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      JVM
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/04/26/JVM/" class="article-date">
+	  <time datetime="2021-04-25T16:00:00.000Z" itemprop="datePublished">2021-04-26</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/JVM/" rel="tag">JVM</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2021/04/26/JVM/" class="leancloud_visitors"  data-flag-title="JVM">
+			<span class="leancloud-visitors-count">0</span>
+		</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/04/26/JVM/#comments" class="article-comment-link">评论</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 3.7k(字)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 13(分)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/1.png" alt="1"></p>
+<h2 id="Java内存模型（JMM）"><a href="#Java内存模型（JMM）" class="headerlink" title="Java内存模型（JMM）"></a>Java内存模型（JMM）</h2><p><strong>主内存（main memory）</strong>、<strong>本地内存（local memory）</strong>（抽象概念）</p>
+<ul>
+<li>本地内存涵盖了缓存，写缓冲区，寄存器以及其他的硬件和编译器优化。</li>
+<li>Java编译器输入的指令流基本是一种基于栈的指令架构，另外一种指令架构师基于寄存器的指令架构。</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="执行引擎-Execution-Engine"><a href="#执行引擎-Execution-Engine" class="headerlink" title="执行引擎(Execution Engine)"></a>执行引擎(Execution Engine)</h2><h2 id="类加载子系统（Class-Loader）"><a href="#类加载子系统（Class-Loader）" class="headerlink" title="类加载子系统（Class Loader）"></a>类加载子系统（Class Loader）</h2><p> <img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/2.png" alt="2"><br> <em>class。文件，网络</em><br> <strong>加载、验证、准备、解析、初始化。然后是使用和卸载了</strong><br> <em>通过全限定名来加载生成class对象到内存中，然后进行验证这个class文件，包括文件格式校验、元数据验证，字节码校验等。准备是对这个对象分配内存。解析是将符号引用转化为直接引用（指针引用），初始化就是开始执行构造器的代码</em></p>
+<p>  <strong>双亲委派模型机制</strong></p>
+<ol>
+<li>启动类加载器(Bootstrap ClassLoader)用来加载java核心类库，无法被java程序直接引用。</li>
+<li>扩展类加载器(Extensions ClassLoader):它用来加载 Java 的扩展库。Java 虚拟机的实现会提供一个扩展库目录。该类加载器在此目录里面查找并加载 Java 类。</li>
+<li>应用类加载器（Application ClassLoader）：它根据 Java 应用的类路径（CLASSPATH）来加载 Java 类。一般来说，Java 应用的类都是由它来完成加载的。</li>
+<li>用户自定义类加载器，通过继承 java.lang.ClassLoader类的方式实现。</br><br><strong>什么情况下需要自定义类加载器：</strong></li>
+</ol>
+<ul>
+<li><p>隔离加载类</p>
+</li>
+<li><p>修改类加载方式</p>
+</li>
+<li><p>扩展加载源</p>
+</li>
+<li><p>防止源码泄漏</p>
+<h2 id="运行时数据区-Runtime-Data-Area"><a href="#运行时数据区-Runtime-Data-Area" class="headerlink" title="运行时数据区(Runtime Data Area)"></a>运行时数据区(Runtime Data Area)</h2><p> 内存</p>
+</li>
+<li><p>什么是运行时数据区<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/3.png" alt="3"></p>
+</li>
+<li><p>什么是虚拟机栈<br> 栈：数据结构，先进后出，First In Last Out,用来运行java方法的。线程私有。启用一个线程就有一个虚拟机栈。<br> <strong>调用一个方法就压入一帧。</strong><br>栈内存参数<br>-Xss 1m(默认1M)<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/4.png" alt="4"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/5.png" alt="5"></p>
+</li>
+<li><p>局部变量表（八大基本数据类型+对象引用）</p>
+</li>
+</ul>
+<ol>
+<li>定义为一个数字数组，主要用于储存方法参数和定义在方法体内的局部变量。</li>
+<li>不存在数据线程安全问题。</li>
+<li>局部变量表所需容量大小是在编译期确定下来的。</li>
+<li>局部变量表中的变量也是重要的垃圾回收根节点（GCRoots可达性分析算法），只要被局部变量表中直接或间接引用的对象都不会被回收。</br><br>关于Slot的理解：</br><br>&amp;emsp;1.最基本的储存单元Slot(变量槽)。</br><br>&amp;emsp;2.32位以内的类型只占一个Slot(包括returnAddress类型)，64位的类型(long和double)占用两个Slot。</br><br>&amp;emsp;3.构造方法和实例方法（非static方法）的局部变量表0位Slot会存放this。</li>
+</ol>
+<ul>
+<li><p>操作栈（对局部变量数据进行运算操作）</br><br>&amp;emsp;操作栈：在方法的执行过程中，根据字节码指令，往栈中写入数据或提取数据，即入栈（push）&#x2F;出栈（pop）；主要用于保存计算过程的中间结果，同时作为计算过程中变量临时的存储空间；操作栈是JVM执行引擎的一个工作区； </p>
+</li>
+<li><p>动态链接（将常量池中的符号引用在运行期转化为直接引用&#x2F;指向运行时常量池的方法引用）</br><br>&amp;emsp;动态链接的作用就是为了将这些符号引用转换为调用方法的直接引用</br><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/6.png" alt="6"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/7.png" alt="7"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/8.png" alt="8"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/9.png" alt="9"></p>
+</li>
+<li><p>返回地址（方法执行完返回地址）</br><br>存放调用该方法的PC寄存器的值。<br>异常退出：异常表</p>
+</li>
+<li><p>一些附加信息</p>
+</li>
+<li><p>本地方法栈（native方法[C,C++实现]）<br>  主要为Native方法服务</p>
+</li>
+<li><p>程序计数器<br>  内存空间小，字节码解释器工作时通过改变这个计数值可以选取下一条需要执行的字节码指令，分支、循环、跳转、异常处理和线程恢复等功能都需要依赖这个计数器完成。该内存区域是唯一一个java虚拟机规范没有规定任何OOM情况的区域。</p>
+<p>  线程切换<br>  记录线程执行的当前的地址和行号</p>
+</li>
+<li><p>堆（-Xms 30m -Xmx 30m -XX:+PrintGCDetails）</br></p>
+</li>
+</ul>
+<figure class="highlight plaintext"><figcaption><span>设置堆空间大小的参数</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"> -Xms 用来设置堆空间（年轻代+老年代）的初始内存大小</span><br><span class="line">      -X 是jvm的运行参数</span><br><span class="line">      ms 是memory start</span><br><span class="line"> -Xmx 用来设置堆空间（年轻代+老年代）的最大内存大小</span><br><span class="line"></span><br><span class="line"> 2. 默认堆空间的大小</span><br><span class="line">    初始内存大小：物理电脑内存大小 / 64</span><br><span class="line">             最大内存大小：物理电脑内存大小 / 4</span><br><span class="line"> 3. 手动设置：-Xms600m -Xmx600m</span><br><span class="line">     开发中建议将初始堆内存和最大的堆内存设置成相同的值。</span><br><span class="line"></span><br><span class="line"> 4. 查看设置的参数：方式一： jps   /  jstat -gc 进程id</span><br><span class="line">                  方式二：-XX:+PrintGCDetails</span><br><span class="line">-XX:+开启 -关闭</span><br><span class="line">-XX:NewRatio ： 设置新生代与老年代的比例。默认值是2.</span><br><span class="line">-XX:SurvivorRatio ：设置新生代中Eden区与Survivor区的比例。默认值是8</span><br><span class="line">-XX:-UseAdaptiveSizePolicy ：关闭自适应的内存分配策略  （暂时用不到）</span><br><span class="line">-Xmn:设置新生代的空间的大小。 （一般不设置）</span><br></pre></td></tr></table></figure>
+
+<p> <strong>初始化的对象，成员变量（那种非static变量），所有的对象实例和数组都要在堆中分配</strong><br><img src="https://img-blog.csdnimg.cn/20200202132002577.png" alt="q"></p>
+<p>堆里面的分区：Eden，Survivor(from+to)，老年代。<br>各自的特点：堆里面分为新生代和老年代（java8取消永久代，采用Matespace(元空间)），新生代包含Eden和Survivor区，Survivor分为from+to区。</p>
+<ul>
+<li><strong>内存回收时，如果用的是复制算法，从from复制到to，当经过一次或者多次GC之后，存活下来的对象会被移入老年区。</strong></li>
+<li><strong>当JVM内存不够用的时候，会触发FullGC，清理JVM老年代。</strong></li>
+<li><strong>当新生区满了之后会触发YGC，先把存活的对象放到其中一个Survivor区，然后进行垃圾清理。因为如果仅仅清理需要删除的对象，这样会导致内存碎片，因此一般会把Eden进行完全的清理，然后整理内存。那么下次GC 的时候，就会使用下一个Survive，这样循环使用。</strong></li>
+<li><strong>如果有特别大的对象，新生代放不下，就会使用老年代的担保，直接放到老年代里面。因为JVM 认为，一般大对象的存活时间一般比较久远。</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/10.png" alt="10"><br>对象的分配原则：</br><br>1.对象优先分配在Eden区</br><br>2.长期存活的对象进入老年代。空间不足，进行GC。对象年龄+1，年龄&#x3D;15进入老年代</br><br>&amp;emsp;&amp;emsp;动态对象年龄判断：如果survivor区中相同年龄的所有对象大小的总和大于survivor空间的一半，年龄大于或等于该年龄的对象直接进入老年代，无需等到MaxTenuringThreshole（15）中要求的年龄。</br><br>3.大对象直接进入老年代</br><br>&#x3D;&#x3D;TLAB&#x3D;&#x3D;(Thread Local Allocation Buffer)<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/11.png" alt="11"></li>
+</ul>
+<p><strong>内存不足、内存溢出、内存泄漏</strong></p>
+<h4 id="Minor-GC、Major-GC、Full-GC"><a href="#Minor-GC、Major-GC、Full-GC" class="headerlink" title="Minor GC、Major GC、Full GC"></a>Minor GC、Major GC、Full GC</h4><ol>
+<li>部分收集：不是完整收集整个java堆的垃圾收集。</li>
+</ol>
+<ul>
+<li>新生代收集（MinorGC&#x2F;YoungGC）:只是新生代的垃圾收集</li>
+<li>老年代收集（MajorGC&#x2F;OldGC）：只是老年代的垃圾收集</br><br> &amp;emsp;&amp;emsp;目前，只有CMS GC会有单独收集老年代的行为。</br><br> &amp;emsp;&amp;emsp;&#x3D;&#x3D;注意，很多时候MajorGC会和FullGC混淆使用，需要具体分辨是老年代回收还是整堆回收。&#x3D;&#x3D;</li>
+<li>混合收集（MixedGC）：收集整个新生代以及部分老年代的垃圾收集。</br><br> &amp;emsp;&amp;emsp;目前，只有G1 GC会有这种行为。</li>
+</ul>
+<ol start="2">
+<li>整堆收集（Full GC）：收集整个Java堆和方法区的垃圾收集。<h4 id="堆空间常用参数总结"><a href="#堆空间常用参数总结" class="headerlink" title="堆空间常用参数总结"></a>堆空间常用参数总结</h4></li>
+</ol>
+<figure class="highlight plaintext"><figcaption><span>测试堆空间常用的jvm参数：</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">* -XX:+PrintFlagsInitial : 查看所有的参数的默认初始值</span><br><span class="line">* -XX:+PrintFlagsFinal  ：查看所有的参数的最终值（可能会存在修改，不再是初始值）</span><br><span class="line">*      具体查看某个参数的指令： jps：查看当前运行中的进程</span><br><span class="line">*                             jinfo -flag SurvivorRatio 进程id</span><br><span class="line">*</span><br><span class="line">* -Xms：初始堆空间内存 （默认为物理内存的1/64）</span><br><span class="line">* -Xmx：最大堆空间内存（默认为物理内存的1/4）</span><br><span class="line">* -Xmn：设置新生代的大小。(初始值及最大值)</span><br><span class="line">* -XX:NewRatio：配置新生代与老年代在堆结构的占比</span><br><span class="line">* -XX:SurvivorRatio：设置新生代中Eden和S0/S1空间的比例</span><br><span class="line">* -XX:MaxTenuringThreshold：设置新生代垃圾的最大年龄</span><br><span class="line">* -XX:+PrintGCDetails：输出详细的GC处理日志</span><br><span class="line">* 打印gc简要信息：① -XX:+PrintGC   ② -verbose:gc</span><br><span class="line">* -XX:HandlePromotionFailure：是否设置空间分配担保</span><br></pre></td></tr></table></figure>
+
+<h4 id="堆是分配对象存储的唯一选择吗（逃逸分析技术-XX-DoEscapeAnalysis默认开启）"><a href="#堆是分配对象存储的唯一选择吗（逃逸分析技术-XX-DoEscapeAnalysis默认开启）" class="headerlink" title="堆是分配对象存储的唯一选择吗（逃逸分析技术-XX:+DoEscapeAnalysis默认开启）"></a>堆是分配对象存储的唯一选择吗（逃逸分析技术-XX:+DoEscapeAnalysis默认开启）</h4><p>没有发生逃逸的对象，则可以分配到栈上，随着方法执行结束，栈空间就被移除。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/12.png" alt="12"></p>
+<h4 id="逃逸分析：代码优化"><a href="#逃逸分析：代码优化" class="headerlink" title="逃逸分析：代码优化"></a>逃逸分析：代码优化</h4><ol>
+<li>栈上分配。</li>
+<li>同步省略(锁消除)。</li>
+<li>分离对象或标量替换:在JIT阶段，如果经过逃逸分析，发现一个对象不会被外界访问的话，那么经过JIT优化，就会把这个对象拆分成若干个其中包含的若干个成员变量来代替。这个过程就是标量替换。（-XX:+EliminateAllocations默认开启）<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/13.png" alt="13"></li>
+</ol>
+<ul>
+<li><h3 id="方法区-1-8元空间"><a href="#方法区-1-8元空间" class="headerlink" title="方法区(1.8元空间)"></a>方法区(1.8元空间)</h3></li>
+</ul>
+<ol>
+<li>1.7及以前称为永久代，在该区内很少发生垃圾回收，但是并不代表不发生GC，在这里进行的GC主要对方法区里的常量池和对类型的卸载。</li>
+<li>方法区主要用来储存已被虚拟机加载的类的信息、常量、静态变量和即时编译器编译后的代码等数据。</br></li>
+</ol>
+<ul>
+<li>虚拟机启动过程中，会将各个Class文件中的常量池载入到运行时常量池中。</br></li>
+<li>所以， Class常量池只是一个媒介场所。在JVM真的运行时，需要把常量池中的常量加载到内存中，进入到运行时常量池。</br></li>
+<li>字符串常量池可以理解为运行时常量池分出来的部分。加载时，对于class的静态常量池，如果字符串会被装到字符串常量池中。</li>
+</ul>
+<ol start="3">
+<li>该区域被线程共享。</li>
+<li>方法区里有一个运行时常量池，用于存放静态编译产生的字面量和符号引用。该常量池具有动态性，也就是说常量不一定是编译时确定的，运行时生成的常量也存放在这个常量池。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/14.png" alt="14"></li>
+</ol>
+<p>方法区的垃圾收集主要回收两部分内容：常量池中废弃的常量和不再使用的类型。<br>永久代为什么要被元空间替代？</br></p>
+<ul>
+<li>为永久代设置空间大小是很难确定的。</li>
+<li>对永久代进行调优是很困难的。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/15.png" alt="15"></li>
+</ul>
+<p>常量池表（Constant Pool Table）是Class文件中的一部分，用于存放编译期生成的字面量和符号引用，这部分内容将在类加载后存放到方法区的运行时常量池中。</br><br>运行时常量池相对于Class文件常量池的另一个重要特征是：&#x3D;&#x3D;具有动态性。&#x3D;&#x3D;<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/16.png" alt="16"></p>
+<h2 id="对象的实例化"><a href="#对象的实例化" class="headerlink" title="对象的实例化"></a>对象的实例化</h2><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/17.png" alt="17"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/18.png" alt="18"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/19.png" alt="19"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/20.png" alt="20"></p>
+<h2 id="直接内存"><a href="#直接内存" class="headerlink" title="直接内存"></a>直接内存</h2><h2 id="垃圾回收系统"><a href="#垃圾回收系统" class="headerlink" title="垃圾回收系统"></a>垃圾回收系统</h2><p> 新生代内存不够用时候发生MGC也叫YGC，JVM内存不够的时候发生FGC</p>
+<ul>
+<li><h3 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h3></li>
+<li><h3 id="可达性分析算法"><a href="#可达性分析算法" class="headerlink" title="可达性分析算法"></a>可达性分析算法</h3><p>   GCroots对象</p>
+<ol>
+<li>虚拟机栈中引用的对象</li>
+<li>方法区类静态属性引用的对象</li>
+<li>方法区常量池引用的对象</li>
+<li>本地方法栈JNI引用的对象<br>当一个对象不可达GC Root时，这个对象并 不会立马被回收，而是出于一个死缓的阶段，若要被真正的回收需要经历两次标记.<br>如果对象在可达性分析中没有与GC Root的引用链，那么此时就会被第一次标记并且进行一次筛选，筛选的条件是是否有必要执行finalize()方法。当对象没有覆盖finalize()方法或者已被虚拟机调用过，那么就认为是没必要的。<br>如果该对象有必要执行finalize()方法，那么这个对象将会放在一个称为F-Queue的对队列中，虚拟机会触发一个Finalize()线程去执行，此线程是低优先级的，并且虚拟机不会承诺一直等待它运行完，这是因为如果finalize()执行缓慢或者发生了死锁，那么就会造成F-Queue队列一直等待，造成了内存回收系统的崩溃。GC对处于F-Queue中的对象进行第二次被标记，这时，该对象将被移除”即将回收”集合，等待回收。</li>
+</ol>
+</li>
+<li><h3 id="SafePoint"><a href="#SafePoint" class="headerlink" title="SafePoint"></a>SafePoint</h3><p><em><strong>必须要等到Java线程都进入到safepoint的时候VMThread才能开始执行GC</strong></em></p>
+</li>
+</ul>
+<p>safepoint指的特定位置主要有:</p>
+<ol>
+<li>循环的末尾（防止大循环的时候一直不进入safepoint，而其他线程在等它进入safepoint）</li>
+<li>方法返回前</li>
+<li>调用方法的call之后</li>
+<li>抛出异常的位置</li>
+</ol>
+<ul>
+<li><h3 id="GC算法"><a href="#GC算法" class="headerlink" title="GC算法"></a>GC算法</h3><ol>
+<li>标记清除：先标记，标记完毕再清除，效率不高，会产生碎片</li>
+<li>复制算法：分为8:1的Eden区和survivor区，YGC</li>
+<li>标记整理：标记完毕之后，让所有存活的对象向一端移动，清理另一端</li>
+<li>分代收集：现在的虚拟机垃圾收集大多采用这种方式，它根据对象的生存周期，将堆分为新生代和老年代。在新生代中，由于对象生存期短，每次回收都会有大量对象死去，那么这时就采用复制算法。老年代里的对象存活率较高，没有额外的空间进行分配担保，所以可以使用标记-整理 或者 标记-清除。</li>
+</ol>
+</li>
+<li><h3 id="GC收集器"><a href="#GC收集器" class="headerlink" title="GC收集器"></a>GC收集器</h3>  串型收集器：串行收集器使用一个单独的线程进行收集，GC时服务有停顿时间<br>  并行收集器：次要回收中使用多线程执行</li>
+</ul>
+<ol>
+<li>CMS:基于“标记-清除”算法实现的，经过多次标记才会被清除</li>
+<li>G1:从整体来看是基于“标记—整理”算法实现的收集器，从局部（两个Region之间）上来看是基于“复制”算法实现的</li>
+</ol>
+<p>几种常见的内存调试工具：jmap,jstack,jconsole,jhat<br>    jstack可以看当前栈的情况，jmap查看内存，jhat 进行dump堆的信息<br>    mat（eclipse的也要了解一下）</p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://yh124.space/2021/04/26/JVM/" title="JVM" target="_blank" rel="external">https://yh124.space/2021/04/26/JVM/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/yangh124" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/yangh124" target="_blank"><span class="text-dark">yangh124</span><small class="ml-1x"></small></a></h3>
+        <div>你还有好多未完成的梦，你有什么道理停下脚步。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2021/07/31/RabbitMQ/" title="RabbitMQ"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/" title="数据结构和算法"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn collapsed" data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">
+        <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+    
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/yangh124" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+        <div class="copyright">
+            
+                &copy; 2023
+                    yangh
+                        
+                            | <a href="http://beian.miit.gov.cn/" target="_blank">浙ICP备2021031092号-2</a>
+                            <div class="publishby">
+                                Theme by <a href="https://github.com/cofess" target="_blank">
+                                        cofess </a>
+                                    base on <a href="https://github.com/cofess/hexo-theme-pure"
+                                            target="_blank">pure</a>.
+                            </div>
+        </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'HXqdy9Gelr3kb7pii3TOj4fl-9Nh9j0Va',
+    appKey: 'CY8JtaywMBlw476SSnU4X9RH',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: true
+  });
+  </script>
+
+     
+
+
+
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
+  <script>
+  //利用 FancyBox 实现点击图片放大
+  $(document).ready(function() {
+    $('article img').not('[hidden]').not('.panel-body img').each(function() {
+      var $image = $(this);
+      var imageCaption = $image.attr('alt');
+      var $imageWrapLink = $image.parent('a');
+      if ($imageWrapLink.length < 1) {
+        var src = this.getAttribute('src');
+        var idx = src.lastIndexOf('?');
+        if (idx != -1) {
+          src = src.substring(0, idx);
+        }
+        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
+      }
+      $imageWrapLink.attr('data-fancybox', 'images');
+      if (imageCaption) {
+        $imageWrapLink.attr('data-caption', imageCaption);
+      }
+    });
+    $().fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+    });
+  });
+  </script>
+
+
+
+
+
+</body>
+</html>

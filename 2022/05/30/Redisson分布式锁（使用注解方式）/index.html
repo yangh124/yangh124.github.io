@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Redisson分布式锁（使用注解方式） | yangh&#39;s Blog</title>
+  <meta name="description" content="引入pom依赖12345&lt;dependency&gt;    &lt;groupId&gt;org.redisson&lt;&#x2F;groupId&gt;    &lt;artifactId&gt;redisson-spring-boot-starter&lt;&#x2F;artifactId&gt;    &lt;version&gt;3.13.1&lt;&#x2F;version&gt;&lt;&#x2F;dependen">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redisson分布式锁（使用注解方式）">
+<meta property="og:url" content="https://yh124.space/2022/05/30/Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%EF%BC%89/index.html">
+<meta property="og:site_name" content="yangh&#39;s Blog">
+<meta property="og:description" content="引入pom依赖12345&lt;dependency&gt;    &lt;groupId&gt;org.redisson&lt;&#x2F;groupId&gt;    &lt;artifactId&gt;redisson-spring-boot-starter&lt;&#x2F;artifactId&gt;    &lt;version&gt;3.13.1&lt;&#x2F;version&gt;&lt;&#x2F;dependen">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/05/30/16539146066735.jpg">
+<meta property="article:published_time" content="2022-05-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-14T14:25:54.000Z">
+<meta property="article:author" content="yangh">
+<meta property="article:tag" content="分布式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/05/30/16539146066735.jpg">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://yh124.space/2022/05/30/Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%EF%BC%89/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
+  
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-green" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/yangh124" target="_blank">
+          <img class="img-circle img-rotate" src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">yangh124</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md"></h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> 浙江，杭州</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/yangh124" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E7%A1%80/">基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%84%9A%E6%9C%AC%E8%AF%AD%E8%A8%80/">脚本语言</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k3s/" rel="tag">k3s</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%9E%E6%88%98/" rel="tag">实战</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" rel="tag">网络编程</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">五月 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/06/06/MySQL%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/" class="title">MySQL性能分析工具的使用</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-06-05T16:00:00.000Z" itemprop="datePublished">2022-06-06</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/30/Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%EF%BC%89/" class="title">Redisson分布式锁（使用注解方式）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-29T16:00:00.000Z" itemprop="datePublished">2022-05-30</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/22/k3s%E5%AE%9E%E6%88%98/" class="title">k3s实战</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-21T16:00:00.000Z" itemprop="datePublished">2022-05-22</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/20/Docker%E5%AE%9E%E6%88%98/" class="title">Docker实战</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/15/InnoDB%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/" class="title">InnoDB数据存储结构</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-14T16:00:00.000Z" itemprop="datePublished">2022-01-15</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E5%85%A5pom%E4%BE%9D%E8%B5%96"><span class="toc-number">1.</span> <span class="toc-text">引入pom依赖</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AERedissonClient"><span class="toc-number">2.</span> <span class="toc-text">配置RedissonClient</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89RedissonLock%E6%B3%A8%E8%A7%A3"><span class="toc-number">3.</span> <span class="toc-text">自定义RedissonLock注解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89Aspect"><span class="toc-number">4.</span> <span class="toc-text">定义Aspect</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-number">5.</span> <span class="toc-text">使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8Bredis%E4%B8%AD%E7%9A%84%E9%94%81"><span class="toc-number">6.</span> <span class="toc-text">查看redis中的锁</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Redisson分布式锁（使用注解方式）" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Redisson分布式锁（使用注解方式）
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/05/30/Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%EF%BC%89/" class="article-date">
+	  <time datetime="2022-05-29T16:00:00.000Z" itemprop="datePublished">2022-05-30</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2022/05/30/Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%EF%BC%89/" class="leancloud_visitors"  data-flag-title="Redisson分布式锁（使用注解方式）">
+			<span class="leancloud-visitors-count">0</span>
+		</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/05/30/Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%EF%BC%89/#comments" class="article-comment-link">评论</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 736(字)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 4(分)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="引入pom依赖"><a href="#引入pom依赖" class="headerlink" title="引入pom依赖"></a>引入pom依赖</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.redisson&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;redisson-spring-boot-starter&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;3.13.1&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="配置RedissonClient"><a href="#配置RedissonClient" class="headerlink" title="配置RedissonClient"></a>配置RedissonClient</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">import org.redisson.Redisson;</span><br><span class="line">import org.redisson.api.RedissonClient;</span><br><span class="line">import org.redisson.config.Config;</span><br><span class="line">import org.redisson.config.SingleServerConfig;</span><br><span class="line">import org.redisson.config.TransportMode;</span><br><span class="line">import org.springframework.beans.factory.annotation.Value;</span><br><span class="line">import org.springframework.context.annotation.Bean;</span><br><span class="line">import org.springframework.context.annotation.Configuration;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author : yh</span><br><span class="line"> * @date : 2021/11/29 14:03</span><br><span class="line"> */</span><br><span class="line">@Configuration</span><br><span class="line">public class RedissonConfig &#123;</span><br><span class="line"></span><br><span class="line">    @Value(&quot;$&#123;spring.redis.host&#125;&quot;)</span><br><span class="line">    private String host;</span><br><span class="line"></span><br><span class="line">    @Value(&quot;$&#123;spring.redis.port&#125;&quot;)</span><br><span class="line">    private int port;</span><br><span class="line"></span><br><span class="line">    @Value(&quot;$&#123;spring.redis.password&#125;&quot;)</span><br><span class="line">    private String password;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public RedissonClient redissonClient() &#123;</span><br><span class="line">        Config config = new Config();</span><br><span class="line">        // 这里使用最简单的单机模式</span><br><span class="line">        SingleServerConfig singleServerConfig = config.useSingleServer();</span><br><span class="line">        singleServerConfig.setAddress(&quot;redis://&quot; + host + &quot;:&quot; + port);</span><br><span class="line">        singleServerConfig.setPassword(password);</span><br><span class="line">        return Redisson.create(config);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="自定义RedissonLock注解"><a href="#自定义RedissonLock注解" class="headerlink" title="自定义RedissonLock注解"></a>自定义RedissonLock注解</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">import java.lang.annotation.*;</span><br><span class="line">import java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author : yh</span><br><span class="line"> * @date : 2022/5/27 16:05</span><br><span class="line"> */</span><br><span class="line">@Target(&#123;ElementType.METHOD&#125;)</span><br><span class="line">@Retention(RetentionPolicy.RUNTIME)</span><br><span class="line">@Documented</span><br><span class="line">@Inherited</span><br><span class="line">public @interface RedissonLock &#123;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 锁的key</span><br><span class="line">     */</span><br><span class="line">    String value();</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 锁的key SpEL 表达式</span><br><span class="line">     * </span><br><span class="line">     */</span><br><span class="line">    String key() default &quot;&quot;;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 加锁时间</span><br><span class="line">     *</span><br><span class="line">     */</span><br><span class="line">    long time() default -1;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 时间单位</span><br><span class="line">     *</span><br><span class="line">     */</span><br><span class="line">    TimeUnit timeUnit() default TimeUnit.SECONDS;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="定义Aspect"><a href="#定义Aspect" class="headerlink" title="定义Aspect"></a>定义Aspect</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line">import java.util.Objects;</span><br><span class="line">import java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line">import org.aspectj.lang.ProceedingJoinPoint;</span><br><span class="line">import org.aspectj.lang.annotation.AfterThrowing;</span><br><span class="line">import org.aspectj.lang.annotation.Around;</span><br><span class="line">import org.aspectj.lang.annotation.Aspect;</span><br><span class="line">import org.aspectj.lang.annotation.Pointcut;</span><br><span class="line">import org.aspectj.lang.reflect.MethodSignature;</span><br><span class="line">import org.redisson.api.RLock;</span><br><span class="line">import org.redisson.api.RedissonClient;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.beans.factory.annotation.Value;</span><br><span class="line">import org.springframework.core.DefaultParameterNameDiscoverer;</span><br><span class="line">import org.springframework.expression.EvaluationContext;</span><br><span class="line">import org.springframework.expression.spel.standard.SpelExpressionParser;</span><br><span class="line">import org.springframework.expression.spel.support.StandardEvaluationContext;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author : yh</span><br><span class="line"> * @date : 2022/5/27 16:07</span><br><span class="line"> */</span><br><span class="line">@Component</span><br><span class="line">@Aspect</span><br><span class="line">public class RedissonLockAspect &#123;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    private RedissonClient redissonClient;</span><br><span class="line">    </span><br><span class="line">    // redis key全局前缀</span><br><span class="line">    @Value(&quot;$&#123;spring.redis.prefix&#125;&quot;)</span><br><span class="line">    private String redisPrefix;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 用于SpEL表达式解析</span><br><span class="line">     */</span><br><span class="line">    private final SpelExpressionParser spelExpressionParser = new SpelExpressionParser();</span><br><span class="line">    /**</span><br><span class="line">     * 用于获取方法参数定义名字</span><br><span class="line">     */</span><br><span class="line">    private final DefaultParameterNameDiscoverer defaultParameterNameDiscoverer = new DefaultParameterNameDiscoverer();</span><br><span class="line"></span><br><span class="line">    @Pointcut(&quot;@annotation(com.xxx.annotation.RedissonLock)&quot;)</span><br><span class="line">    public void LockAspect() &#123;&#125;</span><br><span class="line"></span><br><span class="line">    @Around(&quot;LockAspect()&quot;)</span><br><span class="line">    public Object around(ProceedingJoinPoint proceedingJoinPoint) throws Throwable &#123;</span><br><span class="line">        Object object;</span><br><span class="line">        RLock lock = null;</span><br><span class="line">        try &#123;</span><br><span class="line">            // 获取注解实体信息</span><br><span class="line">            RedissonLock lockEntity =</span><br><span class="line">                (((MethodSignature)proceedingJoinPoint.getSignature()).getMethod()).getAnnotation(RedissonLock.class);</span><br><span class="line">            String key = lockEntity.key();</span><br><span class="line">            String cacheName = lockEntity.value();</span><br><span class="line">            long time = lockEntity.time();</span><br><span class="line">            TimeUnit timeUnit = lockEntity.timeUnit();</span><br><span class="line">            // 根据名字获取锁实例</span><br><span class="line">            lock = redissonClient.getLock(getKey(cacheName, key, proceedingJoinPoint));</span><br><span class="line">            // 这里加锁失败会阻塞等待；也可以使用tryLock，不阻塞，加锁失败返回flase，自行处理后续逻辑（比如抛异常）</span><br><span class="line">            lock.lock(time, timeUnit);</span><br><span class="line">            object = proceedingJoinPoint.proceed();</span><br><span class="line">        &#125; finally &#123;</span><br><span class="line">            if (Objects.nonNull(lock) &amp;&amp; lock.isHeldByCurrentThread()) &#123;</span><br><span class="line">                lock.unlock();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return object;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @AfterThrowing(value = &quot;LockAspect()&quot;, throwing = &quot;ex&quot;)</span><br><span class="line">    public void afterThrowing(Throwable ex) &#123;</span><br><span class="line">        throw new RuntimeException(ex);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /**</span><br><span class="line">     * 获取缓存的key</span><br><span class="line">     *</span><br><span class="line">     * key 定义在注解上，支持SPEL表达式 cacheName 为缓存的名称</span><br><span class="line">     * </span><br><span class="line">     *</span><br><span class="line">     * @return 缓存的key -&gt; redisPrefix:cacheName:SpELVal</span><br><span class="line">     */</span><br><span class="line">    public String getKey(String cacheName, String spel, ProceedingJoinPoint proceedingJoinPoint) &#123;</span><br><span class="line">        MethodSignature methodSignature = (MethodSignature)proceedingJoinPoint.getSignature();</span><br><span class="line">        String[] paramNames = defaultParameterNameDiscoverer.getParameterNames(methodSignature.getMethod());</span><br><span class="line">        if (!&quot;&quot;.equals(spel) &amp;&amp; null != paramNames &amp;&amp; paramNames.length &gt; 0) &#123;</span><br><span class="line">            EvaluationContext context = new StandardEvaluationContext();</span><br><span class="line">            Object[] args = proceedingJoinPoint.getArgs();</span><br><span class="line">            for (int i = 0; i &lt; args.length; i++) &#123;</span><br><span class="line">                context.setVariable(paramNames[i], args[i]);</span><br><span class="line">            &#125;</span><br><span class="line">            Object value = spelExpressionParser.parseExpression(spel).getValue(context);</span><br><span class="line">            if (null != value) &#123;</span><br><span class="line">                return redisPrefix + &quot;:&quot; + cacheName + &quot;:&quot; + value;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return redisPrefix + &quot;:&quot; + cacheName;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 也可以指定加锁时间 time设值</span><br><span class="line">@RedissonLock(value = &quot;test:lock&quot;, key = &quot;#id&quot;)</span><br><span class="line">public void testLock(Long id) &#123;</span><br><span class="line">    // ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="查看redis中的锁"><a href="#查看redis中的锁" class="headerlink" title="查看redis中的锁"></a>查看redis中的锁</h2><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/05/30/16539146066735.jpg" alt="16539146066735"></p>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://yh124.space/2022/05/30/Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%EF%BC%89/" title="Redisson分布式锁（使用注解方式）" target="_blank" rel="external">https://yh124.space/2022/05/30/Redisson分布式锁（使用注解方式）/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/yangh124" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/yangh124" target="_blank"><span class="text-dark">yangh124</span><small class="ml-1x"></small></a></h3>
+        <div>你还有好多未完成的梦，你有什么道理停下脚步。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/06/06/MySQL%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/" title="MySQL性能分析工具的使用"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2022/05/22/k3s%E5%AE%9E%E6%88%98/" title="k3s实战"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn collapsed" data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">
+        <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+    
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/yangh124" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+        <div class="copyright">
+            
+                &copy; 2023
+                    yangh
+                        
+                            | <a href="http://beian.miit.gov.cn/" target="_blank">浙ICP备2021031092号-2</a>
+                            <div class="publishby">
+                                Theme by <a href="https://github.com/cofess" target="_blank">
+                                        cofess </a>
+                                    base on <a href="https://github.com/cofess/hexo-theme-pure"
+                                            target="_blank">pure</a>.
+                            </div>
+        </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'HXqdy9Gelr3kb7pii3TOj4fl-9Nh9j0Va',
+    appKey: 'CY8JtaywMBlw476SSnU4X9RH',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: true
+  });
+  </script>
+
+     
+
+
+
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
+  <script>
+  //利用 FancyBox 实现点击图片放大
+  $(document).ready(function() {
+    $('article img').not('[hidden]').not('.panel-body img').each(function() {
+      var $image = $(this);
+      var imageCaption = $image.attr('alt');
+      var $imageWrapLink = $image.parent('a');
+      if ($imageWrapLink.length < 1) {
+        var src = this.getAttribute('src');
+        var idx = src.lastIndexOf('?');
+        if (idx != -1) {
+          src = src.substring(0, idx);
+        }
+        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
+      }
+      $imageWrapLink.attr('data-fancybox', 'images');
+      if (imageCaption) {
+        $imageWrapLink.attr('data-caption', imageCaption);
+      }
+    });
+    $().fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+    });
+  });
+  </script>
+
+
+
+
+
+</body>
+</html>

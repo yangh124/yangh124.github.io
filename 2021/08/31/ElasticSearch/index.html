@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>ElasticSearch | yangh&#39;s Blog</title>
+  <meta name="description" content="简介Elasticsearch是一个基于Lucene的搜索服务器，他提供了一个分布式全文搜索引擎，基于restful web接口。 Elasticsearch是用Java语言开发的，基于Apache协议的开源项目，是目前最受欢迎的企业搜索引擎。Elasticsearch广泛运用于云计算中，能够达到实时搜索，具有稳定，可靠，快速的特点。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ElasticSearch">
+<meta property="og:url" content="https://yh124.space/2021/08/31/ElasticSearch/index.html">
+<meta property="og:site_name" content="yangh&#39;s Blog">
+<meta property="og:description" content="简介Elasticsearch是一个基于Lucene的搜索服务器，他提供了一个分布式全文搜索引擎，基于restful web接口。 Elasticsearch是用Java语言开发的，基于Apache协议的开源项目，是目前最受欢迎的企业搜索引擎。Elasticsearch广泛运用于云计算中，能够达到实时搜索，具有稳定，可靠，快速的特点。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-08-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-14T14:23:34.000Z">
+<meta property="article:author" content="yangh">
+<meta property="article:tag" content="elastic search">
+<meta name="twitter:card" content="summary">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://yh124.space/2021/08/31/ElasticSearch/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
+  
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-green" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/yangh124" target="_blank">
+          <img class="img-circle img-rotate" src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">yangh124</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md"></h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> 浙江，杭州</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/yangh124" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E7%A1%80/">基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%84%9A%E6%9C%AC%E8%AF%AD%E8%A8%80/">脚本语言</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k3s/" rel="tag">k3s</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%9E%E6%88%98/" rel="tag">实战</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" rel="tag">网络编程</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">五月 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/06/06/MySQL%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/" class="title">MySQL性能分析工具的使用</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-06-05T16:00:00.000Z" itemprop="datePublished">2022-06-06</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/30/Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%EF%BC%89/" class="title">Redisson分布式锁（使用注解方式）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-29T16:00:00.000Z" itemprop="datePublished">2022-05-30</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/22/k3s%E5%AE%9E%E6%88%98/" class="title">k3s实战</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-21T16:00:00.000Z" itemprop="datePublished">2022-05-22</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/20/Docker%E5%AE%9E%E6%88%98/" class="title">Docker实战</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/15/InnoDB%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/" class="title">InnoDB数据存储结构</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-14T16:00:00.000Z" itemprop="datePublished">2022-01-15</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-number">2.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="toc-number">3.</span> <span class="toc-text">相关概念</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%9B%86%E7%BE%A4%E7%8A%B6%E6%80%81%E6%9F%A5%E7%9C%8B"><span class="toc-number">4.</span> <span class="toc-text">集群状态查看</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%B4%A2%E5%BC%95%E6%93%8D%E4%BD%9C"><span class="toc-number">5.</span> <span class="toc-text">索引操作</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%B1%BB%E5%9E%8B%E6%93%8D%E4%BD%9C"><span class="toc-number">6.</span> <span class="toc-text">类型操作</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%96%87%E6%A1%A3%E6%93%8D%E4%BD%9C"><span class="toc-number">7.</span> <span class="toc-text">文档操作</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%90%9C%E7%B4%A2"><span class="toc-number">8.</span> <span class="toc-text">数据搜索</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%87%86%E5%A4%87"><span class="toc-number">8.1.</span> <span class="toc-text">数据准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%90%9C%E7%B4%A2%E5%85%A5%E9%97%A8"><span class="toc-number">8.2.</span> <span class="toc-text">搜索入门</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E6%90%9C%E7%B4%A2"><span class="toc-number">8.3.</span> <span class="toc-text">条件搜索</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%90%9C%E7%B4%A2%E8%81%9A%E5%90%88"><span class="toc-number">8.4.</span> <span class="toc-text">搜索聚合</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Spring-Boot%E6%95%B4%E5%90%88ElasticSearch"><span class="toc-number">9.</span> <span class="toc-text">Spring Boot整合ElasticSearch</span></a></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-ElasticSearch" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      ElasticSearch
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/08/31/ElasticSearch/" class="article-date">
+	  <time datetime="2021-08-30T16:00:00.000Z" itemprop="datePublished">2021-08-31</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/elastic-search/" rel="tag">elastic search</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2021/08/31/ElasticSearch/" class="leancloud_visitors"  data-flag-title="ElasticSearch">
+			<span class="leancloud-visitors-count">0</span>
+		</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/08/31/ElasticSearch/#comments" class="article-comment-link">评论</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 3.6k(字)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 17(分)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>Elasticsearch是一个基于Lucene的搜索服务器，他提供了一个分布式全文搜索引擎，基于restful web接口。</p>
+<p>Elasticsearch是用Java语言开发的，基于Apache协议的开源项目，是目前最受欢迎的企业搜索引擎。Elasticsearch广泛运用于云计算中，能够达到实时搜索，具有稳定，可靠，快速的特点。</p>
+<span id="more"></span>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>Elasticsearch，Kibana，IKAnalyzer中文分词器。版本要一致</p>
+<h1 id="相关概念"><a href="#相关概念" class="headerlink" title="相关概念"></a>相关概念</h1><ol>
+<li>Never Realation（近实时）：Elasticsearch是一个近乎实时的搜索平台，这意味着从索引文档到可搜索文档之间只有轻微的延迟（通常是一秒钟）。</li>
+<li>Cluster（集群）：集群是一个或多个节点的集合，它们一起保存整个数据，并提供所有节点的联合索引和搜索功能。每个集群都有自己的唯一集群名称，节点通过名称加入集群。</li>
+<li>Node（节点）：节点是指属于集群的单个Elasticsearch实例，存储数据并参与集群的索引的搜索功能。可以将节点配置为按集群名称加入特定集群，默认情况下，每个节点都设置为加入一个名为elasticsearch的集群。</li>
+<li><strong>Index（索引）</strong>：索引是一些具有相似特征的文档集合，类似于Mysql中数据库的概念。</li>
+<li><strong>Type（类型）</strong>：类型是索引的逻辑类别分区，通常，为具有一组公共字段的文档类型，类似Mysql中表的概念。（在ES6及之后的版本，一个索引只能包含一个类型，ES7中标记为过时的，ES8中将移除Type）。</li>
+<li><strong>Document（文档）</strong>：文档是可被搜索的基本信息单位，以JSON格式表示，类似于Mysql中的行。</li>
+<li>Shards（分片）：当索引存储大量数据时，可能会超出当个节点的硬件设置，为了解决这个问题，ES提供了将索引细分为分片的概念。分片机制赋予了索引水平扩容的能力、并允许跨分片分发和并行化操作，从而提高性能和吞吐量。</li>
+<li>Replicas（副本）：在可能出现故障的网络的环境中，需要有一个故障切换机制，ES提供了将索引的分片复制为一个或多个副本的功能，副本在某些节点失效的情况下提供高可用性。</li>
+</ol>
+<h1 id="集群状态查看"><a href="#集群状态查看" class="headerlink" title="集群状态查看"></a>集群状态查看</h1><ol>
+<li><p>查看集群健康状态</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /_cat/health?v</span><br></pre></td></tr></table></figure></li>
+<li><p>查看节点状态</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /_cat/nodes?v</span><br></pre></td></tr></table></figure></li>
+<li><p>查看所有索引信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /_cat/indices?v</span><br></pre></td></tr></table></figure>
+<h1 id="索引操作"><a href="#索引操作" class="headerlink" title="索引操作"></a>索引操作</h1></li>
+<li><p>创建索引并查看</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PUT /customer GET /_cat/indices?v</span><br></pre></td></tr></table></figure></li>
+<li><p>删除索引</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE /customer</span><br></pre></td></tr></table></figure>
+<h1 id="类型操作"><a href="#类型操作" class="headerlink" title="类型操作"></a>类型操作</h1></li>
+</ol>
+<ul>
+<li>查看文档的类型<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_mapping</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;bank&quot;: &#123;</span><br><span class="line">    &quot;mappings&quot;: &#123;</span><br><span class="line">      &quot;account&quot;: &#123;</span><br><span class="line">        &quot;properties&quot;: &#123;</span><br><span class="line">          &quot;account_number&quot;: &#123;</span><br><span class="line">            &quot;type&quot;: &quot;long&quot;</span><br><span class="line">          &#125;,</span><br><span class="line">          &quot;address&quot;: &#123;</span><br><span class="line">            &quot;type&quot;: &quot;text&quot;,</span><br><span class="line">            &quot;fields&quot;: &#123;</span><br><span class="line">              &quot;keyword&quot;: &#123;</span><br><span class="line">                &quot;type&quot;: &quot;keyword&quot;,</span><br><span class="line">                &quot;ignore_above&quot;: 256</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;,</span><br><span class="line">          &quot;age&quot;: &#123;</span><br><span class="line">            &quot;type&quot;: &quot;long&quot;</span><br><span class="line">          &#125;,</span><br><span class="line">          &quot;balance&quot;: &#123;</span><br><span class="line">            &quot;type&quot;: &quot;long&quot;</span><br><span class="line">          &#125;,</span><br><span class="line">          &quot;city&quot;: &#123;</span><br><span class="line">            &quot;type&quot;: &quot;text&quot;,</span><br><span class="line">            &quot;fields&quot;: &#123;</span><br><span class="line">              &quot;keyword&quot;: &#123;</span><br><span class="line">                &quot;type&quot;: &quot;keyword&quot;,</span><br><span class="line">                &quot;ignore_above&quot;: 256</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;,</span><br><span class="line">          &quot;email&quot;: &#123;</span><br><span class="line">            &quot;type&quot;: &quot;text&quot;,</span><br><span class="line">            &quot;fields&quot;: &#123;</span><br><span class="line">              &quot;keyword&quot;: &#123;</span><br><span class="line">                &quot;type&quot;: &quot;keyword&quot;,</span><br><span class="line">                &quot;ignore_above&quot;: 256</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;,</span><br><span class="line">          &quot;employer&quot;: &#123;</span><br><span class="line">            &quot;type&quot;: &quot;text&quot;,</span><br><span class="line">            &quot;fields&quot;: &#123;</span><br><span class="line">              &quot;keyword&quot;: &#123;</span><br><span class="line">                &quot;type&quot;: &quot;keyword&quot;,</span><br><span class="line">                &quot;ignore_above&quot;: 256</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;,</span><br><span class="line">          &quot;firstname&quot;: &#123;</span><br><span class="line">            &quot;type&quot;: &quot;text&quot;,</span><br><span class="line">            &quot;fields&quot;: &#123;</span><br><span class="line">              &quot;keyword&quot;: &#123;</span><br><span class="line">                &quot;type&quot;: &quot;keyword&quot;,</span><br><span class="line">                &quot;ignore_above&quot;: 256</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;,</span><br><span class="line">          &quot;gender&quot;: &#123;</span><br><span class="line">            &quot;type&quot;: &quot;text&quot;,</span><br><span class="line">            &quot;fields&quot;: &#123;</span><br><span class="line">              &quot;keyword&quot;: &#123;</span><br><span class="line">                &quot;type&quot;: &quot;keyword&quot;,</span><br><span class="line">                &quot;ignore_above&quot;: 256</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;,</span><br><span class="line">          &quot;lastname&quot;: &#123;</span><br><span class="line">            &quot;type&quot;: &quot;text&quot;,</span><br><span class="line">            &quot;fields&quot;: &#123;</span><br><span class="line">              &quot;keyword&quot;: &#123;</span><br><span class="line">                &quot;type&quot;: &quot;keyword&quot;,</span><br><span class="line">                &quot;ignore_above&quot;: 256</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;,</span><br><span class="line">          &quot;state&quot;: &#123;</span><br><span class="line">            &quot;type&quot;: &quot;text&quot;,</span><br><span class="line">            &quot;fields&quot;: &#123;</span><br><span class="line">              &quot;keyword&quot;: &#123;</span><br><span class="line">                &quot;type&quot;: &quot;keyword&quot;,</span><br><span class="line">                &quot;ignore_above&quot;: 256</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="文档操作"><a href="#文档操作" class="headerlink" title="文档操作"></a>文档操作</h1></li>
+</ul>
+<ol start="2">
+<li>在索引中添加文档<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PUT /customer/doc/1GET</span><br><span class="line">&#123;</span><br><span class="line">    &quot;name&quot;:&quot;yanghao&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;_index&quot;: &quot;customer&quot;,</span><br><span class="line">  &quot;_type&quot;: &quot;doc&quot;,</span><br><span class="line">  &quot;_id&quot;: &quot;1&quot;,</span><br><span class="line">  &quot;_version&quot;: 1,</span><br><span class="line">  &quot;result&quot;: &quot;created&quot;,</span><br><span class="line">  &quot;_shards&quot;: &#123;</span><br><span class="line">    &quot;total&quot;: 2,</span><br><span class="line">    &quot;successful&quot;: 1,</span><br><span class="line">    &quot;failed&quot;: 0</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;_seq_no&quot;: 3,</span><br><span class="line">  &quot;_primary_term&quot;: 1</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>查看索引中的文档<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /customer/doc/1</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;_index&quot;: &quot;customer&quot;,</span><br><span class="line">  &quot;_type&quot;: &quot;doc&quot;,</span><br><span class="line">  &quot;_id&quot;: &quot;1&quot;,</span><br><span class="line">  &quot;_version&quot;: 2,</span><br><span class="line">  &quot;found&quot;: true,</span><br><span class="line">  &quot;_source&quot;: &#123;</span><br><span class="line">    &quot;name&quot;: &quot;yanghao&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>修改索引中的文档<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">POST /customer/doc/1/_update</span><br><span class="line">&#123;</span><br><span class="line">    &quot;doc&quot;:&#123;&quot;name&quot;:&quot;yanghao dashuaige&quot;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;_index&quot;: &quot;customer&quot;,</span><br><span class="line">  &quot;_type&quot;: &quot;doc&quot;,</span><br><span class="line">  &quot;_id&quot;: &quot;1&quot;,</span><br><span class="line">  &quot;_version&quot;: 2,</span><br><span class="line">  &quot;result&quot;: &quot;updated&quot;,</span><br><span class="line">  &quot;_shards&quot;: &#123;</span><br><span class="line">    &quot;total&quot;: 2,</span><br><span class="line">    &quot;successful&quot;: 1,</span><br><span class="line">    &quot;failed&quot;: 0</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;_seq_no&quot;: 4,</span><br><span class="line">  &quot;_primary_term&quot;: 1</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>删除索引中的文档<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE /customer/doc/1</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;_index&quot;: &quot;customer&quot;,</span><br><span class="line">  &quot;_type&quot;: &quot;doc&quot;,</span><br><span class="line">  &quot;_id&quot;: &quot;1&quot;,</span><br><span class="line">  &quot;_version&quot;: 3,</span><br><span class="line">  &quot;result&quot;: &quot;deleted&quot;,</span><br><span class="line">  &quot;_shards&quot;: &#123;</span><br><span class="line">    &quot;total&quot;: 2,</span><br><span class="line">    &quot;successful&quot;: 1,</span><br><span class="line">    &quot;failed&quot;: 0</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;_seq_no&quot;: 2,</span><br><span class="line">  &quot;_primary_term&quot;: 1</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>对索引中的文档执行批量操作<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">POST /customer/doc/_bulk</span><br><span class="line">&#123;&quot;index&quot;:&#123;&quot;_id&quot;:&quot;1&quot;&#125;&#125;</span><br><span class="line">&#123;&quot;name&quot;:&quot;xiaohong&quot;&#125;</span><br><span class="line">&#123;&quot;index&quot;:&#123;&quot;_id&quot;:&quot;2&quot;&#125;&#125;</span><br><span class="line">&#123;&quot;name&quot;:&quot;xiaoming&quot;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;took&quot;: 45,</span><br><span class="line">  &quot;errors&quot;: false,</span><br><span class="line">  &quot;items&quot;: [</span><br><span class="line">    &#123;</span><br><span class="line">      &quot;index&quot;: &#123;</span><br><span class="line">        &quot;_index&quot;: &quot;customer&quot;,</span><br><span class="line">        &quot;_type&quot;: &quot;doc&quot;,</span><br><span class="line">        &quot;_id&quot;: &quot;1&quot;,</span><br><span class="line">        &quot;_version&quot;: 3,</span><br><span class="line">        &quot;result&quot;: &quot;updated&quot;,</span><br><span class="line">        &quot;_shards&quot;: &#123;</span><br><span class="line">          &quot;total&quot;: 2,</span><br><span class="line">          &quot;successful&quot;: 1,</span><br><span class="line">          &quot;failed&quot;: 0</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;_seq_no&quot;: 5,</span><br><span class="line">        &quot;_primary_term&quot;: 1,</span><br><span class="line">        &quot;status&quot;: 200</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      &quot;index&quot;: &#123;</span><br><span class="line">        &quot;_index&quot;: &quot;customer&quot;,</span><br><span class="line">        &quot;_type&quot;: &quot;doc&quot;,</span><br><span class="line">        &quot;_id&quot;: &quot;2&quot;,</span><br><span class="line">        &quot;_version&quot;: 1,</span><br><span class="line">        &quot;result&quot;: &quot;created&quot;,</span><br><span class="line">        &quot;_shards&quot;: &#123;</span><br><span class="line">          &quot;total&quot;: 2,</span><br><span class="line">          &quot;successful&quot;: 1,</span><br><span class="line">          &quot;failed&quot;: 0</span><br><span class="line">        &#125;,</span><br><span class="line">        &quot;_seq_no&quot;: 0,</span><br><span class="line">        &quot;_primary_term&quot;: 1,</span><br><span class="line">        &quot;status&quot;: 201</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="数据搜索"><a href="#数据搜索" class="headerlink" title="数据搜索"></a>数据搜索</h1></li>
+</ol>
+<p>查询表达式（Query DSL）是一种非常灵活又富有表现力的查询语言，ES使用它可以以简单的JSON接口来实现丰富的搜索功能。</p>
+<h2 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h2><ol>
+<li>首先导入测试数据，数据结构如下&#x2F;<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;account_number&quot;: 0,</span><br><span class="line">    &quot;balance&quot;: 16623,</span><br><span class="line">    &quot;firstname&quot;: &quot;Bradshaw&quot;,</span><br><span class="line">    &quot;lastname&quot;: &quot;Mckenzie&quot;,</span><br><span class="line">    &quot;age&quot;: 29,</span><br><span class="line">    &quot;gender&quot;: &quot;F&quot;,</span><br><span class="line">    &quot;address&quot;: &quot;244 Columbus Place&quot;,</span><br><span class="line">    &quot;employer&quot;: &quot;Euron&quot;,</span><br><span class="line">    &quot;email&quot;: &quot;bradshawmckenzie@euron.com&quot;,</span><br><span class="line">    &quot;city&quot;: &quot;Hobucken&quot;,</span><br><span class="line">    &quot;state&quot;: &quot;CO&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>然后使用批量操作来导入数据（使用Kibana的Dev Tools操作）<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">POST /bank/account/_bulk</span><br><span class="line">&#123;</span><br><span class="line">  &quot;index&quot;: &#123;</span><br><span class="line">    &quot;_id&quot;: &quot;1&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">&#123;</span><br><span class="line">  &quot;account_number&quot;: 1,</span><br><span class="line">  &quot;balance&quot;: 39225,</span><br><span class="line">  &quot;firstname&quot;: &quot;Amber&quot;,</span><br><span class="line">  &quot;lastname&quot;: &quot;Duke&quot;,</span><br><span class="line">  &quot;age&quot;: 32,</span><br><span class="line">  &quot;gender&quot;: &quot;M&quot;,</span><br><span class="line">  &quot;address&quot;: &quot;880 Holmes Lane&quot;,</span><br><span class="line">  &quot;employer&quot;: &quot;Pyrami&quot;,</span><br><span class="line">  &quot;email&quot;: &quot;amberduke@pyrami.com&quot;,</span><br><span class="line">  &quot;city&quot;: &quot;Brogan&quot;,</span><br><span class="line">  &quot;state&quot;: &quot;IL&quot;</span><br><span class="line">&#125;</span><br><span class="line">......省略若干条数据</span><br></pre></td></tr></table></figure></li>
+<li>导入完成查看索引信息，可以发现bank索引中已经创建了1000条文档</li>
+</ol>
+<h2 id="搜索入门"><a href="#搜索入门" class="headerlink" title="搜索入门"></a>搜索入门</h2><ol>
+<li><p>最简单的搜索<br><code>GET /bank/_search &#123;  &quot;query&quot;:&#123; &quot;match_all&quot;:&#123;&#125; &#125; &#125;</code></p>
+</li>
+<li><p>分页搜索</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">    &quot;query&quot;:&#123; &quot;match_all&quot;:&#123;&#125; &#125;,</span><br><span class="line">    &quot;from&quot;:0,</span><br><span class="line">    &quot;size&quot;:10</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>搜索排序，使用sort</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">    &quot;query&quot;:&#123; &quot;match_all&quot;:&#123;&#125; &#125;,</span><br><span class="line">    &quot;sort&quot;:&#123;&quot;balance&quot;:&#123;&quot;order&quot;:&quot;desc&quot;&#125;&#125; #按照balance字段降序</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>搜索并返回指定字段内容，使用_source 表示</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">    &quot;query&quot;:&#123; &quot;match_all&quot;:&#123;&#125; &#125;,</span><br><span class="line">    &quot;_source&quot;:[&quot;account_number&quot;,&quot;balance&quot;] #只返回account_number，balance字段</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="条件搜索"><a href="#条件搜索" class="headerlink" title="条件搜索"></a>条件搜索</h2></li>
+<li><p>条件搜索，使用match表示匹配条件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">    &quot;query&quot;:&#123;</span><br><span class="line">        &quot;match&quot;:&#123;</span><br><span class="line">            &quot;account_number&quot;:20</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>文本类型字段的条件搜索，对比上一条可以发现，对于数字类型的字段进行的是精确匹配，而对于文本使用的是模糊匹配</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">  &quot;query&quot;: &#123;</span><br><span class="line">    &quot;match&quot;: &#123;</span><br><span class="line">      &quot;address&quot;: &quot;mill&quot;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;_source&quot;: [</span><br><span class="line">    &quot;address&quot;,</span><br><span class="line">    &quot;account_number&quot;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>短语匹配搜索，使用match_phrase</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">  &quot;query&quot;: &#123;</span><br><span class="line">    &quot;match_phrase&quot;: &#123;</span><br><span class="line">      &quot;address&quot;: &quot;mill lane&quot;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>组合搜索</strong></p>
+</li>
+<li><p>组合搜索，使用bool来进行组合，must表示必须同时满足</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">  &quot;query&quot;: &#123;</span><br><span class="line">    &quot;bool&quot;: &#123;</span><br><span class="line">      &quot;must&quot;: [</span><br><span class="line">      #同时包含mill lane</span><br><span class="line">        &#123; &quot;match&quot;: &#123; &quot;address&quot;: &quot;mill&quot; &#125; &#125;,</span><br><span class="line">        &#123; &quot;match&quot;: &#123; &quot;address&quot;: &quot;lane&quot; &#125; &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>组合搜索，使用should，表示只要满足其中一个</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">  &quot;query&quot;: &#123;</span><br><span class="line">    &quot;bool&quot;: &#123;</span><br><span class="line">      &quot;should&quot;: [</span><br><span class="line">        &#123; &quot;match&quot;: &#123; &quot;address&quot;: &quot;mill&quot; &#125; &#125;,</span><br><span class="line">        &#123; &quot;match&quot;: &#123; &quot;address&quot;: &quot;lane&quot; &#125; &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>组合搜索，must_not表示必须同时不满足</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">  &quot;query&quot;: &#123;</span><br><span class="line">    &quot;bool&quot;: &#123;</span><br><span class="line">      &quot;must_not&quot;: [</span><br><span class="line">        &#123; &quot;match&quot;: &#123; &quot;address&quot;: &quot;mill&quot; &#125; &#125;,</span><br><span class="line">        &#123; &quot;match&quot;: &#123; &quot;address&quot;: &quot;lane&quot; &#125; &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>组合搜索，组合must和must_not</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">  &quot;query&quot;: &#123;</span><br><span class="line">    &quot;bool&quot;: &#123;</span><br><span class="line">      &quot;must&quot;: [</span><br><span class="line">        &#123; &quot;match&quot;: &#123; &quot;age&quot;: &quot;40&quot; &#125; &#125;</span><br><span class="line">      ],</span><br><span class="line">      &quot;must_not&quot;: [</span><br><span class="line">        &#123; &quot;match&quot;: &#123; &quot;state&quot;: &quot;ID&quot; &#125; &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="搜索聚合"><a href="#搜索聚合" class="headerlink" title="搜索聚合"></a>搜索聚合</h2></li>
+<li><p>对搜索结果进行聚合，使用aggs表示，类似于Mysql中的group by ，例如对state字段进行聚合，统计出不同state的文档数量。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">    &quot;size&quot;:0,</span><br><span class="line">    &quot;aggs&quot;:&#123;</span><br><span class="line">        &quot;group_by_state&quot;:&#123;</span><br><span class="line">            &quot;terms&quot;:&#123;</span><br><span class="line">                &quot;field&quot;:&quot;state.keyword&quot;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>嵌套聚合，例如对state进行聚合，统计出不同state的文档数量，再统计出blance的平均值。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">  &quot;size&quot;: 0,</span><br><span class="line">  &quot;aggs&quot;: &#123;</span><br><span class="line">    &quot;group_by_age&quot;: &#123;</span><br><span class="line">      &quot;terms&quot;: &#123;</span><br><span class="line">        &quot;field&quot;: &quot;state.keyword&quot;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;avg_blance&quot;: &#123;</span><br><span class="line">      &quot;avg&quot;: &#123;</span><br><span class="line">        &quot;field&quot;: &quot;age&quot;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>对聚合结果进行排序，例如按balance的平均值降序排序</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">  &quot;size&quot;: 0,</span><br><span class="line">  &quot;aggs&quot;: &#123;</span><br><span class="line">    &quot;group_by_state&quot;: &#123;</span><br><span class="line">      &quot;terms&quot;: &#123;</span><br><span class="line">        &quot;field&quot;: &quot;state.keyword&quot;,</span><br><span class="line">        &quot;order&quot;: &#123;</span><br><span class="line">          &quot;average_balance&quot;: &quot;desc&quot;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      &quot;aggs&quot;: &#123;</span><br><span class="line">        &quot;average_balance&quot;: &#123;</span><br><span class="line">          &quot;avg&quot;: &#123;</span><br><span class="line">            &quot;field&quot;: &quot;balance&quot;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>按字段的范围进行分段聚合，例如分段范围为age字段的[20,30] [30,40] [40,50]，之后按gender统计文档个数和balance的平均值。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">GET /bank/_search</span><br><span class="line">&#123;</span><br><span class="line">    &quot;size&quot;: 0,</span><br><span class="line">    &quot;aggs&quot;: &#123;</span><br><span class="line">        &quot;group_by_age&quot;: &#123;</span><br><span class="line">            &quot;range&quot;: &#123;</span><br><span class="line">                &quot;field&quot;: &quot;age&quot;,</span><br><span class="line">                &quot;ranges&quot;: [</span><br><span class="line">                    &#123;</span><br><span class="line">                        &quot;from&quot;: 20,</span><br><span class="line">                        &quot;to&quot;: 30</span><br><span class="line">                    &#125;,</span><br><span class="line">                    &#123;</span><br><span class="line">                        &quot;from&quot;: 30,</span><br><span class="line">                        &quot;to&quot;: 40</span><br><span class="line">                    &#125;,</span><br><span class="line">                    &#123;</span><br><span class="line">                        &quot;from&quot;: 40,</span><br><span class="line">                        &quot;to&quot;: 50</span><br><span class="line">                    &#125;</span><br><span class="line">                ]</span><br><span class="line">            &#125;,</span><br><span class="line">            &quot;aggs&quot;: &#123;</span><br><span class="line">                &quot;group_by_gender&quot;: &#123;</span><br><span class="line">                    &quot;terms&quot;: &#123;</span><br><span class="line">                        &quot;field&quot;: &quot;gender.keyword&quot;</span><br><span class="line">                    &#125;,</span><br><span class="line">                    &quot;aggs&quot;: &#123;</span><br><span class="line">                        &quot;average_balance&quot;: &#123;</span><br><span class="line">                            &quot;avg&quot;: &#123;</span><br><span class="line">                                &quot;field&quot;: &quot;balance&quot;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Spring-Boot整合ElasticSearch"><a href="#Spring-Boot整合ElasticSearch" class="headerlink" title="Spring Boot整合ElasticSearch"></a>Spring Boot整合ElasticSearch</h1></li>
+</ol>
+<p>使用ElasticSearch-Rest-Client对elasticsearch进行操作</p>
+<p>引入依赖：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;  </span><br><span class="line">    &lt;groupId&gt;org.elasticsearch.client&lt;/groupId&gt;  </span><br><span class="line">    &lt;artifactId&gt;elasticsearch-rest-high-level-client&lt;/artifactId&gt;  </span><br><span class="line">    &lt;version&gt;7.9.0&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<p>因为SpringBoot管理了elasticsearch的依赖版本，所以我们需要指定一下elasticsearch的版本与其一致：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;properties&gt;  </span><br><span class="line">    &lt;elasticsearch.version&gt;7.9.0&lt;/elasticsearch.version&gt;</span><br><span class="line">&lt;/properties&gt;</span><br></pre></td></tr></table></figure>
+<p>然后编写一个配置类，向容器中注册一个操作elasticsearch的组件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * @author : yh</span><br><span class="line"> * @date : 2021/8/30 20:35</span><br><span class="line"> */</span><br><span class="line">@Component</span><br><span class="line">@Getter</span><br><span class="line">@Setter</span><br><span class="line">@ConfigurationProperties(prefix = &quot;elasticsearch&quot;)</span><br><span class="line">public class EsHostConfig &#123;</span><br><span class="line"></span><br><span class="line">    private String[] hostArr;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 定义RestClient Bean</span><br><span class="line"> *</span><br><span class="line"> * @author : yh</span><br><span class="line"> * @date : 2021/8/30 20:32</span><br><span class="line"> */</span><br><span class="line">@Configuration</span><br><span class="line">public class EsRestClientConfig &#123;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    private EsHostConfig esHostConfig;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public RestHighLevelClient restHighLevelClient() &#123;</span><br><span class="line">        String[] hostArr = esHostConfig.getHostArr();</span><br><span class="line">        int size = hostArr.length;</span><br><span class="line">        HttpHost[] httpHostArr = new HttpHost[size];</span><br><span class="line">        for (int i = 0; i &lt; size; i++) &#123;</span><br><span class="line">            String[] split = hostArr[i].split(&quot;:&quot;);</span><br><span class="line">            httpHostArr[i] = new HttpHost(split[0], Integer.parseInt(split[1]), &quot;http&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        return new RestHighLevelClient(RestClient.builder(httpHostArr));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>接下来我们就可以通过它操作 elasticsearch 了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">@Autowired</span><br><span class="line">private RestHighLevelClient client;</span><br><span class="line"></span><br><span class="line">@Data</span><br><span class="line">class User &#123;</span><br><span class="line">    private String name;    </span><br><span class="line">    private Integer age;    </span><br><span class="line">    private String gender;</span><br><span class="line">&#125;</span><br><span class="line">@Test</span><br><span class="line">public void index() throws IOException &#123;    </span><br><span class="line">    IndexRequest indexRequest = new IndexRequest(&quot;users&quot;);    </span><br><span class="line">    indexRequest.id(&quot;1&quot;);    </span><br><span class="line">    // indexRequest.source(&quot;name&quot;,&quot;zhangsan&quot;,&quot;age&quot;,20,&quot;gender&quot;,&quot;男&quot;);    </span><br><span class="line">    User user = new User();    </span><br><span class="line">    user.setName(&quot;zhangsan&quot;);    </span><br><span class="line">    user.setAge(20);    </span><br><span class="line">    user.setGender(&quot;男&quot;);    </span><br><span class="line">    String json = JSON.toJSONString(user);    </span><br><span class="line">    indexRequest.source(json, XContentType.JSON);    </span><br><span class="line">    // 执行保存操作    </span><br><span class="line">    IndexResponse index = client.index(indexRequest, RequestOptions.DEFAULT);    </span><br><span class="line">    // 响应数据    </span><br><span class="line">    System.out.println(index);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>RestHighLevelClient提供了非常多的方式用于保存数据，但比较常用的是通过json数据直接保存，首先需要指定索引， IndexRequest indexRequest &#x3D; new IndexRequest(&quot;users&quot;); 指定了users索引，然后指定数据id，接着指定数据值，最后使用client执行保存操作，然后可以拿到响应数据。</p>
+<p>elasticsearch的其它简单操作，诸如：更新、删除等，都只需要转换一下调用方法即可，如更新操作，就需要使用client调用update方法，接下来我们看看Java程序该如何实现较为复杂的检索操作。</p>
+<p>比如现在想聚合出年龄的分布情况，并求出每个年龄分布人群的平均薪资，就应该这样进行编写：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">    public void aggSearch() throws Exception &#123;</span><br><span class="line">        //创建搜索request</span><br><span class="line">        SearchRequest searchRequest = new SearchRequest(&quot;bank&quot;);</span><br><span class="line">        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();</span><br><span class="line">        //查询条件</span><br><span class="line">        searchSourceBuilder.query(QueryBuilders.matchAllQuery());</span><br><span class="line">        //统计各个年龄的平均工资</span><br><span class="line">        searchSourceBuilder.aggregation(AggregationBuilders.terms(&quot;ageAgg&quot;).field(&quot;age&quot;).subAggregation(AggregationBuilders.avg(&quot;balanceAvgAgg&quot;).field(&quot;balance&quot;)));</span><br><span class="line">        //所有人平均工资</span><br><span class="line">        searchSourceBuilder.aggregation(AggregationBuilders.avg(&quot;allBalanceAvgAgg&quot;).field(&quot;balance&quot;));</span><br><span class="line">        //构建request</span><br><span class="line">        SearchRequest request = searchRequest.source(searchSourceBuilder);</span><br><span class="line">        //search</span><br><span class="line">        SearchResponse searchResponse = restHighLevelClient.search(request, RequestOptions.DEFAULT);</span><br><span class="line">        //Aggregations aggregations = searchResponse.getAggregations();</span><br><span class="line">        //Aggregation接口有很多实现类  Avg（平均值）</span><br><span class="line">//        Avg avg = aggregations.get(&quot;balanceAgg&quot;);</span><br><span class="line">//        System.out.println(avg.getValue());</span><br><span class="line">        Aggregations aggregations = searchResponse.getAggregations();</span><br><span class="line">        Terms ageAgg = aggregations.get(&quot;ageAgg&quot;);</span><br><span class="line">        List&lt;? extends Terms.Bucket&gt; buckets = ageAgg.getBuckets();</span><br><span class="line">        for (Terms.Bucket bucket : buckets) &#123;//只查出了10条数据</span><br><span class="line">            System.out.println(&quot;年龄:&quot; + bucket.getKey());</span><br><span class="line">            System.out.println(&quot;人数:&quot; + bucket.getDocCount());</span><br><span class="line">            Avg avg = bucket.getAggregations().get(&quot;balanceAvgAgg&quot;);</span><br><span class="line">            System.out.println(&quot;平均工资:&quot; + avg.getValue());</span><br><span class="line">            System.out.println(&quot;=================================&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        Avg avg = aggregations.get(&quot;allBalanceAvgAgg&quot;);</span><br><span class="line">        System.out.println(&quot;所有人平均工资:&quot; + avg.getValue());</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>最终输出结果<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">年龄:31</span><br><span class="line">人数:61</span><br><span class="line">平均工资:28312.918032786885</span><br><span class="line">=================================</span><br><span class="line">年龄:39</span><br><span class="line">人数:60</span><br><span class="line">平均工资:25269.583333333332</span><br><span class="line">=================================</span><br><span class="line">年龄:26</span><br><span class="line">人数:59</span><br><span class="line">平均工资:23194.813559322032</span><br><span class="line">=================================</span><br><span class="line">年龄:32</span><br><span class="line">人数:52</span><br><span class="line">平均工资:23951.346153846152</span><br><span class="line">=================================</span><br><span class="line">年龄:35</span><br><span class="line">人数:52</span><br><span class="line">平均工资:22136.69230769231</span><br><span class="line">=================================</span><br><span class="line">年龄:36</span><br><span class="line">人数:52</span><br><span class="line">平均工资:22174.71153846154</span><br><span class="line">=================================</span><br><span class="line">年龄:22</span><br><span class="line">人数:51</span><br><span class="line">平均工资:24731.07843137255</span><br><span class="line">=================================</span><br><span class="line">年龄:28</span><br><span class="line">人数:51</span><br><span class="line">平均工资:28273.882352941175</span><br><span class="line">=================================</span><br><span class="line">年龄:33</span><br><span class="line">人数:50</span><br><span class="line">平均工资:25093.94</span><br><span class="line">=================================</span><br><span class="line">年龄:34</span><br><span class="line">人数:49</span><br><span class="line">平均工资:26809.95918367347</span><br><span class="line">=================================</span><br><span class="line">所有人平均工资:25714.837</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://yh124.space/2021/08/31/ElasticSearch/" title="ElasticSearch" target="_blank" rel="external">https://yh124.space/2021/08/31/ElasticSearch/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/yangh124" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/yangh124" target="_blank"><span class="text-dark">yangh124</span><small class="ml-1x"></small></a></h3>
+        <div>你还有好多未完成的梦，你有什么道理停下脚步。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2021/09/14/Netty/" title="Netty"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2021/08/03/Dubbo/" title="Dubbo"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn collapsed" data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">
+        <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+    
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/yangh124" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+        <div class="copyright">
+            
+                &copy; 2023
+                    yangh
+                        
+                            | <a href="http://beian.miit.gov.cn/" target="_blank">浙ICP备2021031092号-2</a>
+                            <div class="publishby">
+                                Theme by <a href="https://github.com/cofess" target="_blank">
+                                        cofess </a>
+                                    base on <a href="https://github.com/cofess/hexo-theme-pure"
+                                            target="_blank">pure</a>.
+                            </div>
+        </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'HXqdy9Gelr3kb7pii3TOj4fl-9Nh9j0Va',
+    appKey: 'CY8JtaywMBlw476SSnU4X9RH',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: true
+  });
+  </script>
+
+     
+
+
+
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
+  <script>
+  //利用 FancyBox 实现点击图片放大
+  $(document).ready(function() {
+    $('article img').not('[hidden]').not('.panel-body img').each(function() {
+      var $image = $(this);
+      var imageCaption = $image.attr('alt');
+      var $imageWrapLink = $image.parent('a');
+      if ($imageWrapLink.length < 1) {
+        var src = this.getAttribute('src');
+        var idx = src.lastIndexOf('?');
+        if (idx != -1) {
+          src = src.substring(0, idx);
+        }
+        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
+      }
+      $imageWrapLink.attr('data-fancybox', 'images');
+      if (imageCaption) {
+        $imageWrapLink.attr('data-caption', imageCaption);
+      }
+    });
+    $().fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+    });
+  });
+  </script>
+
+
+
+
+
+</body>
+</html>

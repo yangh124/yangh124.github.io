@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>InnoDB中的索引 | yangh&#39;s Blog</title>
+  <meta name="description" content="InnoDB中的索引设计方案 0:普通的用户记录 1:目录项记录 2:最小记录 3:最大记录一般情况下，我们用到的B+树都不会超过4层。（减少磁盘I&#x2F;O）一个B+树的节点其实可以分成好多层，规定最下边的那层，也就是存放用户记录的那层为第0层，之后依次往上加。一个数据页可以存放16k的数据。假设所有存放用户记录的叶子节点代表的数据页可以存放100条用户记录，所有存放目录项记录的内节点代表的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="InnoDB中的索引">
+<meta property="og:url" content="https://yh124.space/2022/01/12/InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95/index.html">
+<meta property="og:site_name" content="yangh&#39;s Blog">
+<meta property="og:description" content="InnoDB中的索引设计方案 0:普通的用户记录 1:目录项记录 2:最小记录 3:最大记录一般情况下，我们用到的B+树都不会超过4层。（减少磁盘I&#x2F;O）一个B+树的节点其实可以分成好多层，规定最下边的那层，也就是存放用户记录的那层为第0层，之后依次往上加。一个数据页可以存放16k的数据。假设所有存放用户记录的叶子节点代表的数据页可以存放100条用户记录，所有存放目录项记录的内节点代表的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419950340539.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419967282458.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419972009034.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420811937219.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420812487954.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420815935861.jpg">
+<meta property="article:published_time" content="2022-01-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-14T14:24:13.000Z">
+<meta property="article:author" content="yangh">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419950340539.jpg">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://yh124.space/2022/01/12/InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
+  
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-green" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/yangh124" target="_blank">
+          <img class="img-circle img-rotate" src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">yangh124</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md"></h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> 浙江，杭州</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/yangh124" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E7%A1%80/">基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%84%9A%E6%9C%AC%E8%AF%AD%E8%A8%80/">脚本语言</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k3s/" rel="tag">k3s</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%9E%E6%88%98/" rel="tag">实战</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" rel="tag">网络编程</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">五月 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/06/06/MySQL%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/" class="title">MySQL性能分析工具的使用</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-06-05T16:00:00.000Z" itemprop="datePublished">2022-06-06</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/30/Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%EF%BC%89/" class="title">Redisson分布式锁（使用注解方式）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-29T16:00:00.000Z" itemprop="datePublished">2022-05-30</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/22/k3s%E5%AE%9E%E6%88%98/" class="title">k3s实战</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-21T16:00:00.000Z" itemprop="datePublished">2022-05-22</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/20/Docker%E5%AE%9E%E6%88%98/" class="title">Docker实战</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/15/InnoDB%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/" class="title">InnoDB数据存储结构</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-14T16:00:00.000Z" itemprop="datePublished">2022-01-15</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%A1%88"><span class="toc-number">1.</span> <span class="toc-text">InnoDB中的索引设计方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E7%B4%A2%E5%BC%95%E6%A6%82%E5%BF%B5"><span class="toc-number">2.</span> <span class="toc-text">常见索引概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95"><span class="toc-number">2.1.</span> <span class="toc-text">聚簇索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%EF%BC%88%E8%BE%85%E5%8A%A9%E7%B4%A2%E5%BC%95%E3%80%81%E9%9D%9E%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%EF%BC%89"><span class="toc-number">2.2.</span> <span class="toc-text">二级索引（辅助索引、非聚簇索引）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95"><span class="toc-number">2.2.1.</span> <span class="toc-text">联合索引</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#InnoDB%E7%9A%84B-%E6%A0%91%E7%B4%A2%E5%BC%95%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-number">2.3.</span> <span class="toc-text">InnoDB的B+树索引的注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B9%E9%A1%B5%E9%9D%A2%E4%BD%8D%E7%BD%AE%E4%B8%87%E5%B9%B4%E4%B8%8D%E5%8F%98"><span class="toc-number">2.3.1.</span> <span class="toc-text">根页面位置万年不变</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%9E%E5%8F%B6%E5%AD%90%E8%8A%82%E7%82%B9%E4%B8%AD%E7%9A%84%E7%9B%AE%E5%BD%95%E9%A1%B9%E8%AE%B0%E5%BD%95%E7%9A%84%E5%94%AF%E4%B8%80%E6%80%A7"><span class="toc-number">2.4.</span> <span class="toc-text">非叶子节点中的目录项记录的唯一性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E6%95%B0%E6%8D%AE%E9%A1%B5%E6%9C%80%E5%B0%91%E5%AD%98%E5%82%A82%E6%9D%A1%E6%95%B0%E6%8D%AE"><span class="toc-number">2.5.</span> <span class="toc-text">一个数据页最少存储2条数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%80%89%E6%8B%A9%E7%9A%84%E5%90%88%E7%90%86%E6%80%A7"><span class="toc-number">2.6.</span> <span class="toc-text">MySQL数据结构选择的合理性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Hash%E7%BB%93%E6%9E%84"><span class="toc-number">2.6.1.</span> <span class="toc-text">Hash结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91"><span class="toc-number">2.6.2.</span> <span class="toc-text">二叉搜索树</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#AVL%E6%A0%91"><span class="toc-number">2.6.3.</span> <span class="toc-text">AVL树</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-Tree"><span class="toc-number">2.6.4.</span> <span class="toc-text">B-Tree</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-Tree-1"><span class="toc-number">2.6.5.</span> <span class="toc-text">B+Tree</span></a></li></ol></li></ol></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-InnoDB中的索引" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      InnoDB中的索引
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2022/01/12/InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95/" class="article-date">
+	  <time datetime="2022-01-11T16:00:00.000Z" itemprop="datePublished">2022-01-12</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/MySQL/" rel="tag">MySQL</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2022/01/12/InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95/" class="leancloud_visitors"  data-flag-title="InnoDB中的索引">
+			<span class="leancloud-visitors-count">0</span>
+		</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/01/12/InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95/#comments" class="article-comment-link">评论</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 1.4k(字)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 4(分)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h2 id="InnoDB中的索引设计方案"><a href="#InnoDB中的索引设计方案" class="headerlink" title="InnoDB中的索引设计方案"></a>InnoDB中的索引设计方案</h2><ul>
+<li>0:普通的用户记录</li>
+<li>1:目录项记录</li>
+<li>2:最小记录</li>
+<li>3:最大记录<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419950340539.jpg" alt="聚簇索引"><br><strong>一般情况下，我们用到的B+树都不会超过4层。（减少磁盘I&#x2F;O）</strong><br>一个B+树的节点其实可以分成好多层，规定最下边的那层，也就是存放用户记录的那层为第0层，之后依次往上加。一个数据页可以存放16k的数据。假设所有存放用户记录的叶子节点代表的数据页可以存放100条用户记录，所有存放目录项记录的内节点代表的数据页可以存放1000条数据，那么：</li>
+<li>如果B+树只有1层，也就是只有一个用于存放记录的节点，最多能存放100条记录。</li>
+<li>如果B+树有2层，最多能存放1000 * 100 &#x3D; 10万条记录。</li>
+<li>如果B+树有3层，最多能存放1000 * 1000 * 100 &#x3D; 1亿条记录</li>
+<li>如果b+树有4层，做多能存放1000 * 1000 * 1000 * 100 &#x3D; 1000亿条记录<h2 id="常见索引概念"><a href="#常见索引概念" class="headerlink" title="常见索引概念"></a>常见索引概念</h2><h3 id="聚簇索引"><a href="#聚簇索引" class="headerlink" title="聚簇索引"></a>聚簇索引</h3><h3 id="二级索引（辅助索引、非聚簇索引）"><a href="#二级索引（辅助索引、非聚簇索引）" class="headerlink" title="二级索引（辅助索引、非聚簇索引）"></a>二级索引（辅助索引、非聚簇索引）</h3><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419967282458.jpg" alt="非聚簇索引"><h4 id="联合索引"><a href="#联合索引" class="headerlink" title="联合索引"></a>联合索引</h4><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419972009034.jpg" alt="联合索引"><h3 id="InnoDB的B-树索引的注意事项"><a href="#InnoDB的B-树索引的注意事项" class="headerlink" title="InnoDB的B+树索引的注意事项"></a>InnoDB的B+树索引的注意事项</h3><h4 id="根页面位置万年不变"><a href="#根页面位置万年不变" class="headerlink" title="根页面位置万年不变"></a>根页面位置万年不变</h4></li>
+<li>每当某个表创建一个B+树索引（聚簇索引）的时候，都会为这个索引创建一个根节点页，最开始表中没有数据的时候，每个B+树索引对应的根节点中，既没有用户记录，也没有目录项记录。</li>
+<li>随后向表中插入用户记录时，先把用户记录存储到这个根节点中。</li>
+<li>当根节点中的可用空间用完时，继续插入记录，此时会将根节点中的所有记录复制到新分配的页，比如页a中，然后后对这个新页进行页分裂的操作，得到另一个新页，比如页b，这时新插入的记录根据键值（也就是索引值）的大小就会被分配到页a或者页b中，而根节点便升级为存储目录项记录的页<br><strong>这个过程特别注意的是：</strong> 一个B+树索引的根节点自诞生之日起，便不会再移动。这样只要我们对某个表建立一个索引，那么它的根节点的页号便会被记录到某个地方，然后凡事InnoDB存储引擎需要用到这个索引的时候，都会从哪个固定的地方取出根节点的页，从而来访问这个索引。<h3 id="非叶子节点中的目录项记录的唯一性"><a href="#非叶子节点中的目录项记录的唯一性" class="headerlink" title="非叶子节点中的目录项记录的唯一性"></a>非叶子节点中的目录项记录的唯一性</h3>即非叶子节点的索引唯一（创建的索引默认后面会跟主键）<h3 id="一个数据页最少存储2条数据"><a href="#一个数据页最少存储2条数据" class="headerlink" title="一个数据页最少存储2条数据"></a>一个数据页最少存储2条数据</h3><h3 id="MySQL数据结构选择的合理性"><a href="#MySQL数据结构选择的合理性" class="headerlink" title="MySQL数据结构选择的合理性"></a>MySQL数据结构选择的合理性</h3><h4 id="Hash结构"><a href="#Hash结构" class="headerlink" title="Hash结构"></a>Hash结构</h4><ol>
+<li>Hash索引仅能满足（&#x3D;）（&lt;&gt;）和in查询。范围查询效率很差。</li>
+<li>Hash索引数据存储是没有顺序的。</li>
+<li>对于联合索引的情况，Hash值是将联合索引合并后一起来计算的，无法对单独的一个键或者几个索引键进行查询。</li>
+<li>对于等值查询来说，通常Hash索引的效率很高，不过存在一种情况，就是索引列的重复值很多，效率就会降低。</li>
+</ol>
+</li>
+</ul>
+<p>另外，InnoDB本身不支持Hash索引，但是提供了自适应hash索引（adaptive_hash_index）。如果某个数据经常被访问，当满足一定条件的时候，就会将这个数据页的地址存放到Hash表中。这样下次查询的时候，就可以直接找到这个页面的所在位置。这样让B+树也具备了Hash索引的优点。</p>
+<h4 id="二叉搜索树"><a href="#二叉搜索树" class="headerlink" title="二叉搜索树"></a>二叉搜索树</h4><p>二叉树特征：<br>    * 一个节点只能有两个子节点，也就是一个节点度不能超过2<br>    * 左子节点 &lt; 本节点 &lt;&#x3D; 右子节点<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420811937219.jpg" alt="二叉搜索树"><br> <strong>在极端情况下会变成一个线性链表</strong></p>
+<h4 id="AVL树"><a href="#AVL树" class="headerlink" title="AVL树"></a>AVL树</h4><p> 平衡二叉树特征：<br>    <strong>它是一棵空树或它的左右两个子树的高度差的绝对值不超过1，并且左右两个子树都是一棵平衡二叉树。</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420812487954.jpg" alt="AVL树"><br><strong>树的层数过多，访问一个节点相当于做一次磁盘IO</strong></p>
+<h4 id="B-Tree"><a href="#B-Tree" class="headerlink" title="B-Tree"></a>B-Tree</h4><p>Balance Tree，也就是多路平衡查找树。</p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420815935861.jpg" alt="16420815935861"></p>
+<ol>
+<li>B树在插入和删除节点的时候如果导致树不平衡，就通过自动调节节点的位置保持树的自平衡。</li>
+<li>关键字集合分布在整棵树中，即叶子节点和非叶子节点都存放数据。搜索有可能在非叶子节点结束</li>
+<li>其搜索性能等价于在关键字全集内做一次二分查找。<h4 id="B-Tree-1"><a href="#B-Tree-1" class="headerlink" title="B+Tree"></a>B+Tree</h4>B+树也是一种多路搜索树，基于B-Tree做了改进。B+树适合文件索引系统。<br><strong>B+树和B树的差异：</strong></li>
+<li>有k个子节点就有k个关键字。也就是子节点数量&#x3D;关键字数量。而B树中，子节点数量&#x3D;关键字数量+1。</li>
+<li>非叶子节点的关键字会同时存在在子节点中，并且是在子节点中所有关键字的最大（或最小）。</li>
+<li>非叶子节点仅用于索引，不保存数据记录，跟记录相关的信息都存放在叶子节点中。而B树中，非叶子节点即保存索引也保存数据记录。</li>
+<li>所有关键字都在叶子节点出现，叶子节点构成一个有序链表，而且叶子节点本身按照关键字的大小从小到大顺序链接。</li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://yh124.space/2022/01/12/InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95/" title="InnoDB中的索引" target="_blank" rel="external">https://yh124.space/2022/01/12/InnoDB中的索引/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/yangh124" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/yangh124" target="_blank"><span class="text-dark">yangh124</span><small class="ml-1x"></small></a></h3>
+        <div>你还有好多未完成的梦，你有什么道理停下脚步。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2022/01/15/%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/" title="索引的创建与设计原则"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2021/12/04/Shell%E8%84%9A%E6%9C%AC/" title="Shell脚本"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn collapsed" data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">
+        <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+    
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/yangh124" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+        <div class="copyright">
+            
+                &copy; 2023
+                    yangh
+                        
+                            | <a href="http://beian.miit.gov.cn/" target="_blank">浙ICP备2021031092号-2</a>
+                            <div class="publishby">
+                                Theme by <a href="https://github.com/cofess" target="_blank">
+                                        cofess </a>
+                                    base on <a href="https://github.com/cofess/hexo-theme-pure"
+                                            target="_blank">pure</a>.
+                            </div>
+        </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'HXqdy9Gelr3kb7pii3TOj4fl-9Nh9j0Va',
+    appKey: 'CY8JtaywMBlw476SSnU4X9RH',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: true
+  });
+  </script>
+
+     
+
+
+
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
+  <script>
+  //利用 FancyBox 实现点击图片放大
+  $(document).ready(function() {
+    $('article img').not('[hidden]').not('.panel-body img').each(function() {
+      var $image = $(this);
+      var imageCaption = $image.attr('alt');
+      var $imageWrapLink = $image.parent('a');
+      if ($imageWrapLink.length < 1) {
+        var src = this.getAttribute('src');
+        var idx = src.lastIndexOf('?');
+        if (idx != -1) {
+          src = src.substring(0, idx);
+        }
+        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
+      }
+      $imageWrapLink.attr('data-fancybox', 'images');
+      if (imageCaption) {
+        $imageWrapLink.attr('data-caption', imageCaption);
+      }
+    });
+    $().fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+    });
+  });
+  </script>
+
+
+
+
+
+</body>
+</html>

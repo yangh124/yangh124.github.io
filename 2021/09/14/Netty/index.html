@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+  <meta charset="utf-8">
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no,email=no,adress=no">
+  <!-- Color theme for statusbar -->
+  <meta name="theme-color" content="#000000" />
+  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
+  <meta http-equiv="window-target" content="_top" />
+  
+  
+  <title>Netty | yangh&#39;s Blog</title>
+  <meta name="description" content="NettyNetty介绍应用场景Netty介绍 Netty是Jboss提供的一个开源框架，现为GitHub上的独立项目。 Netty是异步的、基于事件驱动的网络应用框架，用以快速开发高性能、高可靠性的网络IO程序。 Netty主要针对在TCP协议下，面向Clients端的高并发应用，或者Peer to Peer场景下的大量数据持续传输的应用。 Netty本质是NIO框架，适用于服务器通讯相关的多种">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Netty">
+<meta property="og:url" content="https://yh124.space/2021/09/14/Netty/index.html">
+<meta property="og:site_name" content="yangh&#39;s Blog">
+<meta property="og:description" content="NettyNetty介绍应用场景Netty介绍 Netty是Jboss提供的一个开源框架，现为GitHub上的独立项目。 Netty是异步的、基于事件驱动的网络应用框架，用以快速开发高性能、高可靠性的网络IO程序。 Netty主要针对在TCP协议下，面向Clients端的高并发应用，或者Peer to Peer场景下的大量数据持续传输的应用。 Netty本质是NIO框架，适用于服务器通讯相关的多种">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/14/16316233529799.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/14/16316252775663.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/14/16316256732370.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/22/16323168494091.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/22/16323190875807.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/27/16327501871455.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/27/16327501702766.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/27/16327503987878.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/27/16327506868826.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/27/16327523590487.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/27/16327525043113.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/27/16327537673560.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/08/16336985904631.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/13/16341300676869.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/13/16341310234601.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/13/16341315034228.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/16/16343550358155.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/16/16343550554506.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/16/16343554344704.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/16/16343557877424.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/17/16344771397316.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/17/16344787922814.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/17/16344791404243.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345582830238.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345609747836.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345622839532.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345655214458.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345656941806.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345658608160.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/23/16349582177471.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/01/16357740744142.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/01/16357744624365.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/01/16357750690247.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/04/16360306395987.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/10/16365493912838.jpg">
+<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/12/07/16388835610980.jpg">
+<meta property="article:published_time" content="2021-09-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-06-14T14:26:36.000Z">
+<meta property="article:author" content="yangh">
+<meta property="article:tag" content="网络编程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/14/16316233529799.jpg">
+  <!-- Canonical links -->
+  <link rel="canonical" href="https://yh124.space/2021/09/14/Netty/index.html">
+  
+  
+    <link rel="icon" href="/favicon.png" type="image/x-icon">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+  
+    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
+  
+  
+<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
+</head>
+
+
+<body class="main-center theme-green" itemscope itemtype="http://schema.org/WebPage">
+  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+  <div class="slimContent">
+    <div class="navbar-header">
+      
+      
+      <div class="profile-block text-center">
+        <a id="avatar" href="https://github.com/yangh124" target="_blank">
+          <img class="img-circle img-rotate" src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" width="200" height="200">
+        </a>
+        <h2 id="name" class="hidden-xs hidden-sm">yangh124</h2>
+        <h3 id="title" class="hidden-xs hidden-sm hidden-md"></h3>
+        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> 浙江，杭州</small>
+      </div>
+      
+      <div class="search" id="search-form-wrap">
+
+    <form class="search-form sidebar-form">
+        <div class="input-group">
+            <input type="text" class="search-form-input form-control" placeholder="搜索" />
+            <span class="input-group-btn">
+                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
+            </span>
+        </div>
+    </form>
+    <div class="ins-search">
+  <div class="ins-search-mask"></div>
+  <div class="ins-search-container">
+    <div class="ins-input-wrapper">
+      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
+      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+    </div>
+    <div class="ins-section-wrapper">
+      <div class="ins-section-container"></div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
+      <ul class="nav navbar-nav main-nav menu-highlight">
+        
+        
+        <li class="menu-item menu-item-home">
+          <a href="/.">
+            
+            <i class="icon icon-home-fill"></i>
+            
+            <span class="menu-title">首页</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives">
+            
+            <i class="icon icon-archives-fill"></i>
+            
+            <span class="menu-title">归档</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories">
+            
+            <i class="icon icon-folder"></i>
+            
+            <span class="menu-title">分类</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags">
+            
+            <i class="icon icon-tags"></i>
+            
+            <span class="menu-title">标签</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-repository">
+          <a href="/repository">
+            
+            <i class="icon icon-project"></i>
+            
+            <span class="menu-title">项目</span>
+          </a>
+        </li>
+        
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about">
+            
+            <i class="icon icon-cup-fill"></i>
+            
+            <span class="menu-title">关于</span>
+          </a>
+        </li>
+        
+      </ul>
+      
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/yangh124" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+    </nav>
+  </div>
+</header>
+
+  
+    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    
+      <div class="widget">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget-body">
+        <div id="board">
+            <div class="content">
+                <p>欢迎交流与分享经验!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E7%A1%80/">基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%84%9A%E6%9C%AC%E8%AF%AD%E8%A8%80/">脚本语言</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k3s/" rel="tag">k3s</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%9E%E6%88%98/" rel="tag">实战</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" rel="tag">网络编程</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget-body">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">五月 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a><span class="archive-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget-body">
+      <ul class="recent-post-list list-unstyled no-thumbnail">
+        
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/06/06/MySQL%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/" class="title">MySQL性能分析工具的使用</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-06-05T16:00:00.000Z" itemprop="datePublished">2022-06-06</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/30/Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%EF%BC%89/" class="title">Redisson分布式锁（使用注解方式）</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-29T16:00:00.000Z" itemprop="datePublished">2022-05-30</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/22/k3s%E5%AE%9E%E6%88%98/" class="title">k3s实战</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-21T16:00:00.000Z" itemprop="datePublished">2022-05-22</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/05/20/Docker%E5%AE%9E%E6%88%98/" class="title">Docker实战</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
+              </p>
+            </div>
+          </li>
+          
+          <li>
+            
+            <div class="item-inner">
+              <p class="item-category">
+                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+              </p>
+              <p class="item-title">
+                <a href="/2022/01/15/InnoDB%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/" class="title">InnoDB数据存储结构</a>
+              </p>
+              <p class="item-date">
+                <time datetime="2022-01-14T16:00:00.000Z" itemprop="datePublished">2022-01-15</time>
+              </p>
+            </div>
+          </li>
+          
+      </ul>
+    </div>
+  </div>
+  
+
+    
+  </div>
+</aside>
+
+  
+  
+<aside class="sidebar sidebar-toc collapse" id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
+  <div class="slimContent">
+    <nav id="toc" class="article-toc">
+      <h3 class="toc-title">文章目录</h3>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Netty"><span class="toc-number">1.</span> <span class="toc-text">Netty</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Netty%E4%BB%8B%E7%BB%8D%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">1.1.</span> <span class="toc-text">Netty介绍应用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Netty%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.1.</span> <span class="toc-text">Netty介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Netty%E7%9A%84%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">1.1.2.</span> <span class="toc-text">Netty的应用场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java-IO%E7%BC%96%E7%A8%8B"><span class="toc-number">1.2.</span> <span class="toc-text">Java IO编程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#IO%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.2.1.</span> <span class="toc-text">IO模型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#IO%E6%A8%A1%E5%9E%8B%E5%9F%BA%E6%9C%AC%E8%AF%B4%E6%98%8E"><span class="toc-number">1.2.1.1.</span> <span class="toc-text">IO模型基本说明</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF%E5%88%86%E6%9E%90"><span class="toc-number">1.2.1.2.</span> <span class="toc-text">适用场景分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java-BIO"><span class="toc-number">1.2.2.</span> <span class="toc-text">Java BIO</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java-NIO"><span class="toc-number">1.2.3.</span> <span class="toc-text">Java NIO</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NIO%E5%92%8CBIO%E7%9A%84%E6%AF%94%E8%BE%83"><span class="toc-number">1.2.4.</span> <span class="toc-text">NIO和BIO的比较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NIO%E4%B8%89%E5%A4%A7%E6%A0%B8%E5%BF%83"><span class="toc-number">1.2.5.</span> <span class="toc-text">NIO三大核心</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%93%E5%86%B2%E5%8C%BA%EF%BC%88Buffer%EF%BC%89"><span class="toc-number">1.2.5.1.</span> <span class="toc-text">缓冲区（Buffer）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%9A%E9%81%93%EF%BC%88Channel%EF%BC%89"><span class="toc-number">1.2.5.2.</span> <span class="toc-text">通道（Channel）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%89%E6%8B%A9%E5%99%A8%EF%BC%88Selector%EF%BC%89"><span class="toc-number">1.2.5.3.</span> <span class="toc-text">选择器（Selector）</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#SelectionKey"><span class="toc-number">1.2.5.3.1.</span> <span class="toc-text">SelectionKey</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#ServerSocketChannel"><span class="toc-number">1.2.5.3.2.</span> <span class="toc-text">ServerSocketChannel</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#SocketChannel"><span class="toc-number">1.2.5.3.3.</span> <span class="toc-text">SocketChannel</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NIO%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B-%E7%BE%A4%E8%81%8A%E7%B3%BB%E7%BB%9F"><span class="toc-number">1.2.6.</span> <span class="toc-text">NIO网络编程应用实例-群聊系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NIO%E4%BA%8E%E9%9B%B6%E6%8B%B7%E8%B4%9D"><span class="toc-number">1.2.7.</span> <span class="toc-text">NIO于零拷贝</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%A0%E7%BB%9FIO"><span class="toc-number">1.2.7.1.</span> <span class="toc-text">传统IO</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#mmap%E4%BC%98%E5%8C%96"><span class="toc-number">1.2.7.2.</span> <span class="toc-text">mmap优化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sendFile%E4%BC%98%E5%8C%96"><span class="toc-number">1.2.7.3.</span> <span class="toc-text">sendFile优化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.2.7.4.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java-AIO"><span class="toc-number">1.2.8.</span> <span class="toc-text">Java AIO</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Netty-1"><span class="toc-number">1.3.</span> <span class="toc-text">Netty</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E7%94%9FNIO%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">1.3.1.</span> <span class="toc-text">原生NIO存在的问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Netty%E9%AB%98%E6%80%A7%E8%83%BD%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1"><span class="toc-number">1.3.2.</span> <span class="toc-text">Netty高性能架构设计</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">线程模型基本介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Reactor%E6%A8%A1%E5%BC%8F%E6%A0%B8%E5%BF%83%E7%BB%84%E6%88%90"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">Reactor模式核心组成</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%95Reactor%E5%8D%95%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.3.3.</span> <span class="toc-text">单Reactor单线程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8D%95Reactor%E5%A4%9A%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.3.4.</span> <span class="toc-text">单Reactor多线程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E4%BB%8EReactor%E5%A4%9A%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.3.5.</span> <span class="toc-text">主从Reactor多线程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Netty%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.3.6.</span> <span class="toc-text">Netty模型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E7%A4%BA%E6%84%8F%E5%9B%BE1-%E7%AE%80%E5%8D%95%E7%89%88"><span class="toc-number">1.3.6.1.</span> <span class="toc-text">工作原理示意图1 - 简单版</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E7%A4%BA%E6%84%8F%E5%9B%BE2-%E8%BF%9B%E9%98%B6%E7%89%88"><span class="toc-number">1.3.6.2.</span> <span class="toc-text">工作原理示意图2 - 进阶版</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E7%A4%BA%E6%84%8F%E5%9B%BE-%E8%AF%A6%E7%BB%86%E7%89%88"><span class="toc-number">1.3.6.3.</span> <span class="toc-text">工作原理示意图 - 详细版</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%BB%E5%8A%A1%E9%98%9F%E5%88%97%E4%B8%ADTask%E6%9C%893%E7%A7%8D%E5%85%B8%E5%9E%8B%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">1.3.6.4.</span> <span class="toc-text">任务队列中Task有3种典型的使用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BC%82%E6%AD%A5%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.3.6.5.</span> <span class="toc-text">异步模型</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Netty%E6%A0%B8%E5%BF%83%E6%A8%A1%E5%9D%97%E7%BB%84%E4%BB%B6"><span class="toc-number">1.3.7.</span> <span class="toc-text">Netty核心模块组件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#BootStrap%E3%80%81ServerBootStrap"><span class="toc-number">1.3.7.1.</span> <span class="toc-text">BootStrap、ServerBootStrap</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Future%E3%80%81ChannelFuture"><span class="toc-number">1.3.7.2.</span> <span class="toc-text">Future、ChannelFuture</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Channel"><span class="toc-number">1.3.7.3.</span> <span class="toc-text">Channel</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Selector"><span class="toc-number">1.3.7.4.</span> <span class="toc-text">Selector</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ChannelHandler%E5%8F%8A%E5%85%B6%E5%AE%9E%E7%8E%B0%E7%B1%BB"><span class="toc-number">1.3.7.5.</span> <span class="toc-text">ChannelHandler及其实现类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Pipeline%E5%92%8CChannelPipeline"><span class="toc-number">1.3.7.6.</span> <span class="toc-text">Pipeline和ChannelPipeline</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ChannelHandlerContext"><span class="toc-number">1.3.7.7.</span> <span class="toc-text">ChannelHandlerContext</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ChannelOption"><span class="toc-number">1.3.7.8.</span> <span class="toc-text">ChannelOption</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#EventLoopGroup%E5%92%8C%E5%85%B6%E5%AE%9E%E7%8E%B0%E7%B1%BBNioEventLoopGroup"><span class="toc-number">1.3.7.9.</span> <span class="toc-text">EventLoopGroup和其实现类NioEventLoopGroup</span></a></li></ol></li></ol></li></ol></li></ol>
+    </nav>
+  </div>
+</aside>
+
+<main class="main" role="main">
+  <div class="content">
+  <article id="post-Netty" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+    <div class="article-header">
+      
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Netty
+    </h1>
+  
+
+      
+      <div class="article-meta">
+        <span class="article-date">
+    <i class="icon icon-calendar-check"></i>
+	<a href="/2021/09/14/Netty/" class="article-date">
+	  <time datetime="2021-09-13T16:00:00.000Z" itemprop="datePublished">2021-09-14</time>
+	</a>
+</span>
+        
+  <span class="article-category">
+    <i class="icon icon-folder"></i>
+    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+  </span>
+
+        
+  <span class="article-tag">
+    <i class="icon icon-tags"></i>
+	<a class="article-tag-link-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" rel="tag">网络编程</a>
+  </span>
+
+
+        
+	<span class="article-read hidden-xs">
+	    <i class="icon icon-eye-fill" aria-hidden="true"></i>
+	    <span id="busuanzi_container_page_pv">
+			<span id="busuanzi_value_page_pv">0</span>
+		</span>
+	</span>
+
+
+	<span class="article-read hidden-xs">
+    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
+    	<span id="/2021/09/14/Netty/" class="leancloud_visitors"  data-flag-title="Netty">
+			<span class="leancloud-visitors-count">0</span>
+		</span>
+    </span>
+
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/09/14/Netty/#comments" class="article-comment-link">评论</a></span>
+        
+	
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 7.1k(字)</span>
+	
+	
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 25(分)</span>
+	
+
+      </div>
+    </div>
+    <div class="article-entry marked-body" itemprop="articleBody">
+      
+        <h1 id="Netty"><a href="#Netty" class="headerlink" title="Netty"></a>Netty</h1><h2 id="Netty介绍应用场景"><a href="#Netty介绍应用场景" class="headerlink" title="Netty介绍应用场景"></a>Netty介绍应用场景</h2><h3 id="Netty介绍"><a href="#Netty介绍" class="headerlink" title="Netty介绍"></a>Netty介绍</h3><ol>
+<li>Netty是Jboss提供的一个开源框架，现为GitHub上的独立项目。</li>
+<li>Netty是异步的、基于事件驱动的网络应用框架，用以快速开发高性能、高可靠性的网络IO程序。</li>
+<li>Netty主要针对在TCP协议下，面向Clients端的高并发应用，或者Peer to Peer场景下的大量数据持续传输的应用。</li>
+<li>Netty本质是NIO框架，适用于服务器通讯相关的多种应用场景。</li>
+<li>要透彻理解Netty，需要先学习NIO，这样我们才能阅读Netty源码。<span id="more"></span>
+<img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/14/16316233529799.jpg" alt="16316233529799"></li>
+</ol>
+<h3 id="Netty的应用场景"><a href="#Netty的应用场景" class="headerlink" title="Netty的应用场景"></a>Netty的应用场景</h3><ol>
+<li>互联网行业<ul>
+<li>在分布式系统中，各个节点之间需要远程服务调用，高性能的RPC框架必不可少，Netty作为异步高性能通信框架，往往作为基础通信组件被这些RPC框架使用。</li>
+<li>典型应用：阿里分布式服务框架Dubbo的RPC框架使用Dubbo协议进行节点间通信，Dubbo协议默认使用Netty作为基础通信组件，用与实现各进程节点之间的内部通信。</li>
+</ul>
+</li>
+<li>游戏行业<ul>
+<li>无论是手游服务端还是大型的网络游戏，Java语言得到了越来越广泛的应用。</li>
+<li>Netty作为高性能的基础通信组件，提供了TCP&#x2F;UDP和HTTP协议栈，方便定制和开发私有协议，账号登录服务器。</li>
+<li>地图服务器之间可以方便的通过Netty进行高性能的通信。</li>
+</ul>
+</li>
+<li>大数据领域<ul>
+<li>经典的Hadoop的高性能通信和序列化组件（AVRO 实现数据文件共享）的RPC框架，默认采用Netty进行跨界点通信。</li>
+<li>它的Netty Service基于Netty框架二次封装实现的。</li>
+</ul>
+</li>
+</ol>
+<h2 id="Java-IO编程"><a href="#Java-IO编程" class="headerlink" title="Java IO编程"></a>Java IO编程</h2><h3 id="IO模型"><a href="#IO模型" class="headerlink" title="IO模型"></a>IO模型</h3><h4 id="IO模型基本说明"><a href="#IO模型基本说明" class="headerlink" title="IO模型基本说明"></a>IO模型基本说明</h4><ol>
+<li>IO模型简单的理解：就是用什么样的通道进行数据的发送和接收，很大程度上决定了程序通信的性能。</li>
+<li>java共支持3种网络编程模型IO模式：NIO、BIO、AIO<ol>
+<li>BIO：同步并阻塞（传统阻塞型），服务器实现模式为一个连接一个线程，即客户端有连接请求时服务器端就需要启动一个线程进行处理，如果这个连接不做任何事情会造成不必要的线程开销。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/14/16316252775663.jpg" alt="16316252775663"></li>
+<li>NIO：同步非阻塞，服务器实现模式为一个线程处理多个请求（连接），即客户端发送连接请求都会注册到多路复用器上， 多路复用器轮询到连接有IO请求就进行处理。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/14/16316256732370.jpg" alt="16316256732370"></li>
+<li>AIO（NIO.2）：异步非阻塞，AIO引入异步通道的概念，采用了Proactor模式，简化了程序编写，有效的请求才启动线程，它的特点是先由操作系统完成后才通知服务端程序启动线程取处理，一般适用于连接数多且连接时间较长的应用。<h4 id="适用场景分析"><a href="#适用场景分析" class="headerlink" title="适用场景分析"></a>适用场景分析</h4></li>
+</ol>
+</li>
+<li>BIO方式适用于连接数目较小且固定的架构，这种方式对服务器资源要求比较高，并发局限于应用中，JDK1.4以前的唯一选择，但程序简单易理解。</li>
+<li>NIO方式适用于连接数目多且连接时间比较短（轻操作）的架构，比如聊天服务器，弹幕系统，服务间通讯等。编程比较复杂，JDK1.4开始支持。</li>
+<li>AIO方式适用于连接数目多且连接比较长（重操作）的架构，比如相册服务器，充分调用OS参与并发操作，编程比较复杂，JDk7开始支持。<h3 id="Java-BIO"><a href="#Java-BIO" class="headerlink" title="Java BIO"></a>Java BIO</h3></li>
+<li>Java BIO就是传统的java io编程，其相关的类和接口在java.io </li>
+<li>BIO（block IO）：同步阻塞，服务器实现模式为一个连接一个线程，即客户端有连接请求是服务端就需要启动一个线程进行处理，如果连接不做任何事情会造成不必要的线程开销，可以通过线程池机制改善（实现多个客户端连接服务器）。</li>
+<li>BIO方式适用于连接数目比较小且固定的架构，这种方式对服务器资源的要求比较高，并发局限于应用中，JDK1.4以前唯一的选择程序简单易理解</li>
+<li>对BIO流程的梳理<ol>
+<li>服务端启动一个ServerSocket</li>
+<li>客户端启动Socket对服务器进行通信，默认情况下服务器端需要对每一个客户建立一个线程与之通讯</li>
+<li>客户端发出请求后，先咨询服务器是否有线程响应，如果没有则会等待，或者拒绝</li>
+<li>如果有响应，客户端线程会等待请求结束后，再继续执行</li>
+</ol>
+</li>
+<li>Java BIO应用实例<ol>
+<li>使用BIO模型编写一个服务端，监听6666端口，当有客户端连接时，就启动一个线程与之通信。</li>
+<li>要求使用线程池机制改善，可以连接多个客户端。</li>
+<li>服务端可以接收客户端发送的数据（telnet方式即可）</li>
+<li>demo见netty-study<h3 id="Java-NIO"><a href="#Java-NIO" class="headerlink" title="Java NIO"></a>Java NIO</h3></li>
+</ol>
+</li>
+<li>Java NIO全称 java non-blocking IO，是指JDK提供的新API。从JDK1.4开始，Java提供了一系列改进的输入&#x2F;输出的新特性，被统称为NIO（New IO），是同步非阻塞的</li>
+<li>NIO相关类都被放在java.nio包及子包下，并且对原java.nio包中的很多类进行改写。</li>
+<li>NIO有三大核心部分：Channel（通道），Buffer（缓冲区），Selector（选择器）。</li>
+<li>NIO是面向缓冲区，或者面向块编程的。数据读取到一个它稍后处理的缓冲区，需要时可在缓冲区中前后移动，这就增加了处理过程中的灵活性，使用它可以提供非阻塞的高伸缩性网络</li>
+<li>Java NIO的非阻塞模式，使一个线程从某通道发送请求或者读取数据，但是它仅能得到目前可用的数据，如果目前没有可用的数据，就什么都不会获取，而不是保持线程阻塞，所以直至数据变得可以读之前，该线程可以继续做其他的事情。非阻塞写也是如此，一个线程请求写入一些数据到某通道，但不需要等待它完全写入，这个线程同时可以去做别的事情。</li>
+<li>通俗理解：NIO是可以做到用一个线程来处理多个操作的。假设有10000个请求过来，根据实际情况，可以分配50或者100个线程来处理。不像之前的阻塞IO那样，非得分配10000个线程。</li>
+<li>http2.0使用了多路复用的技术，做到同一个连接并发处理多个请求，而且并发请求的数量比http1.1大了好几个数量级。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/22/16323168494091.jpg" alt="16323168494091"><h3 id="NIO和BIO的比较"><a href="#NIO和BIO的比较" class="headerlink" title="NIO和BIO的比较"></a>NIO和BIO的比较</h3></li>
+<li>BIO以流的方式处理数据，而NIO以块的方式处理数据，块IO的效率比流IO高很多</li>
+<li>BIO是阻塞的，NIO则是非阻塞的</li>
+<li>BIO基于字节流和字符流进行操作，而NIO基于Channel（通道）和Buffer（缓冲区）进行操作，数据总是从通道读取到缓冲区中，或者从缓冲区写入到通道中。Selector（选择器）用于监听多个通道的事件（比如：连接请求，数据到达等），因此使用当个线程就可以监听多个客户端通道<h3 id="NIO三大核心"><a href="#NIO三大核心" class="headerlink" title="NIO三大核心"></a>NIO三大核心</h3></li>
+</ol>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/22/16323190875807.jpg" alt="16323190875807"></p>
+<ol>
+<li>每个Channel都会对应一个Buffer</li>
+<li>Selector会对应一个线程，一个线程对应多个Channel（连接）</li>
+<li>该图反映了有三个Channel注册到该Selector上</li>
+<li>程序切换到哪个Channel是由事件决定的，Event就是一个重要的概念</li>
+<li>Selector会根据不同的事件，在各个通道上切换</li>
+<li>Buffer就是一个内存块，底层是一个数组</li>
+<li>数据的读取写入都是通过Buffer，这个和BIO有很大区别（BIO要么是输入流，要么是输出流，不能双向）</li>
+<li>Channel是双向的，可以反映操作系统底层的情况，比如Linux，底层的通道就是双向的</li>
+</ol>
+<h4 id="缓冲区（Buffer）"><a href="#缓冲区（Buffer）" class="headerlink" title="缓冲区（Buffer）"></a>缓冲区（Buffer）</h4><p> 基本介绍：    </p>
+<ol>
+<li>缓冲区本质上是一个可以读写数据的内存块，可以理解为是一个容器对象（数组），该对象提供一组方法，可以轻松跟踪和记录缓存区的状态变换情况。Channel提供从文件、网络读取数据的渠道，但是读取或写入的数据都必须经由Buffer。如图：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/27/16327501871455.jpg" alt="16327501871455"></li>
+<li>Buffer类定义了所有的缓冲区都具有4个属性来提供关于其所包含的数据元素的信息：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/27/16327501702766.jpg" alt="16327501702766"></li>
+<li>Buffer类相关方法<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/27/16327503987878.jpg" alt="16327503987878"><br><strong>ByteBuffer</strong>：<br> 对于Java中的基本数据类型（boolean）除外，都有一个Buffer类型与之相对应，最常用的自然是ByteBuffer类（二进制数据），该类的主要方法：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/27/16327506868826.jpg" alt="16327506868826"></li>
+</ol>
+<h4 id="通道（Channel）"><a href="#通道（Channel）" class="headerlink" title="通道（Channel）"></a>通道（Channel）</h4><p>基本介绍：</p>
+<ol>
+<li>NIO的通道类似于流，但是有些区别：<ol>
+<li>通道可以同时进行读写，而流只能读或者只能写</li>
+<li>通道可以实现异步读写数据</li>
+<li>通道可以从缓冲读数据，也可以写数据到缓冲</li>
+</ol>
+</li>
+<li>BIO的stream是单向的，例如FileInputStream对象只能进行读取数据的操作，而NIO中的通道（Channel）是双向的，可以读操作，也可以写操作。</li>
+<li>Channel在NIO中是一个接口</li>
+<li>常用的Channel类有：FileChannel、DatagramChannel、ServerSocketChannel和SocketChannel（ServerSocketChannel -&gt; Java ServerSocket；SocketChannel -&gt; Java Socket）</li>
+<li>FileChannel用于文件读写，DatagramChannel用于udp的数据读写，ServerSocketChannel和SocketChannel用于tcp数据读写<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/27/16327523590487.jpg" alt="16327523590487"></li>
+</ol>
+<p><strong>FileChannel类</strong><br>FileChannel主要用于对本地文件进行IO操作，常见的方法有<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/27/16327525043113.jpg" alt="16327525043113"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/27/16327537673560.jpg" alt="16327537673560"></p>
+<p><strong>关于Buffer和Channel的注意事项和细节</strong></p>
+<ol>
+<li>Buffer支持类型化的put和get，put放入的是什么数据类型，get就应该使用相应的数据类型来取出，否则可能有BufferUnderflowException。</li>
+<li>可以将一个普通Buffer转成只读Buffer。</li>
+<li>NIO还提供了MappedByteBuffer，可以让文件直接在内存（堆外内存）中进行修改，而如何同步到文件由NIO来完成。</li>
+<li>前面我们讲的读写操作，都是通过一个Buffer来完成的，NIO还支持通过多个Buffer（即Buffer数组）完成读写操作，即Scattering（分散）和Gathering（合并）。</li>
+</ol>
+<h4 id="选择器（Selector）"><a href="#选择器（Selector）" class="headerlink" title="选择器（Selector）"></a>选择器（Selector）</h4><ol>
+<li>Java的NIO，用非阻塞的IO方式。可以用一个线程，处理多个的客户端连接，就会使用到Selector（选择器）。</li>
+<li><strong>Selector能够检测多个注册的通道上是否有事件发生（注意：多个Channel以事件的方式可以注册到同一个Selector）</strong>，如果有事件发生，便获取事件然后针对每个事件进行相应的处理。这样就可以只用一个单线程去管理多个通道，也就是管理多个连接和请求。</li>
+<li>只有连接真正有读写事件发生时，才会进行读写，就大大地减少了系统开销，并且不必为每个连接都创建一个线程，不用去维护多个线程</li>
+<li>避免了多线程之间的上下文切换导致的开销。<br><strong>特点再说明：</strong><ol>
+<li>Netty的IO线程NioEventLoop聚合了Selector（选择器，也叫多路复用器），可以同时并发处理成百上千个客户端连接。</li>
+<li>当线程从某个客户端Socket通道进行读写数据时，若没有数据可用时，该线程可以进行其他任务。</li>
+<li>线程通常将非阻塞IO的空闲时间用于在其他通道上执行IO操作，所以单独的线程可以管理多个输入和输出通道。</li>
+<li>由于读写操作时非阻塞的，这就可以充分提升IO线程的运行效率，避免由于频繁的IO阻塞导致线程挂起。</li>
+<li>一个IO线程可以并发的处理N个客户端连接和读写操作，这从根本上解决传统同步阻塞IO一连接一线程模型，架构的性能、弹性伸缩能力和可靠性都得到了极大的提升。</li>
+<li>Selector相关方法说明： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">selector.select();// 阻塞</span><br><span class="line">selector.select(1000);// 阻塞1秒，在1秒后返回</span><br><span class="line">selector.wakeup();// 唤醒selector</span><br><span class="line">selector.selectNow();// 不阻塞，立即返回</span><br></pre></td></tr></table></figure>
+<strong>NIO非阻塞网络编程原理分析图</strong></li>
+</ol>
+</li>
+</ol>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/08/16336985904631.jpg" alt="16336985904631"><br>    说明：<br>        1. 当客户端连接时，会通过ServerSocketChannel得到SocketChannel。<br>        2. 将socketChannel注册到Selector上（register(Selector selector, int ops)），一个selector上可以注册多个SocketChannel。<br>        3. 注册后返回一个selectionKey，会和该Selector关联（集合）。<br>        4. Selector进行监听（select方法），返回有时间发生的通道个数,得到各个SelectionKey<br>        5. 通过SelectionKey反向获取SocketChannel（channel方法）<br>        6. 最后可以通过得到channel，完成业务处理</p>
+<h5 id="SelectionKey"><a href="#SelectionKey" class="headerlink" title="SelectionKey"></a>SelectionKey</h5><p>SelectionKey,表示Selector和网络通道的注册关系，共4种：<br>    * OP_ACCEPT：有新的网络连接可以accept，值为16<br>    * OP_CONNECT：代表连接已经建立，值为8<br>    * OP_READ：代表读操作，值为1<br>    * OP_WRITE：代表写操作，值为4<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/13/16341300676869.jpg" alt="16341300676869"></p>
+<h5 id="ServerSocketChannel"><a href="#ServerSocketChannel" class="headerlink" title="ServerSocketChannel"></a>ServerSocketChannel</h5><ol>
+<li>ServerSocketChannel在服务器端监听新的客户端Socket连接</li>
+<li>相关方法<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/13/16341310234601.jpg" alt="16341310234601"><h5 id="SocketChannel"><a href="#SocketChannel" class="headerlink" title="SocketChannel"></a>SocketChannel</h5></li>
+<li>SocketChannel，网络IO通道，具体负责进行读写操作。NIO把缓冲区的数据写入通道，或者把通道里的数据读到缓冲区。</li>
+<li>相关方法<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/13/16341315034228.jpg" alt="16341315034228"><h3 id="NIO网络编程应用实例-群聊系统"><a href="#NIO网络编程应用实例-群聊系统" class="headerlink" title="NIO网络编程应用实例-群聊系统"></a>NIO网络编程应用实例-群聊系统</h3></li>
+<li>编写一个NIO群聊系统，实现服务器和客户端之间的数据简单通讯（非阻塞）</li>
+<li>实现多人群聊</li>
+<li>服务端：可以监测用户上下线，并实现消息转发功能</li>
+<li>客户端：通过Channel可以无阻塞发送消息给其它所有用户，同时可以接受其它用户发送的消息（由服务器转发得到）</li>
+<li>目的：进一步理解NIO非阻塞网络编程<h3 id="NIO于零拷贝"><a href="#NIO于零拷贝" class="headerlink" title="NIO于零拷贝"></a>NIO于零拷贝</h3></li>
+<li>零拷贝（没有CPU拷贝）是网络编程的关键，很多性能优化都离不开。</li>
+<li>在Java程序中，常用的零拷贝有mmap（内存映射）和sendFile。<h4 id="传统IO"><a href="#传统IO" class="headerlink" title="传统IO"></a>传统IO</h4><strong>4次拷贝，3次切换状态</strong><br>DMA：direct memory access（直接内存访问）<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/16/16343550358155.jpg" alt="16343550358155"><h4 id="mmap优化"><a href="#mmap优化" class="headerlink" title="mmap优化"></a>mmap优化</h4><strong>3次拷贝，3次切换状态</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/16/16343550554506.jpg" alt="16343550554506"><h4 id="sendFile优化"><a href="#sendFile优化" class="headerlink" title="sendFile优化"></a>sendFile优化</h4></li>
+<li>Linux2.1版本提供了sendFile函数，其基本原理如下：数据根本不用经过用户态，直接从内核缓冲区进入到Socket Buffer，同时，由于和用户态完全无关，就减少了一次上下文切换。<br><strong>3次拷贝，2次切换状态</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/16/16343554344704.jpg" alt="16343554344704"></li>
+<li>Linux2.4版本中，做了一些修改，避免从内核缓冲区拷贝到Socket Buffer的操作，直接拷贝到协议栈，从而又一次减少了数据拷贝。<br><strong>2次拷贝*，2次切换状态</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/16/16343557877424.jpg" alt="16343557877424"><br>*这里其实是有一次cpu拷贝的，但是拷贝的信息很少，拷贝一些元数据（length，offset..）,消耗很低，可以忽略<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4></li>
+<li>我们说零拷贝，是从操作系统的角度来说的。因为内核缓冲区之间，没有数据重复的（只有Kernel buffer中有一份数据）。</li>
+<li>零拷贝不仅仅带来更少的数据复制，还能带来其他的性能优势，例如更少的上下文切换，更少的CPU缓存伪共享以及无CPU校验和计算。<h3 id="Java-AIO"><a href="#Java-AIO" class="headerlink" title="Java AIO"></a>Java AIO</h3></li>
+<li>JDK7引入了Asynchronous IO，即AIO。在进行IO编程中，常用到两种模式：Reactor和Proactor。Java的NIO就是Reactor，当有事件触发时，服务端得到通知，进行相应的处理</li>
+<li>AIO及NIO2.0，叫做异步不阻塞的IO。AIO引入异步通道的概念，采用了Proactor模式，简化了程序编写，有效的请求才启动线程，它的特点是先由操作系统完成后才通知服务端程序启动线程去处理，一般适用于连接数较多且连接事件较长的应用</li>
+<li>目前AIO还没有广泛应用，Netty也是基于NIO的<h2 id="Netty-1"><a href="#Netty-1" class="headerlink" title="Netty"></a>Netty</h2><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/17/16344771397316.jpg" alt="16344771397316"><h3 id="原生NIO存在的问题"><a href="#原生NIO存在的问题" class="headerlink" title="原生NIO存在的问题"></a>原生NIO存在的问题</h3></li>
+<li>NIO的类库和API繁杂，使用麻烦：需要熟练掌握Selector、ServerSocketChannel、SocketChannel、ByteBuffer等。</li>
+<li>需要具备其他额外的技能：要熟悉java多线程编程，因为NIO编程涉及到Reactor模式，你必须对多线程网络编程非常熟悉，才能编写出高质量的NIO程序。</li>
+<li>开发工作量和难度非常大：例如客户端面临断连重连、网络闪断、半包读写、失败缓存、网络拥塞和异常流的处理等等。</li>
+<li>JDK NIO的BUG：例如臭名昭著的Epoll Bug，它会导致Selector空轮询，最终导致CPU 100%。直到JDK1.7版本该问题依旧存在，没有被根本解决。<h3 id="Netty高性能架构设计"><a href="#Netty高性能架构设计" class="headerlink" title="Netty高性能架构设计"></a>Netty高性能架构设计</h3><h4 id="线程模型基本介绍"><a href="#线程模型基本介绍" class="headerlink" title="线程模型基本介绍"></a>线程模型基本介绍</h4></li>
+<li>目前存在的线程模型有：<ul>
+<li>传统的阻塞IO服务模型</li>
+<li>Reactor模式</li>
+</ul>
+</li>
+<li>根据Reactor的数量和处理资源池线程的数量不同，有3种典型的实现<ul>
+<li>单Reactor单线程</li>
+<li>单Reactor多线程</li>
+<li>主从Reactor多线程</li>
+</ul>
+</li>
+<li>Netty线程模式（Netty主要基于主从Reactor多线程模型做了一定的改进，其中主从Reactor多线程模型有多个Reactor）</li>
+</ol>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/17/16344787922814.jpg" alt="16344787922814"></p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/17/16344791404243.jpg" alt="16344791404243"><br>说明：<br>    1. Reactor模式，通过一个或多个输入同时传递给服务处理器的模式（基于事件驱动）<br>    2. 服务端程序处理传入的多个请求，并将它们同步分派到相应的处理线程，因此Reactor模式也叫做Dispather模式<br>    3. Reactor模式使用IO复用监听事件，收到事件后，分发给某个线程（进程）。这就是支持高并发的原因</p>
+<h4 id="Reactor模式核心组成"><a href="#Reactor模式核心组成" class="headerlink" title="Reactor模式核心组成"></a>Reactor模式核心组成</h4><ol>
+<li>Reactor：Reactor在一个单独的线程中运行，负责监听和分发事件，分发给适当的处理程序来对IO事件做出反应。它就像公司的电话接线员，它接听来自客户的电话并将线路转移到适当的联系人。</li>
+<li>Handlers：处理程序执行IO事件要完成的实际事件，类似于客户想要与之交谈的公司中的实际人员。Reactor通过调度适当的处理程序来响应IO事件，处理程序执行非阻塞操作。<h3 id="单Reactor单线程"><a href="#单Reactor单线程" class="headerlink" title="单Reactor单线程"></a>单Reactor单线程</h3><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345582830238.jpg" alt="16345582830238"></li>
+<li>优点：模型简单，没有多线程、进程通信、竞争的问题，全部都在一个线程中完成</li>
+<li>缺点：性能问题，只有一个线程，无法完全发挥多核CPU的性能。Handler在处理某个连接上的业务时，整个进程无法处理其他连接事件，很容易导致性能瓶颈；可靠性问题，线程意外终止，或者进入死循环，会导致整个系统通信模块不可用，不能接收和处理外部消息，造成节点故障。</li>
+<li>使用场景：客户端数量有限，业务处理非常快速，比如Redis在业务处理的时间复杂度O(1)的情况<h3 id="单Reactor多线程"><a href="#单Reactor多线程" class="headerlink" title="单Reactor多线程"></a>单Reactor多线程</h3><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345609747836.jpg" alt="16345609747836"><br>说明：</li>
+<li>Reactor对象通过select监控客户端请求事件，收到事件后，通过Dispatch进行分发</li>
+<li>如果建立连接请求（accept），则由Accept通过accept处理连接请求，然后创建一个Handler对象处理完成连接后的各种事件</li>
+<li>如果不是连接请求，则由Reactor分发调用连接对应的handler来处理</li>
+<li>handler只负责响应事件，不做具体的业务处理，通过read读取数据后，会分发给后面的worker线程池的某个线程处理业务</li>
+<li>worker线程池会分配独立线程完成真正的业务，并将处理结果返回给handler</li>
+<li>handler收到响应后，通过send方法将结果返回给client<br>优点：可以比较充分利用多核cpu的处理能力<br>缺点： 多线程数据共享和访问比较复杂，Reactor还是单线程的，在高并发下也会出现性能瓶颈<h3 id="主从Reactor多线程"><a href="#主从Reactor多线程" class="headerlink" title="主从Reactor多线程"></a>主从Reactor多线程</h3><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345622839532.jpg" alt="16345622839532"><br>说明：</li>
+<li>Reactor主线程MainReactor对象通过select监听连接事件，收到事件后，通过Acceptor处理连接事件</li>
+<li>当Acceptor处理连接事件后，MainReactor将连接分配给SubReactor</li>
+<li>SubReactor将连接加入到连接队列，并创建handler进行各种事件的处理</li>
+<li>当有新的事件发生时，SubReactor就会调用对应的handler进行处理</li>
+<li>handler通过read读取数据，分发给后面的worker线程处理</li>
+<li>worker线程池分配独立的worker线程进行处理，并返回结果</li>
+<li>handler收到响应后，再通过send将结果返回client</li>
+<li>Reactor主线程可以对应多个Reactor子线程，一个MainReactor对应多个SubReactor<br>优点：父线程与子线程的数据交互简单职责明确，父线程只需要接收新连接，子线程完成后续业务处理；父线程与子线程的数据交互简单，Reactor主线程只需要把新连接传给子线程，子线程无需返回数据<br>缺点：编程复杂度较高<br>结合实例：这种模型在许多项目中广泛使用，包括Nginx主从Reactor多线程模型，Memcached主从多线程，Netty主从多线程模型的支持<h3 id="Netty模型"><a href="#Netty模型" class="headerlink" title="Netty模型"></a>Netty模型</h3><h4 id="工作原理示意图1-简单版"><a href="#工作原理示意图1-简单版" class="headerlink" title="工作原理示意图1 - 简单版"></a>工作原理示意图1 - 简单版</h4><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345655214458.jpg" alt="16345655214458"><h4 id="工作原理示意图2-进阶版"><a href="#工作原理示意图2-进阶版" class="headerlink" title="工作原理示意图2 - 进阶版"></a>工作原理示意图2 - 进阶版</h4><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345656941806.jpg" alt="16345656941806"><h4 id="工作原理示意图-详细版"><a href="#工作原理示意图-详细版" class="headerlink" title="工作原理示意图 - 详细版"></a>工作原理示意图 - 详细版</h4><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345658608160.jpg" alt="16345658608160"></li>
+<li>Netty 抽象出两组线程池：BossGroup 和 WorkerGroup，也可以叫做 BossNioEventLoopGroup 和WorkerNioEventLoopGroup。每个线程池中都有 NioEventLoop 线程。BossGroup 中的线程专门负责和客户端建立连接，WorkerGroup 中的线程专门负责处理连接上的读写。</li>
+<li>BossGroup 和 WorkerGroup 的类型都是 NioEventLoopGroup。</li>
+<li>NioEventLoopGroup 相当于一个事件循环组，这个组中含有多个事件循环，每个事件循环就是一个 NioEventLoop。</li>
+<li>NioEventLoop 表示一个不断循环的执行事件处理的线程，每个 NioEventLoop 都包含一个 Selector，用于监听注册在其上的 Socket 网络连接（Channel）。</li>
+<li>NioEventLoopGroup 可以含有多个线程，即可以含有多个 NioEventLoop。</li>
+<li>每个 BossNioEventLoop 中循环执行以下三个步骤：<ol>
+<li>select：轮询注册在其上的 ServerSocketChannel 的 accept 事件（OP_ACCEPT 事件）</li>
+<li>processSelectedKeys：处理 accept 事件，与客户端建立连接，生成一个 NioSocketChannel，并将其注册到某个 WorkerNioEventLoop 上的 Selector 上</li>
+<li>runAllTasks：再去以此循环处理任务队列中的其他任务</li>
+</ol>
+</li>
+<li>每个 WorkerNioEventLoop 中循环执行以下三个步骤：<ol>
+<li>select：轮训注册在其上的 NioSocketChannel 的 read&#x2F;write 事件（OP_READ&#x2F;OP_WRITE 事件）</li>
+<li>processSelectedKeys：在对应的 NioSocketChannel 上处理 read&#x2F;write 事件</li>
+<li>runAllTasks：再去以此循环处理任务队列中的其他任务</li>
+</ol>
+</li>
+<li>在以上两个processSelectedKeys步骤中，会使用 Pipeline（管道），Pipeline 中引用了 Channel，即通过 Pipeline 可以获取到对应的 Channel，Pipeline 中维护了很多的处理器（拦截处理器、过滤处理器、自定义处理器等）。这里暂时不详细展开讲解 Pipeline。<h4 id="任务队列中Task有3种典型的使用场景"><a href="#任务队列中Task有3种典型的使用场景" class="headerlink" title="任务队列中Task有3种典型的使用场景"></a>任务队列中Task有3种典型的使用场景</h4></li>
+<li>用户自定义的普通任务 -&gt; TaskQueue</li>
+<li>用户自定义定时任务 -&gt; ScheduleTaskQueue</li>
+<li>非当前Reactor线程调用Channel的各种方法<br>例如在推送系统的业务线程里面，根据用户的标识，找到对应的Channel引用，然后调用Write类方法向该用户推送消息，就会进入到这种场景。最终的Write会提交到任务队列中后被异步消费<h4 id="异步模型"><a href="#异步模型" class="headerlink" title="异步模型"></a>异步模型</h4></li>
+<li>异步的概念和同步相对。当一个异步过程调用发出后，调用者不能立刻得到结果。实际处理这个调用的组件在完成后，通过状态、通知和回调来通知调用者。</li>
+<li>Netty中的IO操作是异步的，包括Bind、Write、Connect等操作会简单返回一个ChannelFuture。</li>
+<li>调用者不能立刻获得结果，而是通过Future-Listener机制，用户可以方便的主动获取或者通过通知机制获取IO结果。</li>
+<li>Netty的异步模型是建立在Future和callback之上的。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/23/16349582177471.jpg" alt="16349582177471"><h3 id="Netty核心模块组件"><a href="#Netty核心模块组件" class="headerlink" title="Netty核心模块组件"></a>Netty核心模块组件</h3><h4 id="BootStrap、ServerBootStrap"><a href="#BootStrap、ServerBootStrap" class="headerlink" title="BootStrap、ServerBootStrap"></a>BootStrap、ServerBootStrap</h4></li>
+<li>BootStrap意思是引导，一个Netty应用通常由一个BootStrap开始，主要作用是配置整个Netty程序，串联各个组件，Netty中BootStrap类是客户端程序的启动引导类，ServerBootStrap是服务端启动引导类</li>
+<li>常见方法有：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/01/16357740744142.jpg" alt="16357740744142"><h4 id="Future、ChannelFuture"><a href="#Future、ChannelFuture" class="headerlink" title="Future、ChannelFuture"></a>Future、ChannelFuture</h4></li>
+<li>Netty中所有的IO操作都是异步的，不能立刻得知消息是否被正确处理。通过Future和ChannelFuture，它们可以注册一个监听，当操作执行成功或失败时监听会自动触发注册的监听事件</li>
+<li>常见的方法：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/01/16357744624365.jpg" alt="16357744624365"><h4 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h4></li>
+<li>Netty通信的组件，能够用于执行网络IO操作。</li>
+<li>通过Channel可获取当前网络连接的通道的状态。</li>
+<li>通过Channel可获得网络连接的配置参数（例如接收缓冲区大小）</li>
+<li>Channel提供异步的网络IO操作（如建立连接，读写，绑定端口）。异步调用意味着任何IO调用都将立即返回，并且不保证在调用结束时说请求的IO操作完成。</li>
+<li>调用立即返回一个ChannelFuture实例，通过注册监听器到ChannelFuture上，可以IO操作成功、失败或取消时回调通知调用方</li>
+<li>支持关联IO操作与对应的处理程序</li>
+<li>不同协议、不同的阻塞类型都有不同的Channel类型与之对应，常用的Channel类型：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/01/16357750690247.jpg" alt="16357750690247"><h4 id="Selector"><a href="#Selector" class="headerlink" title="Selector"></a>Selector</h4></li>
+<li>Netty基于Selector对象实现IO多路复用，通过Selector一个线程可以监听多个连接的Channel事件。</li>
+<li>当向一个Selector中注册Channel后，Selector内部的机制就可以自动不断的查询（select）这些注册的Channel是否有已就绪的IO事件（例如可读，可写，网络连接完成等），这样程序久可以简单的使用一个线程高效的管理多个Channel<h4 id="ChannelHandler及其实现类"><a href="#ChannelHandler及其实现类" class="headerlink" title="ChannelHandler及其实现类"></a>ChannelHandler及其实现类</h4></li>
+<li>ChannelHandler是一个接口，处理IO事件或拦截IO操作，并将其转发到其ChannelPipeline（业务处理链）中的下一个处理程序。</li>
+<li>ChannelHandler本身没有提供很多方法，因为这个接口有许多的方法需要实现，方便使用期间，可以继承它的子类</li>
+<li>ChannelHandler及其实现类：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/04/16360306395987.jpg" alt="16360306395987"></li>
+</ol>
+<ul>
+<li>ChannelInboundHandler用于处理入站IO事件。</li>
+<li>ChannelOutboundHandler用于处理出站IO操作。</li>
+<li>ChannelDuplexHandler既可以用于处理入站IO，也可以处理出站IO<h4 id="Pipeline和ChannelPipeline"><a href="#Pipeline和ChannelPipeline" class="headerlink" title="Pipeline和ChannelPipeline"></a>Pipeline和ChannelPipeline</h4></li>
+</ul>
+<ol>
+<li>ChannelPipeline是一个Handler的集合，它负责处理和拦截inbound或者outbound的事件和操作，相当于一个贯穿Netty的链。</li>
+<li>ChannelPipeline实现了一种高级形式的拦截过滤器模式，使用户可以完全控制事件的处理方式，以及CHannel中各个的ChannelHandler如何交互</li>
+<li>在Netty中每个Channel都有且仅有一个ChannelPipeline与之对应，它们的组成关系如下<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/10/16365493912838.jpg" alt="16365493912838"></li>
+</ol>
+<ul>
+<li>一个Channel包含了一个ChannelPipeline，而ChannelPipeline中又维护了一个有ChannelHandlerContext组成的双向链表，并且每个ChannelHandlerContext又关联着一个ChannelHandler</li>
+<li>入站事件和出站事件在一个双向链表中，入站事件会从链表head往后传递到最后一个入站的handler，出站事件会从链表的tail往前传递到最前一个出站的handler，两种类型的handler互补干扰<h4 id="ChannelHandlerContext"><a href="#ChannelHandlerContext" class="headerlink" title="ChannelHandlerContext"></a>ChannelHandlerContext</h4></li>
+</ul>
+<ol>
+<li>保存Channel相关的所有上下文信息，同时关联一个ChannelHandler对象</li>
+<li>即ChannelHandlerContext中包含一个具体的事件处理器ChannelHandler，同时ChannelHandlerContext中也绑定了对应的pipeline和Channel信息，方便对ChannelHandler进行调用。</li>
+<li>常用方法：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ChannelFuture close(); //关闭通道</span><br><span class="line">ChannelOutBoundInvoker flush(); //刷新</span><br><span class="line">ChannelFuture writeAndFlush(Object msg); //将数据写到ChannelPipeline中当前ChannelHandler的next</span><br></pre></td></tr></table></figure>
+<h4 id="ChannelOption"><a href="#ChannelOption" class="headerlink" title="ChannelOption"></a>ChannelOption</h4></li>
+<li>Netty在创建Channel实例后，一般都需要设置ChannelOption参数。</li>
+<li>ChannelOption参数如下：<ul>
+<li>ChannelOption.SO_BACHLOG：对应TCP&#x2F;IP协议listen函数中的backlog参数，用来初始化服务器可连接队列的大小。服务端处理客户端连接请求是顺序处理的，所以同一时间只能处理一个客户端连接。多个客户端来的时候，服务端将不能处理的客户端连接请求放在队列中等待处理，backlog参数指定了队列的大小。</li>
+<li>ChannelOption.SO_KEEPALIVE：一直保持连接活动状态。<h4 id="EventLoopGroup和其实现类NioEventLoopGroup"><a href="#EventLoopGroup和其实现类NioEventLoopGroup" class="headerlink" title="EventLoopGroup和其实现类NioEventLoopGroup"></a>EventLoopGroup和其实现类NioEventLoopGroup</h4></li>
+</ul>
+</li>
+<li>EventLoopGroup是一组EventLoop的抽象，Netty为了更好的利用多核CPU资源，一般会有多个EventLoop同时工作，每个EventLoop维护着一个Selector实例。</li>
+<li>EventLoopGroup提供next接口，可以从组里面按照一定规则获取其中一个EventLoop来处理任务。在Netty服务端编程中，我们一般都需要提供两个EventLoopGroup，例如：bossEventLoopGroup，workerEventLoopGroup<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/12/07/16388835610980.jpg" alt="16388835610980"></li>
+</ol>
+
+      
+    </div>
+    <div class="article-footer">
+      <blockquote class="mt-2x">
+  <ul class="post-copyright list-unstyled">
+    
+    <li class="post-copyright-link hidden-xs">
+      <strong>本文链接：</strong>
+      <a href="https://yh124.space/2021/09/14/Netty/" title="Netty" target="_blank" rel="external">https://yh124.space/2021/09/14/Netty/</a>
+    </li>
+    
+    <li class="post-copyright-license">
+      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+</blockquote>
+
+
+<div class="panel panel-default panel-badger">
+  <div class="panel-body">
+    <figure class="media">
+      <div class="media-left">
+        <a href="https://github.com/yangh124" target="_blank" class="img-burn thumb-sm visible-lg">
+          <img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" class="img-rounded w-full" alt="">
+        </a>
+      </div>
+      <div class="media-body">
+        <h3 class="media-heading"><a href="https://github.com/yangh124" target="_blank"><span class="text-dark">yangh124</span><small class="ml-1x"></small></a></h3>
+        <div>你还有好多未完成的梦，你有什么道理停下脚步。</div>
+      </div>
+    </figure>
+  </div>
+</div>
+
+
+    </div>
+  </article>
+  
+    
+  <section id="comments">
+  	
+      <div id="vcomments"></div>
+    
+  </section>
+
+
+  
+</div>
+
+  <nav class="bar bar-footer clearfix" data-stick-bottom>
+  <div class="bar-inner">
+  
+  <ul class="pager pull-left">
+    
+    <li class="prev">
+      <a href="/2021/10/26/SpringBoot%20ES%E5%AE%9E%E6%88%98/" title="SpringBoot+Elasticsearch实战"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
+    </li>
+    
+    
+    <li class="next">
+      <a href="/2021/08/31/ElasticSearch/" title="ElasticSearch"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+    </li>
+    
+    
+    <li class="toggle-toc">
+      <a class="toggle-btn collapsed" data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">
+        <span>[&nbsp;</span><span>文章目录</span>
+        <i class="text-collapsed icon icon-anchor"></i>
+        <i class="text-in icon icon-close"></i>
+        <span>]</span>
+      </a>
+    </li>
+    
+  </ul>
+  
+  
+  
+  <div class="bar-right">
+    
+    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
+    
+  </div>
+  </div>
+</nav>
+  
+
+
+</main>
+
+  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
+    
+	
+    <ul class="social-links">
+    	
+        <li><a href="https://github.com/yangh124" target="_blank" title="Github" data-toggle=tooltip data-placement=top><i class="icon icon-github"></i></a></li>
+        
+    </ul>
+
+        <div class="copyright">
+            
+                &copy; 2023
+                    yangh
+                        
+                            | <a href="http://beian.miit.gov.cn/" target="_blank">浙ICP备2021031092号-2</a>
+                            <div class="publishby">
+                                Theme by <a href="https://github.com/cofess" target="_blank">
+                                        cofess </a>
+                                    base on <a href="https://github.com/cofess/hexo-theme-pure"
+                                            target="_blank">pure</a>.
+                            </div>
+        </div>
+</footer>
+  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+<script>
+window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
+</script>
+
+<script src="/js/plugin.min.js"></script>
+
+
+<script src="/js/application.js"></script>
+
+
+    <script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+
+
+
+
+   
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+   
+    
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  <script type="text/javascript">
+  var GUEST = ['nick', 'mail', 'link'];
+  var meta = 'nick,mail,link';
+  meta = meta.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#vcomments',
+    verify: false,
+    notify: false,
+    appId: 'HXqdy9Gelr3kb7pii3TOj4fl-9Nh9j0Va',
+    appKey: 'CY8JtaywMBlw476SSnU4X9RH',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: meta,
+    pageSize: '10' || 10,
+    visitor: true
+  });
+  </script>
+
+     
+
+
+
+  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
+  <script>
+  //利用 FancyBox 实现点击图片放大
+  $(document).ready(function() {
+    $('article img').not('[hidden]').not('.panel-body img').each(function() {
+      var $image = $(this);
+      var imageCaption = $image.attr('alt');
+      var $imageWrapLink = $image.parent('a');
+      if ($imageWrapLink.length < 1) {
+        var src = this.getAttribute('src');
+        var idx = src.lastIndexOf('?');
+        if (idx != -1) {
+          src = src.substring(0, idx);
+        }
+        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
+      }
+      $imageWrapLink.attr('data-fancybox', 'images');
+      if (imageCaption) {
+        $imageWrapLink.attr('data-caption', imageCaption);
+      }
+    });
+    $().fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+    });
+  });
+  </script>
+
+
+
+
+
+</body>
+</html>
