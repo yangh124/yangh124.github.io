@@ -1,45 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Docker实战</title>
-    <url>/2022/05/20/Docker%E5%AE%9E%E6%88%98/</url>
-    <content><![CDATA[<h1 id="Docker-部署springboot项目"><a href="#Docker-部署springboot项目" class="headerlink" title="Docker 部署springboot项目"></a>Docker 部署springboot项目</h1><pre><code>使用docker-maven-plugin maven插件
-</code></pre>
-<h2 id="服务器安装docker"><a href="#服务器安装docker" class="headerlink" title="服务器安装docker"></a>服务器安装docker</h2><pre><code>略
-</code></pre>
-<h2 id="Docker开启远程访问"><a href="#Docker开启远程访问" class="headerlink" title="Docker开启远程访问"></a>Docker开启远程访问</h2><ol>
-<li>查看docker服务状态（查看docker.service位置）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pi@raspberrypi:~ $ service docker status</span><br><span class="line">● docker.service - Docker Application Container Engine</span><br><span class="line">     Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)</span><br><span class="line">     Active: active (running) since Sun 2022-04-17 17:28:04 CST; 1 months 2 days ago</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">...</span><br></pre></td></tr></table></figure></li>
-<li>编辑docker.service<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vim /lib/systemd/system/docker.service</span><br></pre></td></tr></table></figure></li>
-<li>修改[Service]下的ExecStart，添加-H tcp:&#x2F;&#x2F;0.0.0.0:2375；对外开放docker服务（建议不要使用默认端口2375）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H fd:// --containerd=/run/containerd/containerd.sock</span><br></pre></td></tr></table></figure></li>
-<li>重新加载Docker配置生效 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl daemon-reload </span><br><span class="line">systemctl restart docker </span><br></pre></td></tr></table></figure></li>
-<li>服务器防火墙开放端口</li>
-<li>浏览器访问<a href="http://ip:2375/version%EF%BC%8C%E6%B5%8B%E8%AF%95%E6%98%AF%E5%90%A6%E6%88%90%E5%8A%9F">http://ip:2375/version，测试是否成功</a></li>
-</ol>
-<h2 id="使用TLS-HTTPS-保证Docker服务安全"><a href="#使用TLS-HTTPS-保证Docker服务安全" class="headerlink" title="使用TLS(HTTPS)保证Docker服务安全"></a>使用TLS(HTTPS)保证Docker服务安全</h2><h3 id="1-服务器端生成CA共钥和私钥"><a href="#1-服务器端生成CA共钥和私钥" class="headerlink" title="1. 服务器端生成CA共钥和私钥"></a>1. 服务器端生成CA共钥和私钥</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建目录存放CA证书</span><br><span class="line">pi@raspberrypi:~ $ mkdir ca</span><br><span class="line"></span><br><span class="line"># 进入目录</span><br><span class="line">pi@raspberrypi:~ $ cd ca</span><br><span class="line"></span><br><span class="line"># 生成私钥（会提示输入密码）</span><br><span class="line">pi@raspberrypi:~/ca $ openssl genrsa -aes256 -out ca-key.pem 4096</span><br><span class="line">Generating RSA private key, 4096 bit long modulus (2 primes)</span><br><span class="line">..........................++++</span><br><span class="line">.......++++</span><br><span class="line">e is 65537 (0x010001)</span><br><span class="line">Enter pass phrase for ca-key.pem:</span><br><span class="line"></span><br><span class="line"># 生成证书信息（需要输入上面的密码以及一些其他信息【注意Common Name填写服务器外网IP】）</span><br><span class="line">pi@raspberrypi:~/ca $ openssl req -new -x509 -days 3650 -key ca-key.pem -sha256 -out ca.pem</span><br><span class="line">Enter pass phrase for ca-key.pem:</span><br><span class="line">You are about to be asked to enter information that will be incorporated</span><br><span class="line">into your certificate request.</span><br><span class="line">What you are about to enter is what is called a Distinguished Name or a DN.</span><br><span class="line">There are quite a few fields but you can leave some blank</span><br><span class="line">For some fields there will be a default value,</span><br><span class="line">If you enter &#x27;.&#x27;, the field will be left blank.</span><br><span class="line">-----</span><br><span class="line">Country Name (2 letter code) [AU]:CN</span><br><span class="line">State or Province Name (full name) [Some-State]:ZheJiang</span><br><span class="line">Locality Name (eg, city) []:HangZhou</span><br><span class="line">Organization Name (eg, company) [Internet Widgits Pty Ltd]:yanghao </span><br><span class="line">Organizational Unit Name (eg, section) []:yanghao</span><br><span class="line">Common Name (e.g. server FQDN or YOUR name) []:192.168.3.3</span><br><span class="line">Email Address []:yh.124@qq.com</span><br></pre></td></tr></table></figure>
-<p><strong>有了CA之后，就可以创建服务器密钥和证书签名请求(CSR)了。确保“Common Name”与你连接Docker时使用的主机名匹配</strong></p>
-<h3 id="2-创建服务器密钥和证书签名请求"><a href="#2-创建服务器密钥和证书签名请求" class="headerlink" title="2. 创建服务器密钥和证书签名请求"></a>2. 创建服务器密钥和证书签名请求</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建服务器密钥</span><br><span class="line">pi@raspberrypi:~/ca $ openssl genrsa -out server-key.pem 4096</span><br><span class="line">Generating RSA private key, 4096 bit long modulus (2 primes)</span><br><span class="line">................................................................++++</span><br><span class="line">.........++++</span><br><span class="line">e is 65537 (0x010001)</span><br><span class="line"></span><br><span class="line"># 证书签名请求（注意修改为你的服务器IP）</span><br><span class="line">openssl req -subj &quot;/CN=192.168.3.3&quot; -sha256 -new -key server-key.pem -out server.csr</span><br></pre></td></tr></table></figure>
-<h3 id="3-配置白名单"><a href="#3-配置白名单" class="headerlink" title="3. 配置白名单"></a>3. 配置白名单</h3><p>配置白名单，允许连接的ip（通过证书）;IP可以配置多个</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo subjectAltName = IP:192.168.3.3,IP::192.168.3.5 &gt;&gt; extfile.cnf</span><br></pre></td></tr></table></figure>
-<h3 id="4-设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证"><a href="#4-设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证" class="headerlink" title="4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证"></a>4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo extendedKeyUsage = serverAuth &gt;&gt; extfile.cnf</span><br></pre></td></tr></table></figure>
-<h3 id="5-生成签名证书（需要输入密码）"><a href="#5-生成签名证书（需要输入密码）" class="headerlink" title="5. 生成签名证书（需要输入密码）"></a>5. 生成签名证书（需要输入密码）</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">openssl x509 -req -days 3650 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \</span><br><span class="line">  -CAcreateserial -out server-cert.pem -extfile extfile.cnf</span><br></pre></td></tr></table></figure>
-<h3 id="6-对于客户端身份验证，创建一个客户端密钥和证书签名请求"><a href="#6-对于客户端身份验证，创建一个客户端密钥和证书签名请求" class="headerlink" title="6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求"></a>6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成 key.pem</span><br><span class="line">openssl genrsa -out key.pem 4096</span><br><span class="line"></span><br><span class="line"># 生成 csr</span><br><span class="line">openssl req -subj &#x27;/CN=client&#x27; -new -key key.pem -out client.csr</span><br><span class="line"></span><br><span class="line"># 创建配置文件</span><br><span class="line">echo extendedKeyUsage = clientAuth &gt; extfile-client.cnf</span><br><span class="line"></span><br><span class="line"># 生成签名证书</span><br><span class="line">openssl x509 -req -days 3650 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \</span><br><span class="line">  -CAcreateserial -out cert.pem -extfile extfile-client.cnf</span><br><span class="line">  </span><br><span class="line"># 将服务器端的ca.pem cert.pem key.pem复制到本地</span><br><span class="line">scp ca.pem cert.pem key.pem yh@192.168.3.5:/Users/yh/ca</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h3 id="7-删除不需要的文件"><a href="#7-删除不需要的文件" class="headerlink" title="7. 删除不需要的文件"></a>7. 删除不需要的文件</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 服务器（服务端）</span><br><span class="line">rm -rf server.csr extfile.cnf client.csr extfile-client.cnf</span><br></pre></td></tr></table></figure>
-<h3 id="8-修改文件权限，防止误删"><a href="#8-修改文件权限，防止误删" class="headerlink" title="8. 修改文件权限，防止误删"></a>8. 修改文件权限，防止误删</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 服务端</span><br><span class="line">chmod -v 0400 ca-key.pem server-key.pem</span><br><span class="line">chmod -v 0444 ca.pem server-cert.pem</span><br><span class="line"># 客户端</span><br><span class="line">chmod -v 0400 key.pem</span><br><span class="line">chmod -v 0444 ca.pem cert.pem</span><br></pre></td></tr></table></figure>
-<h3 id="9-再次修改服务器docker-service"><a href="#9-再次修改服务器docker-service" class="headerlink" title="9. 再次修改服务器docker.service"></a>9. 再次修改服务器docker.service</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vim /lib/systemd/system/docker.service</span><br><span class="line"># 修改ExecStart（添加证书的路径）</span><br><span class="line">ExecStart=/usr/bin/dockerd --tlsverify --tlscacert=/home/pi/ca/ca.pem --tlscert=/home/pi/ca/server-cert.pem --tlskey=/home/pi/ca/server-key.pem -H tcp://0.0.0.0:2376 -H unix:///var/run/docker.sock</span><br></pre></td></tr></table></figure>
-<h3 id="10-重新加载daemon并重启docker"><a href="#10-重新加载daemon并重启docker" class="headerlink" title="10. 重新加载daemon并重启docker"></a>10. 重新加载daemon并重启docker</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl daemon-reload &amp;&amp; systemctl restart docker</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h3 id="11-配置本地环境变量"><a href="#11-配置本地环境变量" class="headerlink" title="11. 配置本地环境变量"></a>11. 配置本地环境变量</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mkdir -pv ~/.docker</span><br><span class="line"># 将证书copy到.docker下</span><br><span class="line">cp -v &#123;ca,cert,key&#125;.pem ~/.docker</span><br><span class="line">chmod -v 0400 key.pem</span><br><span class="line">chmod -v 0444 ca.pem cert.pem</span><br><span class="line"># 配置环境变量</span><br><span class="line">export DOCKER_HOST=tcp://0.0.0.0:2376 DOCKER_TLS_VERIFY=1</span><br></pre></td></tr></table></figure>
-<h3 id="12-客户端测试"><a href="#12-客户端测试" class="headerlink" title="12. 客户端测试"></a>12. 客户端测试</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 配置了环境变量后就可以访问服务器docker服务</span><br><span class="line">docker ps</span><br><span class="line"># 没有配置环境变量</span><br><span class="line">docker --tlsverify --tlscacert=/Users/yh/.docker/ca.pem --tlscert=/Users/yh/.docker/cert.pem --tlskey=/Users/yh/.docker/key.pem -H=tcp://192.168.3.3:2376 version</span><br></pre></td></tr></table></figure>
-<h2 id="项目配置"><a href="#项目配置" class="headerlink" title="项目配置"></a>项目配置</h2><h3 id="配置docker-file-maven-plugin插件"><a href="#配置docker-file-maven-plugin插件" class="headerlink" title="配置docker-file-maven-plugin插件"></a>配置docker-file-maven-plugin插件</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;build&gt;</span><br><span class="line">    &lt;plugins&gt;</span><br><span class="line">        &lt;!-- dockerfile maven --&gt;</span><br><span class="line">        &lt;plugin&gt;</span><br><span class="line">            &lt;groupId&gt;com.spotify&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;dockerfile-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">            &lt;executions&gt;</span><br><span class="line">                &lt;execution&gt;</span><br><span class="line">                    &lt;id&gt;default&lt;/id&gt;</span><br><span class="line">                    &lt;goals&gt;</span><br><span class="line">                        &lt;goal&gt;build&lt;/goal&gt;</span><br><span class="line">                        &lt;goal&gt;push&lt;/goal&gt;</span><br><span class="line">                    &lt;/goals&gt;</span><br><span class="line">                    &lt;configuration&gt;</span><br><span class="line">                    &lt;/configuration&gt;</span><br><span class="line">                &lt;/execution&gt;</span><br><span class="line">            &lt;/executions&gt;</span><br><span class="line">            &lt;!--docker镜像相关的配置信息--&gt;</span><br><span class="line">            &lt;configuration&gt;</span><br><span class="line">                &lt;contextDirectory&gt;$&#123;project.basedir&#125;&lt;/contextDirectory&gt;</span><br><span class="line">                &lt;dockerfile&gt;$&#123;project.basedir&#125;/Dockerfile&lt;/dockerfile&gt;</span><br><span class="line">                &lt;!--使用username和password标签，也可以使用useMavenSettingsForAuth，在settings.xml文件中的配置 servers--&gt;</span><br><span class="line">                &lt;useMavenSettingsForAuth&gt;false&lt;/useMavenSettingsForAuth&gt;</span><br><span class="line">                &lt;username&gt;xxx&lt;/username&gt;</span><br><span class="line">                &lt;password&gt;xxx&lt;/password&gt;</span><br><span class="line">                &lt;!--远程仓库地址--&gt;</span><br><span class="line">                &lt;repository&gt;$&#123;docker.repository.registry&#125;/$&#123;docker.repository.namespace&#125;/$&#123;project.artifactId&#125;&lt;/repository&gt;</span><br><span class="line">                &lt;tag&gt;$&#123;project.version&#125;&lt;/tag&gt;</span><br><span class="line">                &lt;buildArgs&gt;</span><br><span class="line">                    &lt;JAR_FILE&gt;$&#123;project.build.finalName&#125;.jar&lt;/JAR_FILE&gt;</span><br><span class="line">                &lt;/buildArgs&gt;</span><br><span class="line">            &lt;/configuration&gt;</span><br><span class="line">        &lt;/plugin&gt;</span><br><span class="line">    &lt;/plugins&gt;</span><br></pre></td></tr></table></figure>
-<h3 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">FROM houwm/jdk8:arm64</span><br><span class="line"></span><br><span class="line">MAINTAINER yanghao&lt;yh.124@qq.com&gt;</span><br><span class="line"></span><br><span class="line"># 参数</span><br><span class="line">ARG JAR_FILE</span><br><span class="line"></span><br><span class="line"># 环境变量</span><br><span class="line">ENV TZ=Asia/Shanghai LANG=C.UTF-8</span><br><span class="line">ENV PARAMS=&quot;--server.port=8080 --spring.profiles.active=prod -Xms512m -Xmx512m&quot;</span><br><span class="line"></span><br><span class="line"># 设置时区</span><br><span class="line">RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime &amp;&amp; echo $TZ &gt; /etc/timezone</span><br><span class="line"></span><br><span class="line"># 复制jar包</span><br><span class="line">COPY target/$&#123;JAR_FILE&#125; /app.jar</span><br><span class="line"></span><br><span class="line"># 暴露端口</span><br><span class="line">EXPOSE 8080</span><br><span class="line"></span><br><span class="line"># 工作目录</span><br><span class="line">WORKDIR /</span><br><span class="line"></span><br><span class="line"># 执行命令</span><br><span class="line">ENTRYPOINT [&quot;/bin/sh&quot;,&quot;-c&quot;,&quot;java -jar /app.jar $&#123;PARAMS&#125;&quot;]</span><br></pre></td></tr></table></figure>
-<h3 id="部署项目"><a href="#部署项目" class="headerlink" title="部署项目"></a>部署项目</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 会自动在远程服务器构建镜像</span><br><span class="line">mvn package</span><br><span class="line"># 就可以省略这个步骤</span><br><span class="line">mvn dockerfile:build</span><br><span class="line"># 会自动推送镜像到远程仓库</span><br><span class="line">mvn deploy</span><br><span class="line"># 就可以省略这个步骤</span><br><span class="line">mvn dockerfile:push</span><br><span class="line"># 如果要临时跳过所有的Dockerfile相关的目标，执行如下Maven命令</span><br><span class="line">mvn clean install -Ddockerfile.skip</span><br><span class="line"># 想跳过某一个goal</span><br><span class="line">mvn clean package -Ddockerfile.build.skip</span><br><span class="line">mvn clean package -Ddockerfile.tag.skip</span><br><span class="line">mvn clean deploy -Ddockerfile.push.skip</span><br><span class="line"> </span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>运维</category>
-      </categories>
-      <tags>
-        <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Docker常用命令</title>
     <url>/2021/07/31/Docker%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/</url>
     <content><![CDATA[<h1 id="Docker简介"><a href="#Docker简介" class="headerlink" title="Docker简介"></a>Docker简介</h1><pre><code>Docker是一个开源的应用容器引擎，让开发者可以打包应用及依赖包到一个可移植的镜像中，然后发布到任何流行的Linux或Windows机器上。使用Docker可以更方便地打包、测试以及部署应用程序。
@@ -155,6 +116,45 @@ docker exec -it --user root $ContainerName /bin/bash
 <h3 id="列出所有容器信息"><a href="#列出所有容器信息" class="headerlink" title="列出所有容器信息"></a>列出所有容器信息</h3><pre><code>docker-compose ps
 </code></pre>
 ]]></content>
+      <categories>
+        <category>运维</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Docker实战</title>
+    <url>/2022/05/20/Docker%E5%AE%9E%E6%88%98/</url>
+    <content><![CDATA[<h1 id="Docker-部署springboot项目"><a href="#Docker-部署springboot项目" class="headerlink" title="Docker 部署springboot项目"></a>Docker 部署springboot项目</h1><pre><code>使用docker-maven-plugin maven插件
+</code></pre>
+<h2 id="服务器安装docker"><a href="#服务器安装docker" class="headerlink" title="服务器安装docker"></a>服务器安装docker</h2><pre><code>略
+</code></pre>
+<h2 id="Docker开启远程访问"><a href="#Docker开启远程访问" class="headerlink" title="Docker开启远程访问"></a>Docker开启远程访问</h2><ol>
+<li>查看docker服务状态（查看docker.service位置）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pi@raspberrypi:~ $ service docker status</span><br><span class="line">● docker.service - Docker Application Container Engine</span><br><span class="line">     Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)</span><br><span class="line">     Active: active (running) since Sun 2022-04-17 17:28:04 CST; 1 months 2 days ago</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">...</span><br></pre></td></tr></table></figure></li>
+<li>编辑docker.service<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vim /lib/systemd/system/docker.service</span><br></pre></td></tr></table></figure></li>
+<li>修改[Service]下的ExecStart，添加-H tcp:&#x2F;&#x2F;0.0.0.0:2375；对外开放docker服务（建议不要使用默认端口2375）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H fd:// --containerd=/run/containerd/containerd.sock</span><br></pre></td></tr></table></figure></li>
+<li>重新加载Docker配置生效 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl daemon-reload </span><br><span class="line">systemctl restart docker </span><br></pre></td></tr></table></figure></li>
+<li>服务器防火墙开放端口</li>
+<li>浏览器访问<a href="http://ip:2375/version%EF%BC%8C%E6%B5%8B%E8%AF%95%E6%98%AF%E5%90%A6%E6%88%90%E5%8A%9F">http://ip:2375/version，测试是否成功</a></li>
+</ol>
+<h2 id="使用TLS-HTTPS-保证Docker服务安全"><a href="#使用TLS-HTTPS-保证Docker服务安全" class="headerlink" title="使用TLS(HTTPS)保证Docker服务安全"></a>使用TLS(HTTPS)保证Docker服务安全</h2><h3 id="1-服务器端生成CA共钥和私钥"><a href="#1-服务器端生成CA共钥和私钥" class="headerlink" title="1. 服务器端生成CA共钥和私钥"></a>1. 服务器端生成CA共钥和私钥</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建目录存放CA证书</span><br><span class="line">pi@raspberrypi:~ $ mkdir ca</span><br><span class="line"></span><br><span class="line"># 进入目录</span><br><span class="line">pi@raspberrypi:~ $ cd ca</span><br><span class="line"></span><br><span class="line"># 生成私钥（会提示输入密码）</span><br><span class="line">pi@raspberrypi:~/ca $ openssl genrsa -aes256 -out ca-key.pem 4096</span><br><span class="line">Generating RSA private key, 4096 bit long modulus (2 primes)</span><br><span class="line">..........................++++</span><br><span class="line">.......++++</span><br><span class="line">e is 65537 (0x010001)</span><br><span class="line">Enter pass phrase for ca-key.pem:</span><br><span class="line"></span><br><span class="line"># 生成证书信息（需要输入上面的密码以及一些其他信息【注意Common Name填写服务器外网IP】）</span><br><span class="line">pi@raspberrypi:~/ca $ openssl req -new -x509 -days 3650 -key ca-key.pem -sha256 -out ca.pem</span><br><span class="line">Enter pass phrase for ca-key.pem:</span><br><span class="line">You are about to be asked to enter information that will be incorporated</span><br><span class="line">into your certificate request.</span><br><span class="line">What you are about to enter is what is called a Distinguished Name or a DN.</span><br><span class="line">There are quite a few fields but you can leave some blank</span><br><span class="line">For some fields there will be a default value,</span><br><span class="line">If you enter &#x27;.&#x27;, the field will be left blank.</span><br><span class="line">-----</span><br><span class="line">Country Name (2 letter code) [AU]:CN</span><br><span class="line">State or Province Name (full name) [Some-State]:ZheJiang</span><br><span class="line">Locality Name (eg, city) []:HangZhou</span><br><span class="line">Organization Name (eg, company) [Internet Widgits Pty Ltd]:yanghao </span><br><span class="line">Organizational Unit Name (eg, section) []:yanghao</span><br><span class="line">Common Name (e.g. server FQDN or YOUR name) []:192.168.3.3</span><br><span class="line">Email Address []:yh.124@qq.com</span><br></pre></td></tr></table></figure>
+<p><strong>有了CA之后，就可以创建服务器密钥和证书签名请求(CSR)了。确保“Common Name”与你连接Docker时使用的主机名匹配</strong></p>
+<h3 id="2-创建服务器密钥和证书签名请求"><a href="#2-创建服务器密钥和证书签名请求" class="headerlink" title="2. 创建服务器密钥和证书签名请求"></a>2. 创建服务器密钥和证书签名请求</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建服务器密钥</span><br><span class="line">pi@raspberrypi:~/ca $ openssl genrsa -out server-key.pem 4096</span><br><span class="line">Generating RSA private key, 4096 bit long modulus (2 primes)</span><br><span class="line">................................................................++++</span><br><span class="line">.........++++</span><br><span class="line">e is 65537 (0x010001)</span><br><span class="line"></span><br><span class="line"># 证书签名请求（注意修改为你的服务器IP）</span><br><span class="line">openssl req -subj &quot;/CN=192.168.3.3&quot; -sha256 -new -key server-key.pem -out server.csr</span><br></pre></td></tr></table></figure>
+<h3 id="3-配置白名单"><a href="#3-配置白名单" class="headerlink" title="3. 配置白名单"></a>3. 配置白名单</h3><p>配置白名单，允许连接的ip（通过证书）;IP可以配置多个</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo subjectAltName = IP:192.168.3.3,IP::192.168.3.5 &gt;&gt; extfile.cnf</span><br></pre></td></tr></table></figure>
+<h3 id="4-设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证"><a href="#4-设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证" class="headerlink" title="4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证"></a>4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo extendedKeyUsage = serverAuth &gt;&gt; extfile.cnf</span><br></pre></td></tr></table></figure>
+<h3 id="5-生成签名证书（需要输入密码）"><a href="#5-生成签名证书（需要输入密码）" class="headerlink" title="5. 生成签名证书（需要输入密码）"></a>5. 生成签名证书（需要输入密码）</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">openssl x509 -req -days 3650 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \</span><br><span class="line">  -CAcreateserial -out server-cert.pem -extfile extfile.cnf</span><br></pre></td></tr></table></figure>
+<h3 id="6-对于客户端身份验证，创建一个客户端密钥和证书签名请求"><a href="#6-对于客户端身份验证，创建一个客户端密钥和证书签名请求" class="headerlink" title="6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求"></a>6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成 key.pem</span><br><span class="line">openssl genrsa -out key.pem 4096</span><br><span class="line"></span><br><span class="line"># 生成 csr</span><br><span class="line">openssl req -subj &#x27;/CN=client&#x27; -new -key key.pem -out client.csr</span><br><span class="line"></span><br><span class="line"># 创建配置文件</span><br><span class="line">echo extendedKeyUsage = clientAuth &gt; extfile-client.cnf</span><br><span class="line"></span><br><span class="line"># 生成签名证书</span><br><span class="line">openssl x509 -req -days 3650 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \</span><br><span class="line">  -CAcreateserial -out cert.pem -extfile extfile-client.cnf</span><br><span class="line">  </span><br><span class="line"># 将服务器端的ca.pem cert.pem key.pem复制到本地</span><br><span class="line">scp ca.pem cert.pem key.pem yh@192.168.3.5:/Users/yh/ca</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="7-删除不需要的文件"><a href="#7-删除不需要的文件" class="headerlink" title="7. 删除不需要的文件"></a>7. 删除不需要的文件</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 服务器（服务端）</span><br><span class="line">rm -rf server.csr extfile.cnf client.csr extfile-client.cnf</span><br></pre></td></tr></table></figure>
+<h3 id="8-修改文件权限，防止误删"><a href="#8-修改文件权限，防止误删" class="headerlink" title="8. 修改文件权限，防止误删"></a>8. 修改文件权限，防止误删</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 服务端</span><br><span class="line">chmod -v 0400 ca-key.pem server-key.pem</span><br><span class="line">chmod -v 0444 ca.pem server-cert.pem</span><br><span class="line"># 客户端</span><br><span class="line">chmod -v 0400 key.pem</span><br><span class="line">chmod -v 0444 ca.pem cert.pem</span><br></pre></td></tr></table></figure>
+<h3 id="9-再次修改服务器docker-service"><a href="#9-再次修改服务器docker-service" class="headerlink" title="9. 再次修改服务器docker.service"></a>9. 再次修改服务器docker.service</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vim /lib/systemd/system/docker.service</span><br><span class="line"># 修改ExecStart（添加证书的路径）</span><br><span class="line">ExecStart=/usr/bin/dockerd --tlsverify --tlscacert=/home/pi/ca/ca.pem --tlscert=/home/pi/ca/server-cert.pem --tlskey=/home/pi/ca/server-key.pem -H tcp://0.0.0.0:2376 -H unix:///var/run/docker.sock</span><br></pre></td></tr></table></figure>
+<h3 id="10-重新加载daemon并重启docker"><a href="#10-重新加载daemon并重启docker" class="headerlink" title="10. 重新加载daemon并重启docker"></a>10. 重新加载daemon并重启docker</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl daemon-reload &amp;&amp; systemctl restart docker</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="11-配置本地环境变量"><a href="#11-配置本地环境变量" class="headerlink" title="11. 配置本地环境变量"></a>11. 配置本地环境变量</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mkdir -pv ~/.docker</span><br><span class="line"># 将证书copy到.docker下</span><br><span class="line">cp -v &#123;ca,cert,key&#125;.pem ~/.docker</span><br><span class="line">chmod -v 0400 key.pem</span><br><span class="line">chmod -v 0444 ca.pem cert.pem</span><br><span class="line"># 配置环境变量</span><br><span class="line">export DOCKER_HOST=tcp://0.0.0.0:2376 DOCKER_TLS_VERIFY=1</span><br></pre></td></tr></table></figure>
+<h3 id="12-客户端测试"><a href="#12-客户端测试" class="headerlink" title="12. 客户端测试"></a>12. 客户端测试</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 配置了环境变量后就可以访问服务器docker服务</span><br><span class="line">docker ps</span><br><span class="line"># 没有配置环境变量</span><br><span class="line">docker --tlsverify --tlscacert=/Users/yh/.docker/ca.pem --tlscert=/Users/yh/.docker/cert.pem --tlskey=/Users/yh/.docker/key.pem -H=tcp://192.168.3.3:2376 version</span><br></pre></td></tr></table></figure>
+<h2 id="项目配置"><a href="#项目配置" class="headerlink" title="项目配置"></a>项目配置</h2><h3 id="配置docker-file-maven-plugin插件"><a href="#配置docker-file-maven-plugin插件" class="headerlink" title="配置docker-file-maven-plugin插件"></a>配置docker-file-maven-plugin插件</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;build&gt;</span><br><span class="line">    &lt;plugins&gt;</span><br><span class="line">        &lt;!-- dockerfile maven --&gt;</span><br><span class="line">        &lt;plugin&gt;</span><br><span class="line">            &lt;groupId&gt;com.spotify&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;dockerfile-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">            &lt;executions&gt;</span><br><span class="line">                &lt;execution&gt;</span><br><span class="line">                    &lt;id&gt;default&lt;/id&gt;</span><br><span class="line">                    &lt;goals&gt;</span><br><span class="line">                        &lt;goal&gt;build&lt;/goal&gt;</span><br><span class="line">                        &lt;goal&gt;push&lt;/goal&gt;</span><br><span class="line">                    &lt;/goals&gt;</span><br><span class="line">                    &lt;configuration&gt;</span><br><span class="line">                    &lt;/configuration&gt;</span><br><span class="line">                &lt;/execution&gt;</span><br><span class="line">            &lt;/executions&gt;</span><br><span class="line">            &lt;!--docker镜像相关的配置信息--&gt;</span><br><span class="line">            &lt;configuration&gt;</span><br><span class="line">                &lt;contextDirectory&gt;$&#123;project.basedir&#125;&lt;/contextDirectory&gt;</span><br><span class="line">                &lt;dockerfile&gt;$&#123;project.basedir&#125;/Dockerfile&lt;/dockerfile&gt;</span><br><span class="line">                &lt;!--使用username和password标签，也可以使用useMavenSettingsForAuth，在settings.xml文件中的配置 servers--&gt;</span><br><span class="line">                &lt;useMavenSettingsForAuth&gt;false&lt;/useMavenSettingsForAuth&gt;</span><br><span class="line">                &lt;username&gt;xxx&lt;/username&gt;</span><br><span class="line">                &lt;password&gt;xxx&lt;/password&gt;</span><br><span class="line">                &lt;!--远程仓库地址--&gt;</span><br><span class="line">                &lt;repository&gt;$&#123;docker.repository.registry&#125;/$&#123;docker.repository.namespace&#125;/$&#123;project.artifactId&#125;&lt;/repository&gt;</span><br><span class="line">                &lt;tag&gt;$&#123;project.version&#125;&lt;/tag&gt;</span><br><span class="line">                &lt;buildArgs&gt;</span><br><span class="line">                    &lt;JAR_FILE&gt;$&#123;project.build.finalName&#125;.jar&lt;/JAR_FILE&gt;</span><br><span class="line">                &lt;/buildArgs&gt;</span><br><span class="line">            &lt;/configuration&gt;</span><br><span class="line">        &lt;/plugin&gt;</span><br><span class="line">    &lt;/plugins&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">FROM houwm/jdk8:arm64</span><br><span class="line"></span><br><span class="line">MAINTAINER yanghao&lt;yh.124@qq.com&gt;</span><br><span class="line"></span><br><span class="line"># 参数</span><br><span class="line">ARG JAR_FILE</span><br><span class="line"></span><br><span class="line"># 环境变量</span><br><span class="line">ENV TZ=Asia/Shanghai LANG=C.UTF-8</span><br><span class="line">ENV PARAMS=&quot;--server.port=8080 --spring.profiles.active=prod -Xms512m -Xmx512m&quot;</span><br><span class="line"></span><br><span class="line"># 设置时区</span><br><span class="line">RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime &amp;&amp; echo $TZ &gt; /etc/timezone</span><br><span class="line"></span><br><span class="line"># 复制jar包</span><br><span class="line">COPY target/$&#123;JAR_FILE&#125; /app.jar</span><br><span class="line"></span><br><span class="line"># 暴露端口</span><br><span class="line">EXPOSE 8080</span><br><span class="line"></span><br><span class="line"># 工作目录</span><br><span class="line">WORKDIR /</span><br><span class="line"></span><br><span class="line"># 执行命令</span><br><span class="line">ENTRYPOINT [&quot;/bin/sh&quot;,&quot;-c&quot;,&quot;java -jar /app.jar $&#123;PARAMS&#125;&quot;]</span><br></pre></td></tr></table></figure>
+<h3 id="部署项目"><a href="#部署项目" class="headerlink" title="部署项目"></a>部署项目</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 会自动在远程服务器构建镜像</span><br><span class="line">mvn package</span><br><span class="line"># 就可以省略这个步骤</span><br><span class="line">mvn dockerfile:build</span><br><span class="line"># 会自动推送镜像到远程仓库</span><br><span class="line">mvn deploy</span><br><span class="line"># 就可以省略这个步骤</span><br><span class="line">mvn dockerfile:push</span><br><span class="line"># 如果要临时跳过所有的Dockerfile相关的目标，执行如下Maven命令</span><br><span class="line">mvn clean install -Ddockerfile.skip</span><br><span class="line"># 想跳过某一个goal</span><br><span class="line">mvn clean package -Ddockerfile.build.skip</span><br><span class="line">mvn clean package -Ddockerfile.tag.skip</span><br><span class="line">mvn clean deploy -Ddockerfile.push.skip</span><br><span class="line"> </span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>运维</category>
       </categories>
@@ -388,162 +388,6 @@ docker exec -it --user root $ContainerName /bin/bash
       </categories>
       <tags>
         <tag>MySQL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JVM</title>
-    <url>/2021/04/26/JVM/</url>
-    <content><![CDATA[<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/1.png" alt="1"></p>
-<h2 id="Java内存模型（JMM）"><a href="#Java内存模型（JMM）" class="headerlink" title="Java内存模型（JMM）"></a>Java内存模型（JMM）</h2><p><strong>主内存（main memory）</strong>、<strong>本地内存（local memory）</strong>（抽象概念）</p>
-<ul>
-<li>本地内存涵盖了缓存，写缓冲区，寄存器以及其他的硬件和编译器优化。</li>
-<li>Java编译器输入的指令流基本是一种基于栈的指令架构，另外一种指令架构师基于寄存器的指令架构。</li>
-</ul>
-<span id="more"></span>
-
-<h2 id="执行引擎-Execution-Engine"><a href="#执行引擎-Execution-Engine" class="headerlink" title="执行引擎(Execution Engine)"></a>执行引擎(Execution Engine)</h2><h2 id="类加载子系统（Class-Loader）"><a href="#类加载子系统（Class-Loader）" class="headerlink" title="类加载子系统（Class Loader）"></a>类加载子系统（Class Loader）</h2><p> <img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/2.png" alt="2"><br> <em>class。文件，网络</em><br> <strong>加载、验证、准备、解析、初始化。然后是使用和卸载了</strong><br> <em>通过全限定名来加载生成class对象到内存中，然后进行验证这个class文件，包括文件格式校验、元数据验证，字节码校验等。准备是对这个对象分配内存。解析是将符号引用转化为直接引用（指针引用），初始化就是开始执行构造器的代码</em></p>
-<p>  <strong>双亲委派模型机制</strong></p>
-<ol>
-<li>启动类加载器(Bootstrap ClassLoader)用来加载java核心类库，无法被java程序直接引用。</li>
-<li>扩展类加载器(Extensions ClassLoader):它用来加载 Java 的扩展库。Java 虚拟机的实现会提供一个扩展库目录。该类加载器在此目录里面查找并加载 Java 类。</li>
-<li>应用类加载器（Application ClassLoader）：它根据 Java 应用的类路径（CLASSPATH）来加载 Java 类。一般来说，Java 应用的类都是由它来完成加载的。</li>
-<li>用户自定义类加载器，通过继承 java.lang.ClassLoader类的方式实现。</br><br><strong>什么情况下需要自定义类加载器：</strong></li>
-</ol>
-<ul>
-<li><p>隔离加载类</p>
-</li>
-<li><p>修改类加载方式</p>
-</li>
-<li><p>扩展加载源</p>
-</li>
-<li><p>防止源码泄漏</p>
-<h2 id="运行时数据区-Runtime-Data-Area"><a href="#运行时数据区-Runtime-Data-Area" class="headerlink" title="运行时数据区(Runtime Data Area)"></a>运行时数据区(Runtime Data Area)</h2><p> 内存</p>
-</li>
-<li><p>什么是运行时数据区<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/3.png" alt="3"></p>
-</li>
-<li><p>什么是虚拟机栈<br> 栈：数据结构，先进后出，First In Last Out,用来运行java方法的。线程私有。启用一个线程就有一个虚拟机栈。<br> <strong>调用一个方法就压入一帧。</strong><br>栈内存参数<br>-Xss 1m(默认1M)<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/4.png" alt="4"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/5.png" alt="5"></p>
-</li>
-<li><p>局部变量表（八大基本数据类型+对象引用）</p>
-</li>
-</ul>
-<ol>
-<li>定义为一个数字数组，主要用于储存方法参数和定义在方法体内的局部变量。</li>
-<li>不存在数据线程安全问题。</li>
-<li>局部变量表所需容量大小是在编译期确定下来的。</li>
-<li>局部变量表中的变量也是重要的垃圾回收根节点（GCRoots可达性分析算法），只要被局部变量表中直接或间接引用的对象都不会被回收。</br><br>关于Slot的理解：</br><br>&amp;emsp;1.最基本的储存单元Slot(变量槽)。</br><br>&amp;emsp;2.32位以内的类型只占一个Slot(包括returnAddress类型)，64位的类型(long和double)占用两个Slot。</br><br>&amp;emsp;3.构造方法和实例方法（非static方法）的局部变量表0位Slot会存放this。</li>
-</ol>
-<ul>
-<li><p>操作栈（对局部变量数据进行运算操作）</br><br>&amp;emsp;操作栈：在方法的执行过程中，根据字节码指令，往栈中写入数据或提取数据，即入栈（push）&#x2F;出栈（pop）；主要用于保存计算过程的中间结果，同时作为计算过程中变量临时的存储空间；操作栈是JVM执行引擎的一个工作区； </p>
-</li>
-<li><p>动态链接（将常量池中的符号引用在运行期转化为直接引用&#x2F;指向运行时常量池的方法引用）</br><br>&amp;emsp;动态链接的作用就是为了将这些符号引用转换为调用方法的直接引用</br><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/6.png" alt="6"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/7.png" alt="7"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/8.png" alt="8"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/9.png" alt="9"></p>
-</li>
-<li><p>返回地址（方法执行完返回地址）</br><br>存放调用该方法的PC寄存器的值。<br>异常退出：异常表</p>
-</li>
-<li><p>一些附加信息</p>
-</li>
-<li><p>本地方法栈（native方法[C,C++实现]）<br>  主要为Native方法服务</p>
-</li>
-<li><p>程序计数器<br>  内存空间小，字节码解释器工作时通过改变这个计数值可以选取下一条需要执行的字节码指令，分支、循环、跳转、异常处理和线程恢复等功能都需要依赖这个计数器完成。该内存区域是唯一一个java虚拟机规范没有规定任何OOM情况的区域。</p>
-<p>  线程切换<br>  记录线程执行的当前的地址和行号</p>
-</li>
-<li><p>堆（-Xms 30m -Xmx 30m -XX:+PrintGCDetails）</br></p>
-</li>
-</ul>
-<figure class="highlight plaintext"><figcaption><span>设置堆空间大小的参数</span></figcaption><table><tr><td class="code"><pre><span class="line"> -Xms 用来设置堆空间（年轻代+老年代）的初始内存大小</span><br><span class="line">      -X 是jvm的运行参数</span><br><span class="line">      ms 是memory start</span><br><span class="line"> -Xmx 用来设置堆空间（年轻代+老年代）的最大内存大小</span><br><span class="line"></span><br><span class="line"> 2. 默认堆空间的大小</span><br><span class="line">    初始内存大小：物理电脑内存大小 / 64</span><br><span class="line">             最大内存大小：物理电脑内存大小 / 4</span><br><span class="line"> 3. 手动设置：-Xms600m -Xmx600m</span><br><span class="line">     开发中建议将初始堆内存和最大的堆内存设置成相同的值。</span><br><span class="line"></span><br><span class="line"> 4. 查看设置的参数：方式一： jps   /  jstat -gc 进程id</span><br><span class="line">                  方式二：-XX:+PrintGCDetails</span><br><span class="line">-XX:+开启 -关闭</span><br><span class="line">-XX:NewRatio ： 设置新生代与老年代的比例。默认值是2.</span><br><span class="line">-XX:SurvivorRatio ：设置新生代中Eden区与Survivor区的比例。默认值是8</span><br><span class="line">-XX:-UseAdaptiveSizePolicy ：关闭自适应的内存分配策略  （暂时用不到）</span><br><span class="line">-Xmn:设置新生代的空间的大小。 （一般不设置）</span><br></pre></td></tr></table></figure>
-
-<p> <strong>初始化的对象，成员变量（那种非static变量），所有的对象实例和数组都要在堆中分配</strong><br><img src="https://img-blog.csdnimg.cn/20200202132002577.png" alt="q"></p>
-<p>堆里面的分区：Eden，Survivor(from+to)，老年代。<br>各自的特点：堆里面分为新生代和老年代（java8取消永久代，采用Matespace(元空间)），新生代包含Eden和Survivor区，Survivor分为from+to区。</p>
-<ul>
-<li><strong>内存回收时，如果用的是复制算法，从from复制到to，当经过一次或者多次GC之后，存活下来的对象会被移入老年区。</strong></li>
-<li><strong>当JVM内存不够用的时候，会触发FullGC，清理JVM老年代。</strong></li>
-<li><strong>当新生区满了之后会触发YGC，先把存活的对象放到其中一个Survivor区，然后进行垃圾清理。因为如果仅仅清理需要删除的对象，这样会导致内存碎片，因此一般会把Eden进行完全的清理，然后整理内存。那么下次GC 的时候，就会使用下一个Survive，这样循环使用。</strong></li>
-<li><strong>如果有特别大的对象，新生代放不下，就会使用老年代的担保，直接放到老年代里面。因为JVM 认为，一般大对象的存活时间一般比较久远。</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/10.png" alt="10"><br>对象的分配原则：</br><br>1.对象优先分配在Eden区</br><br>2.长期存活的对象进入老年代。空间不足，进行GC。对象年龄+1，年龄&#x3D;15进入老年代</br><br>&amp;emsp;&amp;emsp;动态对象年龄判断：如果survivor区中相同年龄的所有对象大小的总和大于survivor空间的一半，年龄大于或等于该年龄的对象直接进入老年代，无需等到MaxTenuringThreshole（15）中要求的年龄。</br><br>3.大对象直接进入老年代</br><br>&#x3D;&#x3D;TLAB&#x3D;&#x3D;(Thread Local Allocation Buffer)<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/11.png" alt="11"></li>
-</ul>
-<p><strong>内存不足、内存溢出、内存泄漏</strong></p>
-<h4 id="Minor-GC、Major-GC、Full-GC"><a href="#Minor-GC、Major-GC、Full-GC" class="headerlink" title="Minor GC、Major GC、Full GC"></a>Minor GC、Major GC、Full GC</h4><ol>
-<li>部分收集：不是完整收集整个java堆的垃圾收集。</li>
-</ol>
-<ul>
-<li>新生代收集（MinorGC&#x2F;YoungGC）:只是新生代的垃圾收集</li>
-<li>老年代收集（MajorGC&#x2F;OldGC）：只是老年代的垃圾收集</br><br> &amp;emsp;&amp;emsp;目前，只有CMS GC会有单独收集老年代的行为。</br><br> &amp;emsp;&amp;emsp;&#x3D;&#x3D;注意，很多时候MajorGC会和FullGC混淆使用，需要具体分辨是老年代回收还是整堆回收。&#x3D;&#x3D;</li>
-<li>混合收集（MixedGC）：收集整个新生代以及部分老年代的垃圾收集。</br><br> &amp;emsp;&amp;emsp;目前，只有G1 GC会有这种行为。</li>
-</ul>
-<ol start="2">
-<li>整堆收集（Full GC）：收集整个Java堆和方法区的垃圾收集。<h4 id="堆空间常用参数总结"><a href="#堆空间常用参数总结" class="headerlink" title="堆空间常用参数总结"></a>堆空间常用参数总结</h4></li>
-</ol>
-<figure class="highlight plaintext"><figcaption><span>测试堆空间常用的jvm参数：</span></figcaption><table><tr><td class="code"><pre><span class="line">* -XX:+PrintFlagsInitial : 查看所有的参数的默认初始值</span><br><span class="line">* -XX:+PrintFlagsFinal  ：查看所有的参数的最终值（可能会存在修改，不再是初始值）</span><br><span class="line">*      具体查看某个参数的指令： jps：查看当前运行中的进程</span><br><span class="line">*                             jinfo -flag SurvivorRatio 进程id</span><br><span class="line">*</span><br><span class="line">* -Xms：初始堆空间内存 （默认为物理内存的1/64）</span><br><span class="line">* -Xmx：最大堆空间内存（默认为物理内存的1/4）</span><br><span class="line">* -Xmn：设置新生代的大小。(初始值及最大值)</span><br><span class="line">* -XX:NewRatio：配置新生代与老年代在堆结构的占比</span><br><span class="line">* -XX:SurvivorRatio：设置新生代中Eden和S0/S1空间的比例</span><br><span class="line">* -XX:MaxTenuringThreshold：设置新生代垃圾的最大年龄</span><br><span class="line">* -XX:+PrintGCDetails：输出详细的GC处理日志</span><br><span class="line">* 打印gc简要信息：① -XX:+PrintGC   ② -verbose:gc</span><br><span class="line">* -XX:HandlePromotionFailure：是否设置空间分配担保</span><br></pre></td></tr></table></figure>
-
-<h4 id="堆是分配对象存储的唯一选择吗（逃逸分析技术-XX-DoEscapeAnalysis默认开启）"><a href="#堆是分配对象存储的唯一选择吗（逃逸分析技术-XX-DoEscapeAnalysis默认开启）" class="headerlink" title="堆是分配对象存储的唯一选择吗（逃逸分析技术-XX:+DoEscapeAnalysis默认开启）"></a>堆是分配对象存储的唯一选择吗（逃逸分析技术-XX:+DoEscapeAnalysis默认开启）</h4><p>没有发生逃逸的对象，则可以分配到栈上，随着方法执行结束，栈空间就被移除。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/12.png" alt="12"></p>
-<h4 id="逃逸分析：代码优化"><a href="#逃逸分析：代码优化" class="headerlink" title="逃逸分析：代码优化"></a>逃逸分析：代码优化</h4><ol>
-<li>栈上分配。</li>
-<li>同步省略(锁消除)。</li>
-<li>分离对象或标量替换:在JIT阶段，如果经过逃逸分析，发现一个对象不会被外界访问的话，那么经过JIT优化，就会把这个对象拆分成若干个其中包含的若干个成员变量来代替。这个过程就是标量替换。（-XX:+EliminateAllocations默认开启）<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/13.png" alt="13"></li>
-</ol>
-<ul>
-<li><h3 id="方法区-1-8元空间"><a href="#方法区-1-8元空间" class="headerlink" title="方法区(1.8元空间)"></a>方法区(1.8元空间)</h3></li>
-</ul>
-<ol>
-<li>1.7及以前称为永久代，在该区内很少发生垃圾回收，但是并不代表不发生GC，在这里进行的GC主要对方法区里的常量池和对类型的卸载。</li>
-<li>方法区主要用来储存已被虚拟机加载的类的信息、常量、静态变量和即时编译器编译后的代码等数据。</br></li>
-</ol>
-<ul>
-<li>虚拟机启动过程中，会将各个Class文件中的常量池载入到运行时常量池中。</br></li>
-<li>所以， Class常量池只是一个媒介场所。在JVM真的运行时，需要把常量池中的常量加载到内存中，进入到运行时常量池。</br></li>
-<li>字符串常量池可以理解为运行时常量池分出来的部分。加载时，对于class的静态常量池，如果字符串会被装到字符串常量池中。</li>
-</ul>
-<ol start="3">
-<li>该区域被线程共享。</li>
-<li>方法区里有一个运行时常量池，用于存放静态编译产生的字面量和符号引用。该常量池具有动态性，也就是说常量不一定是编译时确定的，运行时生成的常量也存放在这个常量池。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/14.png" alt="14"></li>
-</ol>
-<p>方法区的垃圾收集主要回收两部分内容：常量池中废弃的常量和不再使用的类型。<br>永久代为什么要被元空间替代？</br></p>
-<ul>
-<li>为永久代设置空间大小是很难确定的。</li>
-<li>对永久代进行调优是很困难的。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/15.png" alt="15"></li>
-</ul>
-<p>常量池表（Constant Pool Table）是Class文件中的一部分，用于存放编译期生成的字面量和符号引用，这部分内容将在类加载后存放到方法区的运行时常量池中。</br><br>运行时常量池相对于Class文件常量池的另一个重要特征是：&#x3D;&#x3D;具有动态性。&#x3D;&#x3D;<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/16.png" alt="16"></p>
-<h2 id="对象的实例化"><a href="#对象的实例化" class="headerlink" title="对象的实例化"></a>对象的实例化</h2><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/17.png" alt="17"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/18.png" alt="18"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/19.png" alt="19"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/20.png" alt="20"></p>
-<h2 id="直接内存"><a href="#直接内存" class="headerlink" title="直接内存"></a>直接内存</h2><h2 id="垃圾回收系统"><a href="#垃圾回收系统" class="headerlink" title="垃圾回收系统"></a>垃圾回收系统</h2><p> 新生代内存不够用时候发生MGC也叫YGC，JVM内存不够的时候发生FGC</p>
-<ul>
-<li><h3 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h3></li>
-<li><h3 id="可达性分析算法"><a href="#可达性分析算法" class="headerlink" title="可达性分析算法"></a>可达性分析算法</h3><p>   GCroots对象</p>
-<ol>
-<li>虚拟机栈中引用的对象</li>
-<li>方法区类静态属性引用的对象</li>
-<li>方法区常量池引用的对象</li>
-<li>本地方法栈JNI引用的对象<br>当一个对象不可达GC Root时，这个对象并 不会立马被回收，而是出于一个死缓的阶段，若要被真正的回收需要经历两次标记.<br>如果对象在可达性分析中没有与GC Root的引用链，那么此时就会被第一次标记并且进行一次筛选，筛选的条件是是否有必要执行finalize()方法。当对象没有覆盖finalize()方法或者已被虚拟机调用过，那么就认为是没必要的。<br>如果该对象有必要执行finalize()方法，那么这个对象将会放在一个称为F-Queue的对队列中，虚拟机会触发一个Finalize()线程去执行，此线程是低优先级的，并且虚拟机不会承诺一直等待它运行完，这是因为如果finalize()执行缓慢或者发生了死锁，那么就会造成F-Queue队列一直等待，造成了内存回收系统的崩溃。GC对处于F-Queue中的对象进行第二次被标记，这时，该对象将被移除”即将回收”集合，等待回收。</li>
-</ol>
-</li>
-<li><h3 id="SafePoint"><a href="#SafePoint" class="headerlink" title="SafePoint"></a>SafePoint</h3><p><em><strong>必须要等到Java线程都进入到safepoint的时候VMThread才能开始执行GC</strong></em></p>
-</li>
-</ul>
-<p>safepoint指的特定位置主要有:</p>
-<ol>
-<li>循环的末尾（防止大循环的时候一直不进入safepoint，而其他线程在等它进入safepoint）</li>
-<li>方法返回前</li>
-<li>调用方法的call之后</li>
-<li>抛出异常的位置</li>
-</ol>
-<ul>
-<li><h3 id="GC算法"><a href="#GC算法" class="headerlink" title="GC算法"></a>GC算法</h3><ol>
-<li>标记清除：先标记，标记完毕再清除，效率不高，会产生碎片</li>
-<li>复制算法：分为8:1的Eden区和survivor区，YGC</li>
-<li>标记整理：标记完毕之后，让所有存活的对象向一端移动，清理另一端</li>
-<li>分代收集：现在的虚拟机垃圾收集大多采用这种方式，它根据对象的生存周期，将堆分为新生代和老年代。在新生代中，由于对象生存期短，每次回收都会有大量对象死去，那么这时就采用复制算法。老年代里的对象存活率较高，没有额外的空间进行分配担保，所以可以使用标记-整理 或者 标记-清除。</li>
-</ol>
-</li>
-<li><h3 id="GC收集器"><a href="#GC收集器" class="headerlink" title="GC收集器"></a>GC收集器</h3>  串型收集器：串行收集器使用一个单独的线程进行收集，GC时服务有停顿时间<br>  并行收集器：次要回收中使用多线程执行</li>
-</ul>
-<ol>
-<li>CMS:基于“标记-清除”算法实现的，经过多次标记才会被清除</li>
-<li>G1:从整体来看是基于“标记—整理”算法实现的收集器，从局部（两个Region之间）上来看是基于“复制”算法实现的</li>
-</ol>
-<p>几种常见的内存调试工具：jmap,jstack,jconsole,jhat<br>    jstack可以看当前栈的情况，jmap查看内存，jhat 进行dump堆的信息<br>    mat（eclipse的也要了解一下）</p>
-]]></content>
-      <categories>
-        <category>后端</category>
-      </categories>
-      <tags>
-        <tag>JVM</tag>
       </tags>
   </entry>
   <entry>
@@ -1051,6 +895,162 @@ docker exec -it --user root $ContainerName /bin/bash
       </categories>
       <tags>
         <tag>MySQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JVM</title>
+    <url>/2021/04/26/JVM/</url>
+    <content><![CDATA[<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/1.png" alt="1"></p>
+<h2 id="Java内存模型（JMM）"><a href="#Java内存模型（JMM）" class="headerlink" title="Java内存模型（JMM）"></a>Java内存模型（JMM）</h2><p><strong>主内存（main memory）</strong>、<strong>本地内存（local memory）</strong>（抽象概念）</p>
+<ul>
+<li>本地内存涵盖了缓存，写缓冲区，寄存器以及其他的硬件和编译器优化。</li>
+<li>Java编译器输入的指令流基本是一种基于栈的指令架构，另外一种指令架构师基于寄存器的指令架构。</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="执行引擎-Execution-Engine"><a href="#执行引擎-Execution-Engine" class="headerlink" title="执行引擎(Execution Engine)"></a>执行引擎(Execution Engine)</h2><h2 id="类加载子系统（Class-Loader）"><a href="#类加载子系统（Class-Loader）" class="headerlink" title="类加载子系统（Class Loader）"></a>类加载子系统（Class Loader）</h2><p> <img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/2.png" alt="2"><br> <em>class。文件，网络</em><br> <strong>加载、验证、准备、解析、初始化。然后是使用和卸载了</strong><br> <em>通过全限定名来加载生成class对象到内存中，然后进行验证这个class文件，包括文件格式校验、元数据验证，字节码校验等。准备是对这个对象分配内存。解析是将符号引用转化为直接引用（指针引用），初始化就是开始执行构造器的代码</em></p>
+<p>  <strong>双亲委派模型机制</strong></p>
+<ol>
+<li>启动类加载器(Bootstrap ClassLoader)用来加载java核心类库，无法被java程序直接引用。</li>
+<li>扩展类加载器(Extensions ClassLoader):它用来加载 Java 的扩展库。Java 虚拟机的实现会提供一个扩展库目录。该类加载器在此目录里面查找并加载 Java 类。</li>
+<li>应用类加载器（Application ClassLoader）：它根据 Java 应用的类路径（CLASSPATH）来加载 Java 类。一般来说，Java 应用的类都是由它来完成加载的。</li>
+<li>用户自定义类加载器，通过继承 java.lang.ClassLoader类的方式实现。</br><br><strong>什么情况下需要自定义类加载器：</strong></li>
+</ol>
+<ul>
+<li><p>隔离加载类</p>
+</li>
+<li><p>修改类加载方式</p>
+</li>
+<li><p>扩展加载源</p>
+</li>
+<li><p>防止源码泄漏</p>
+<h2 id="运行时数据区-Runtime-Data-Area"><a href="#运行时数据区-Runtime-Data-Area" class="headerlink" title="运行时数据区(Runtime Data Area)"></a>运行时数据区(Runtime Data Area)</h2><p> 内存</p>
+</li>
+<li><p>什么是运行时数据区<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/3.png" alt="3"></p>
+</li>
+<li><p>什么是虚拟机栈<br> 栈：数据结构，先进后出，First In Last Out,用来运行java方法的。线程私有。启用一个线程就有一个虚拟机栈。<br> <strong>调用一个方法就压入一帧。</strong><br>栈内存参数<br>-Xss 1m(默认1M)<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/4.png" alt="4"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/5.png" alt="5"></p>
+</li>
+<li><p>局部变量表（八大基本数据类型+对象引用）</p>
+</li>
+</ul>
+<ol>
+<li>定义为一个数字数组，主要用于储存方法参数和定义在方法体内的局部变量。</li>
+<li>不存在数据线程安全问题。</li>
+<li>局部变量表所需容量大小是在编译期确定下来的。</li>
+<li>局部变量表中的变量也是重要的垃圾回收根节点（GCRoots可达性分析算法），只要被局部变量表中直接或间接引用的对象都不会被回收。</br><br>关于Slot的理解：</br><br>&amp;emsp;1.最基本的储存单元Slot(变量槽)。</br><br>&amp;emsp;2.32位以内的类型只占一个Slot(包括returnAddress类型)，64位的类型(long和double)占用两个Slot。</br><br>&amp;emsp;3.构造方法和实例方法（非static方法）的局部变量表0位Slot会存放this。</li>
+</ol>
+<ul>
+<li><p>操作栈（对局部变量数据进行运算操作）</br><br>&amp;emsp;操作栈：在方法的执行过程中，根据字节码指令，往栈中写入数据或提取数据，即入栈（push）&#x2F;出栈（pop）；主要用于保存计算过程的中间结果，同时作为计算过程中变量临时的存储空间；操作栈是JVM执行引擎的一个工作区； </p>
+</li>
+<li><p>动态链接（将常量池中的符号引用在运行期转化为直接引用&#x2F;指向运行时常量池的方法引用）</br><br>&amp;emsp;动态链接的作用就是为了将这些符号引用转换为调用方法的直接引用</br><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/6.png" alt="6"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/7.png" alt="7"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/8.png" alt="8"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/9.png" alt="9"></p>
+</li>
+<li><p>返回地址（方法执行完返回地址）</br><br>存放调用该方法的PC寄存器的值。<br>异常退出：异常表</p>
+</li>
+<li><p>一些附加信息</p>
+</li>
+<li><p>本地方法栈（native方法[C,C++实现]）<br>  主要为Native方法服务</p>
+</li>
+<li><p>程序计数器<br>  内存空间小，字节码解释器工作时通过改变这个计数值可以选取下一条需要执行的字节码指令，分支、循环、跳转、异常处理和线程恢复等功能都需要依赖这个计数器完成。该内存区域是唯一一个java虚拟机规范没有规定任何OOM情况的区域。</p>
+<p>  线程切换<br>  记录线程执行的当前的地址和行号</p>
+</li>
+<li><p>堆（-Xms 30m -Xmx 30m -XX:+PrintGCDetails）</br></p>
+</li>
+</ul>
+<figure class="highlight plaintext"><figcaption><span>设置堆空间大小的参数</span></figcaption><table><tr><td class="code"><pre><span class="line"> -Xms 用来设置堆空间（年轻代+老年代）的初始内存大小</span><br><span class="line">      -X 是jvm的运行参数</span><br><span class="line">      ms 是memory start</span><br><span class="line"> -Xmx 用来设置堆空间（年轻代+老年代）的最大内存大小</span><br><span class="line"></span><br><span class="line"> 2. 默认堆空间的大小</span><br><span class="line">    初始内存大小：物理电脑内存大小 / 64</span><br><span class="line">             最大内存大小：物理电脑内存大小 / 4</span><br><span class="line"> 3. 手动设置：-Xms600m -Xmx600m</span><br><span class="line">     开发中建议将初始堆内存和最大的堆内存设置成相同的值。</span><br><span class="line"></span><br><span class="line"> 4. 查看设置的参数：方式一： jps   /  jstat -gc 进程id</span><br><span class="line">                  方式二：-XX:+PrintGCDetails</span><br><span class="line">-XX:+开启 -关闭</span><br><span class="line">-XX:NewRatio ： 设置新生代与老年代的比例。默认值是2.</span><br><span class="line">-XX:SurvivorRatio ：设置新生代中Eden区与Survivor区的比例。默认值是8</span><br><span class="line">-XX:-UseAdaptiveSizePolicy ：关闭自适应的内存分配策略  （暂时用不到）</span><br><span class="line">-Xmn:设置新生代的空间的大小。 （一般不设置）</span><br></pre></td></tr></table></figure>
+
+<p> <strong>初始化的对象，成员变量（那种非static变量），所有的对象实例和数组都要在堆中分配</strong><br><img src="https://img-blog.csdnimg.cn/20200202132002577.png" alt="q"></p>
+<p>堆里面的分区：Eden，Survivor(from+to)，老年代。<br>各自的特点：堆里面分为新生代和老年代（java8取消永久代，采用Matespace(元空间)），新生代包含Eden和Survivor区，Survivor分为from+to区。</p>
+<ul>
+<li><strong>内存回收时，如果用的是复制算法，从from复制到to，当经过一次或者多次GC之后，存活下来的对象会被移入老年区。</strong></li>
+<li><strong>当JVM内存不够用的时候，会触发FullGC，清理JVM老年代。</strong></li>
+<li><strong>当新生区满了之后会触发YGC，先把存活的对象放到其中一个Survivor区，然后进行垃圾清理。因为如果仅仅清理需要删除的对象，这样会导致内存碎片，因此一般会把Eden进行完全的清理，然后整理内存。那么下次GC 的时候，就会使用下一个Survive，这样循环使用。</strong></li>
+<li><strong>如果有特别大的对象，新生代放不下，就会使用老年代的担保，直接放到老年代里面。因为JVM 认为，一般大对象的存活时间一般比较久远。</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/10.png" alt="10"><br>对象的分配原则：</br><br>1.对象优先分配在Eden区</br><br>2.长期存活的对象进入老年代。空间不足，进行GC。对象年龄+1，年龄&#x3D;15进入老年代</br><br>&amp;emsp;&amp;emsp;动态对象年龄判断：如果survivor区中相同年龄的所有对象大小的总和大于survivor空间的一半，年龄大于或等于该年龄的对象直接进入老年代，无需等到MaxTenuringThreshole（15）中要求的年龄。</br><br>3.大对象直接进入老年代</br><br>&#x3D;&#x3D;TLAB&#x3D;&#x3D;(Thread Local Allocation Buffer)<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/11.png" alt="11"></li>
+</ul>
+<p><strong>内存不足、内存溢出、内存泄漏</strong></p>
+<h4 id="Minor-GC、Major-GC、Full-GC"><a href="#Minor-GC、Major-GC、Full-GC" class="headerlink" title="Minor GC、Major GC、Full GC"></a>Minor GC、Major GC、Full GC</h4><ol>
+<li>部分收集：不是完整收集整个java堆的垃圾收集。</li>
+</ol>
+<ul>
+<li>新生代收集（MinorGC&#x2F;YoungGC）:只是新生代的垃圾收集</li>
+<li>老年代收集（MajorGC&#x2F;OldGC）：只是老年代的垃圾收集</br><br> &amp;emsp;&amp;emsp;目前，只有CMS GC会有单独收集老年代的行为。</br><br> &amp;emsp;&amp;emsp;&#x3D;&#x3D;注意，很多时候MajorGC会和FullGC混淆使用，需要具体分辨是老年代回收还是整堆回收。&#x3D;&#x3D;</li>
+<li>混合收集（MixedGC）：收集整个新生代以及部分老年代的垃圾收集。</br><br> &amp;emsp;&amp;emsp;目前，只有G1 GC会有这种行为。</li>
+</ul>
+<ol start="2">
+<li>整堆收集（Full GC）：收集整个Java堆和方法区的垃圾收集。<h4 id="堆空间常用参数总结"><a href="#堆空间常用参数总结" class="headerlink" title="堆空间常用参数总结"></a>堆空间常用参数总结</h4></li>
+</ol>
+<figure class="highlight plaintext"><figcaption><span>测试堆空间常用的jvm参数：</span></figcaption><table><tr><td class="code"><pre><span class="line">* -XX:+PrintFlagsInitial : 查看所有的参数的默认初始值</span><br><span class="line">* -XX:+PrintFlagsFinal  ：查看所有的参数的最终值（可能会存在修改，不再是初始值）</span><br><span class="line">*      具体查看某个参数的指令： jps：查看当前运行中的进程</span><br><span class="line">*                             jinfo -flag SurvivorRatio 进程id</span><br><span class="line">*</span><br><span class="line">* -Xms：初始堆空间内存 （默认为物理内存的1/64）</span><br><span class="line">* -Xmx：最大堆空间内存（默认为物理内存的1/4）</span><br><span class="line">* -Xmn：设置新生代的大小。(初始值及最大值)</span><br><span class="line">* -XX:NewRatio：配置新生代与老年代在堆结构的占比</span><br><span class="line">* -XX:SurvivorRatio：设置新生代中Eden和S0/S1空间的比例</span><br><span class="line">* -XX:MaxTenuringThreshold：设置新生代垃圾的最大年龄</span><br><span class="line">* -XX:+PrintGCDetails：输出详细的GC处理日志</span><br><span class="line">* 打印gc简要信息：① -XX:+PrintGC   ② -verbose:gc</span><br><span class="line">* -XX:HandlePromotionFailure：是否设置空间分配担保</span><br></pre></td></tr></table></figure>
+
+<h4 id="堆是分配对象存储的唯一选择吗（逃逸分析技术-XX-DoEscapeAnalysis默认开启）"><a href="#堆是分配对象存储的唯一选择吗（逃逸分析技术-XX-DoEscapeAnalysis默认开启）" class="headerlink" title="堆是分配对象存储的唯一选择吗（逃逸分析技术-XX:+DoEscapeAnalysis默认开启）"></a>堆是分配对象存储的唯一选择吗（逃逸分析技术-XX:+DoEscapeAnalysis默认开启）</h4><p>没有发生逃逸的对象，则可以分配到栈上，随着方法执行结束，栈空间就被移除。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/12.png" alt="12"></p>
+<h4 id="逃逸分析：代码优化"><a href="#逃逸分析：代码优化" class="headerlink" title="逃逸分析：代码优化"></a>逃逸分析：代码优化</h4><ol>
+<li>栈上分配。</li>
+<li>同步省略(锁消除)。</li>
+<li>分离对象或标量替换:在JIT阶段，如果经过逃逸分析，发现一个对象不会被外界访问的话，那么经过JIT优化，就会把这个对象拆分成若干个其中包含的若干个成员变量来代替。这个过程就是标量替换。（-XX:+EliminateAllocations默认开启）<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/13.png" alt="13"></li>
+</ol>
+<ul>
+<li><h3 id="方法区-1-8元空间"><a href="#方法区-1-8元空间" class="headerlink" title="方法区(1.8元空间)"></a>方法区(1.8元空间)</h3></li>
+</ul>
+<ol>
+<li>1.7及以前称为永久代，在该区内很少发生垃圾回收，但是并不代表不发生GC，在这里进行的GC主要对方法区里的常量池和对类型的卸载。</li>
+<li>方法区主要用来储存已被虚拟机加载的类的信息、常量、静态变量和即时编译器编译后的代码等数据。</br></li>
+</ol>
+<ul>
+<li>虚拟机启动过程中，会将各个Class文件中的常量池载入到运行时常量池中。</br></li>
+<li>所以， Class常量池只是一个媒介场所。在JVM真的运行时，需要把常量池中的常量加载到内存中，进入到运行时常量池。</br></li>
+<li>字符串常量池可以理解为运行时常量池分出来的部分。加载时，对于class的静态常量池，如果字符串会被装到字符串常量池中。</li>
+</ul>
+<ol start="3">
+<li>该区域被线程共享。</li>
+<li>方法区里有一个运行时常量池，用于存放静态编译产生的字面量和符号引用。该常量池具有动态性，也就是说常量不一定是编译时确定的，运行时生成的常量也存放在这个常量池。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/14.png" alt="14"></li>
+</ol>
+<p>方法区的垃圾收集主要回收两部分内容：常量池中废弃的常量和不再使用的类型。<br>永久代为什么要被元空间替代？</br></p>
+<ul>
+<li>为永久代设置空间大小是很难确定的。</li>
+<li>对永久代进行调优是很困难的。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/15.png" alt="15"></li>
+</ul>
+<p>常量池表（Constant Pool Table）是Class文件中的一部分，用于存放编译期生成的字面量和符号引用，这部分内容将在类加载后存放到方法区的运行时常量池中。</br><br>运行时常量池相对于Class文件常量池的另一个重要特征是：&#x3D;&#x3D;具有动态性。&#x3D;&#x3D;<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/16.png" alt="16"></p>
+<h2 id="对象的实例化"><a href="#对象的实例化" class="headerlink" title="对象的实例化"></a>对象的实例化</h2><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/17.png" alt="17"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/18.png" alt="18"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/19.png" alt="19"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/20.png" alt="20"></p>
+<h2 id="直接内存"><a href="#直接内存" class="headerlink" title="直接内存"></a>直接内存</h2><h2 id="垃圾回收系统"><a href="#垃圾回收系统" class="headerlink" title="垃圾回收系统"></a>垃圾回收系统</h2><p> 新生代内存不够用时候发生MGC也叫YGC，JVM内存不够的时候发生FGC</p>
+<ul>
+<li><h3 id="引用计数法"><a href="#引用计数法" class="headerlink" title="引用计数法"></a>引用计数法</h3></li>
+<li><h3 id="可达性分析算法"><a href="#可达性分析算法" class="headerlink" title="可达性分析算法"></a>可达性分析算法</h3><p>   GCroots对象</p>
+<ol>
+<li>虚拟机栈中引用的对象</li>
+<li>方法区类静态属性引用的对象</li>
+<li>方法区常量池引用的对象</li>
+<li>本地方法栈JNI引用的对象<br>当一个对象不可达GC Root时，这个对象并 不会立马被回收，而是出于一个死缓的阶段，若要被真正的回收需要经历两次标记.<br>如果对象在可达性分析中没有与GC Root的引用链，那么此时就会被第一次标记并且进行一次筛选，筛选的条件是是否有必要执行finalize()方法。当对象没有覆盖finalize()方法或者已被虚拟机调用过，那么就认为是没必要的。<br>如果该对象有必要执行finalize()方法，那么这个对象将会放在一个称为F-Queue的对队列中，虚拟机会触发一个Finalize()线程去执行，此线程是低优先级的，并且虚拟机不会承诺一直等待它运行完，这是因为如果finalize()执行缓慢或者发生了死锁，那么就会造成F-Queue队列一直等待，造成了内存回收系统的崩溃。GC对处于F-Queue中的对象进行第二次被标记，这时，该对象将被移除”即将回收”集合，等待回收。</li>
+</ol>
+</li>
+<li><h3 id="SafePoint"><a href="#SafePoint" class="headerlink" title="SafePoint"></a>SafePoint</h3><p><em><strong>必须要等到Java线程都进入到safepoint的时候VMThread才能开始执行GC</strong></em></p>
+</li>
+</ul>
+<p>safepoint指的特定位置主要有:</p>
+<ol>
+<li>循环的末尾（防止大循环的时候一直不进入safepoint，而其他线程在等它进入safepoint）</li>
+<li>方法返回前</li>
+<li>调用方法的call之后</li>
+<li>抛出异常的位置</li>
+</ol>
+<ul>
+<li><h3 id="GC算法"><a href="#GC算法" class="headerlink" title="GC算法"></a>GC算法</h3><ol>
+<li>标记清除：先标记，标记完毕再清除，效率不高，会产生碎片</li>
+<li>复制算法：分为8:1的Eden区和survivor区，YGC</li>
+<li>标记整理：标记完毕之后，让所有存活的对象向一端移动，清理另一端</li>
+<li>分代收集：现在的虚拟机垃圾收集大多采用这种方式，它根据对象的生存周期，将堆分为新生代和老年代。在新生代中，由于对象生存期短，每次回收都会有大量对象死去，那么这时就采用复制算法。老年代里的对象存活率较高，没有额外的空间进行分配担保，所以可以使用标记-整理 或者 标记-清除。</li>
+</ol>
+</li>
+<li><h3 id="GC收集器"><a href="#GC收集器" class="headerlink" title="GC收集器"></a>GC收集器</h3>  串型收集器：串行收集器使用一个单独的线程进行收集，GC时服务有停顿时间<br>  并行收集器：次要回收中使用多线程执行</li>
+</ul>
+<ol>
+<li>CMS:基于“标记-清除”算法实现的，经过多次标记才会被清除</li>
+<li>G1:从整体来看是基于“标记—整理”算法实现的收集器，从局部（两个Region之间）上来看是基于“复制”算法实现的</li>
+</ol>
+<p>几种常见的内存调试工具：jmap,jstack,jconsole,jhat<br>    jstack可以看当前栈的情况，jmap查看内存，jhat 进行dump堆的信息<br>    mat（eclipse的也要了解一下）</p>
+]]></content>
+      <categories>
+        <category>后端</category>
+      </categories>
+      <tags>
+        <tag>JVM</tag>
       </tags>
   </entry>
   <entry>
@@ -2268,36 +2268,6 @@ rabbitmq-plugins enable rabbitmq_management
       </tags>
   </entry>
   <entry>
-    <title>通过企业微信（微信插件）实现每日天气推送</title>
-    <url>/2021/11/06/%E9%80%9A%E8%BF%87%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%EF%BC%88%E5%BE%AE%E4%BF%A1%E6%8F%92%E4%BB%B6%EF%BC%89%E5%AE%9E%E7%8E%B0%E6%AF%8F%E6%97%A5%E5%A4%A9%E6%B0%94%E6%8E%A8%E9%80%81/</url>
-    <content><![CDATA[<h2 id="企业微信配置"><a href="#企业微信配置" class="headerlink" title="企业微信配置"></a>企业微信配置</h2><h3 id="进入企业微信官网，点击立即注册"><a href="#进入企业微信官网，点击立即注册" class="headerlink" title="进入企业微信官网，点击立即注册"></a>进入<a href="https://work.weixin.qq.com/">企业微信官网</a>，点击立即注册</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361632863091.jpg" alt="16361632863091"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361633233327.jpg" alt="16361633233327"></p>
-<h3 id="登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）"><a href="#登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）" class="headerlink" title="登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）"></a>登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361635628391.jpg" alt="16361635628391"></p>
-<h3 id="点击打开创建的应用，获取开发相关的配置信息（AgentId-Secret）"><a href="#点击打开创建的应用，获取开发相关的配置信息（AgentId-Secret）" class="headerlink" title="点击打开创建的应用，获取开发相关的配置信息（AgentId,Secret）"></a>点击打开创建的应用，获取开发相关的配置信息（AgentId,Secret）</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361637536484.jpg" alt="16361637536484"><br> AgentId：这个应用的唯一标识<br> Secret：密钥（需要发送到企业微信app才能查看）</p>
-<h3 id="到此所有企业微信配置结束"><a href="#到此所有企业微信配置结束" class="headerlink" title="到此所有企业微信配置结束"></a>到此所有企业微信配置结束</h3><h2 id="天气开放平台配置"><a href="#天气开放平台配置" class="headerlink" title="天气开放平台配置"></a>天气开放平台配置</h2><h3 id="进入和风天气开放平台，点击注册"><a href="#进入和风天气开放平台，点击注册" class="headerlink" title="进入和风天气开放平台，点击注册"></a>进入<a href="https://dev.qweather.com/">和风天气开放平台</a>，点击注册</h3><p> <em><strong>注册完成后建议申请认证个人开发者</strong></em>（支持更多接口）<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361640883550.jpg" alt="16361640883550"></p>
-<h3 id="登录控制台，点击应用管理，创建应用，获取到应用的KEY"><a href="#登录控制台，点击应用管理，创建应用，获取到应用的KEY" class="headerlink" title="登录控制台，点击应用管理，创建应用，获取到应用的KEY"></a>登录控制台，点击应用管理，创建应用，获取到应用的KEY</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361644923902.jpg" alt="16361644923902"></p>
-<h2 id="项目开发"><a href="#项目开发" class="headerlink" title="项目开发"></a>项目开发</h2><p>前端项目：<a href="https://github.com/yangh124/weather-push-admin">weather-push-admin</a><br>后台项目：<a href="https://github.com/yangh124/weather-push">weather-push</a></p>
-<h2 id="定时任务配置配置"><a href="#定时任务配置配置" class="headerlink" title="定时任务配置配置"></a>定时任务配置配置</h2><h3 id="执行执行初始化sql"><a href="#执行执行初始化sql" class="headerlink" title="执行执行初始化sql"></a>执行执行初始化sql</h3><p>在后台项目resources&#x2F;sql&#x2F;init.sql</p>
-<h3 id="运行前后端项目"><a href="#运行前后端项目" class="headerlink" title="运行前后端项目"></a>运行前后端项目</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561503716829.jpg" alt="16561503716829"></p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561503961795.jpg" alt="16561503961795"></p>
-<h3 id="登录后台"><a href="#登录后台" class="headerlink" title="登录后台"></a>登录后台</h3><p>使用默认账号密码登录：admin 123456<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561505074675.jpg" alt="16561505074675"></p>
-<h3 id="配置地区"><a href="#配置地区" class="headerlink" title="配置地区"></a>配置地区</h3><p>即配置需要发送天气预报的地区<br><strong>注：这里的地区对应企业微信通讯录中的标签</strong></p>
-<blockquote>
-<p>地区管理 -&gt; 添加<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561506595631.jpg" alt="16561506595631"></p>
-</blockquote>
-<h3 id="地区绑定成员"><a href="#地区绑定成员" class="headerlink" title="地区绑定成员"></a>地区绑定成员</h3><blockquote>
-<p>成员管理 -&gt; 选择左边的地区 -&gt; 点击添加成员<br><strong>注：这里的成员对应企业微信通讯录中的成员</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561508273991.jpg" alt="16561508273991"></p>
-</blockquote>
-<h3 id="创建定时任务"><a href="#创建定时任务" class="headerlink" title="创建定时任务"></a>创建定时任务</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561517473902.jpg" alt="16561517473902"></p>
-<h2 id="最终效果"><a href="#最终效果" class="headerlink" title="最终效果"></a>最终效果</h2><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561520350860.jpg" alt="16561520350860"></p>
-]]></content>
-      <categories>
-        <category>项目</category>
-      </categories>
-      <tags>
-        <tag>实战</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>索引的创建与设计原则</title>
     <url>/2022/01/15/%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/</url>
     <content><![CDATA[<h2 id="索引的声明与使用"><a href="#索引的声明与使用" class="headerlink" title="索引的声明与使用"></a>索引的声明与使用</h2><h3 id="索引的分类"><a href="#索引的分类" class="headerlink" title="索引的分类"></a>索引的分类</h3><ul>
@@ -2345,6 +2315,36 @@ rabbitmq-plugins enable rabbitmq_management
       </categories>
       <tags>
         <tag>MySQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>通过企业微信（微信插件）实现每日天气推送</title>
+    <url>/2021/11/06/%E9%80%9A%E8%BF%87%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%EF%BC%88%E5%BE%AE%E4%BF%A1%E6%8F%92%E4%BB%B6%EF%BC%89%E5%AE%9E%E7%8E%B0%E6%AF%8F%E6%97%A5%E5%A4%A9%E6%B0%94%E6%8E%A8%E9%80%81/</url>
+    <content><![CDATA[<h2 id="企业微信配置"><a href="#企业微信配置" class="headerlink" title="企业微信配置"></a>企业微信配置</h2><h3 id="进入企业微信官网，点击立即注册"><a href="#进入企业微信官网，点击立即注册" class="headerlink" title="进入企业微信官网，点击立即注册"></a>进入<a href="https://work.weixin.qq.com/">企业微信官网</a>，点击立即注册</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361632863091.jpg" alt="16361632863091"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361633233327.jpg" alt="16361633233327"></p>
+<h3 id="登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）"><a href="#登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）" class="headerlink" title="登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）"></a>登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361635628391.jpg" alt="16361635628391"></p>
+<h3 id="点击打开创建的应用，获取开发相关的配置信息（AgentId-Secret）"><a href="#点击打开创建的应用，获取开发相关的配置信息（AgentId-Secret）" class="headerlink" title="点击打开创建的应用，获取开发相关的配置信息（AgentId,Secret）"></a>点击打开创建的应用，获取开发相关的配置信息（AgentId,Secret）</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361637536484.jpg" alt="16361637536484"><br> AgentId：这个应用的唯一标识<br> Secret：密钥（需要发送到企业微信app才能查看）</p>
+<h3 id="到此所有企业微信配置结束"><a href="#到此所有企业微信配置结束" class="headerlink" title="到此所有企业微信配置结束"></a>到此所有企业微信配置结束</h3><h2 id="天气开放平台配置"><a href="#天气开放平台配置" class="headerlink" title="天气开放平台配置"></a>天气开放平台配置</h2><h3 id="进入和风天气开放平台，点击注册"><a href="#进入和风天气开放平台，点击注册" class="headerlink" title="进入和风天气开放平台，点击注册"></a>进入<a href="https://dev.qweather.com/">和风天气开放平台</a>，点击注册</h3><p> <em><strong>注册完成后建议申请认证个人开发者</strong></em>（支持更多接口）<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361640883550.jpg" alt="16361640883550"></p>
+<h3 id="登录控制台，点击应用管理，创建应用，获取到应用的KEY"><a href="#登录控制台，点击应用管理，创建应用，获取到应用的KEY" class="headerlink" title="登录控制台，点击应用管理，创建应用，获取到应用的KEY"></a>登录控制台，点击应用管理，创建应用，获取到应用的KEY</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361644923902.jpg" alt="16361644923902"></p>
+<h2 id="项目开发"><a href="#项目开发" class="headerlink" title="项目开发"></a>项目开发</h2><p>前端项目：<a href="https://github.com/yangh124/weather-push-admin">weather-push-admin</a><br>后台项目：<a href="https://github.com/yangh124/weather-push">weather-push</a></p>
+<h2 id="定时任务配置配置"><a href="#定时任务配置配置" class="headerlink" title="定时任务配置配置"></a>定时任务配置配置</h2><h3 id="执行执行初始化sql"><a href="#执行执行初始化sql" class="headerlink" title="执行执行初始化sql"></a>执行执行初始化sql</h3><p>在后台项目resources&#x2F;sql&#x2F;init.sql</p>
+<h3 id="运行前后端项目"><a href="#运行前后端项目" class="headerlink" title="运行前后端项目"></a>运行前后端项目</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561503716829.jpg" alt="16561503716829"></p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561503961795.jpg" alt="16561503961795"></p>
+<h3 id="登录后台"><a href="#登录后台" class="headerlink" title="登录后台"></a>登录后台</h3><p>使用默认账号密码登录：admin 123456<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561505074675.jpg" alt="16561505074675"></p>
+<h3 id="配置地区"><a href="#配置地区" class="headerlink" title="配置地区"></a>配置地区</h3><p>即配置需要发送天气预报的地区<br><strong>注：这里的地区对应企业微信通讯录中的标签</strong></p>
+<blockquote>
+<p>地区管理 -&gt; 添加<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561506595631.jpg" alt="16561506595631"></p>
+</blockquote>
+<h3 id="地区绑定成员"><a href="#地区绑定成员" class="headerlink" title="地区绑定成员"></a>地区绑定成员</h3><blockquote>
+<p>成员管理 -&gt; 选择左边的地区 -&gt; 点击添加成员<br><strong>注：这里的成员对应企业微信通讯录中的成员</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561508273991.jpg" alt="16561508273991"></p>
+</blockquote>
+<h3 id="创建定时任务"><a href="#创建定时任务" class="headerlink" title="创建定时任务"></a>创建定时任务</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561517473902.jpg" alt="16561517473902"></p>
+<h2 id="最终效果"><a href="#最终效果" class="headerlink" title="最终效果"></a>最终效果</h2><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561520350860.jpg" alt="16561520350860"></p>
+]]></content>
+      <categories>
+        <category>项目</category>
+      </categories>
+      <tags>
+        <tag>实战</tag>
       </tags>
   </entry>
 </search>
