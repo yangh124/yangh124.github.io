@@ -259,14 +259,14 @@
   </url>
   
   <url>
-    <loc>https://yh124.space/tags/elastic-search/</loc>
+    <loc>https://yh124.space/tags/MySQL/</loc>
     <lastmod>2023-02-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://yh124.space/tags/MySQL/</loc>
+    <loc>https://yh124.space/tags/elastic-search/</loc>
     <lastmod>2023-02-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -288,13 +288,6 @@
   
   <url>
     <loc>https://yh124.space/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/</loc>
-    <lastmod>2023-02-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://yh124.space/tags/%E5%88%86%E5%B8%83%E5%BC%8F/</loc>
     <lastmod>2023-02-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -323,6 +316,13 @@
   
   <url>
     <loc>https://yh124.space/tags/%E7%AE%97%E6%B3%95/</loc>
+    <lastmod>2023-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://yh124.space/tags/%E5%88%86%E5%B8%83%E5%BC%8F/</loc>
     <lastmod>2023-02-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
