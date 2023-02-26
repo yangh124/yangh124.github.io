@@ -1,7 +1,6 @@
 FROM nginx
 LABEL maintainer="yh.124@qq.com"
-COPY . /usr/share/nginx/html/
-COPY ["!./Dockerfile","."]
+COPY . /usr/share/nginx/html/ --exclude=Dockerfile
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 RUN echo 'Asia/Shanghai' >/etc/timezone
 EXPOSE 80
