@@ -191,7 +191,7 @@
   </url>
   
   <url>
-    <loc>https://yh124.space/links/index.html</loc>
+    <loc>https://yh124.space/books/index.html</loc>
     
     <lastmod>2021-10-11</lastmod>
     
@@ -209,7 +209,16 @@
   </url>
   
   <url>
-    <loc>https://yh124.space/books/index.html</loc>
+    <loc>https://yh124.space/tags/index.html</loc>
+    
+    <lastmod>2021-10-11</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://yh124.space/links/index.html</loc>
     
     <lastmod>2021-10-11</lastmod>
     
@@ -219,15 +228,6 @@
   
   <url>
     <loc>https://yh124.space/repository/index.html</loc>
-    
-    <lastmod>2021-10-11</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://yh124.space/tags/index.html</loc>
     
     <lastmod>2021-10-11</lastmod>
     
