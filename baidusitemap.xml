@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://yh124.space/2024/03/09/k8s/</loc>
+    <lastmod>2024-03-09</lastmod>
+  </url>
+  <url>
     <loc>https://yh124.space/2024/03/02/Camunda/</loc>
-    <lastmod>2024-03-03</lastmod>
+    <lastmod>2024-03-09</lastmod>
   </url>
   <url>
     <loc>https://yh124.space/2023/02/28/k3s%E5%AE%9E%E6%88%98/</loc>

@@ -17,28 +17,24 @@
   <meta http-equiv="window-target" content="_top" />
   
   
-  <title>InnoDB中的索引 | yangh&#39;s Blog</title>
-  <meta name="description" content="InnoDB中的索引设计方案 0:普通的用户记录 1:目录项记录 2:最小记录 3:最大记录一般情况下，我们用到的B+树都不会超过4层。（减少磁盘I&#x2F;O）一个B+树的节点其实可以分成好多层，规定最下边的那层，也就是存放用户记录的那层为第0层，之后依次往上加。一个数据页可以存放16k的数据。假设所有存放用户记录的叶子节点代表的数据页可以存放100条用户记录，所有存放目录项记录的内节点代表的">
+  <title>k8s | yangh&#39;s Blog</title>
+  <meta name="description" content="概述Kubernetes 是一个可移植、可扩展的开源平台，用于管理容器化的工作负载和服务，可促进声明式配置和自动化。 Kubernetes 拥有一个庞大且快速增长的生态，其服务、支持和工具的使用范围相当广泛。 Kubernetes 这个名字源于希腊语，意为“舵手”或“飞行员”。k8s 这个缩写是因为 k 和 s 之间有八个字符的关系。 Google 在 2014 年开源了 Kubernetes 项">
 <meta property="og:type" content="article">
-<meta property="og:title" content="InnoDB中的索引">
-<meta property="og:url" content="https://yh124.space/2022/01/12/InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95/index.html">
+<meta property="og:title" content="k8s">
+<meta property="og:url" content="https://yh124.space/2024/03/09/k8s/index.html">
 <meta property="og:site_name" content="yangh&#39;s Blog">
-<meta property="og:description" content="InnoDB中的索引设计方案 0:普通的用户记录 1:目录项记录 2:最小记录 3:最大记录一般情况下，我们用到的B+树都不会超过4层。（减少磁盘I&#x2F;O）一个B+树的节点其实可以分成好多层，规定最下边的那层，也就是存放用户记录的那层为第0层，之后依次往上加。一个数据页可以存放16k的数据。假设所有存放用户记录的叶子节点代表的数据页可以存放100条用户记录，所有存放目录项记录的内节点代表的">
+<meta property="og:description" content="概述Kubernetes 是一个可移植、可扩展的开源平台，用于管理容器化的工作负载和服务，可促进声明式配置和自动化。 Kubernetes 拥有一个庞大且快速增长的生态，其服务、支持和工具的使用范围相当广泛。 Kubernetes 这个名字源于希腊语，意为“舵手”或“飞行员”。k8s 这个缩写是因为 k 和 s 之间有八个字符的关系。 Google 在 2014 年开源了 Kubernetes 项">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419950340539.jpg">
-<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419967282458.jpg">
-<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419972009034.jpg">
-<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420811937219.jpg">
-<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420812487954.jpg">
-<meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420815935861.jpg">
-<meta property="article:published_time" content="2022-01-11T16:00:00.000Z">
-<meta property="article:modified_time" content="2022-06-14T14:24:13.000Z">
+<meta property="og:image" content="http://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2024/03/09/containerevolution.svg">
+<meta property="og:image" content="http://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2024/03/09/componentsofkubernetes.svg">
+<meta property="article:published_time" content="2024-03-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-03-09T03:19:31.428Z">
 <meta property="article:author" content="yangh">
-<meta property="article:tag" content="MySQL">
+<meta property="article:tag" content="k8s">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419950340539.jpg">
+<meta name="twitter:image" content="http://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2024/03/09/containerevolution.svg">
   <!-- Canonical links -->
-  <link rel="canonical" href="https://yh124.space/2022/01/12/InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95/index.html">
+  <link rel="canonical" href="https://yh124.space/2024/03/09/k8s/index.html">
   
   
     <link rel="icon" href="/favicon.png" type="image/x-icon">
@@ -321,21 +317,21 @@
   <div class="slimContent">
     <nav id="toc" class="article-toc">
       <h3 class="toc-title">文章目录</h3>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%A1%88"><span class="toc-number">1.</span> <span class="toc-text">InnoDB中的索引设计方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E7%B4%A2%E5%BC%95%E6%A6%82%E5%BF%B5"><span class="toc-number">2.</span> <span class="toc-text">常见索引概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95"><span class="toc-number">2.1.</span> <span class="toc-text">聚簇索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%EF%BC%88%E8%BE%85%E5%8A%A9%E7%B4%A2%E5%BC%95%E3%80%81%E9%9D%9E%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%EF%BC%89"><span class="toc-number">2.2.</span> <span class="toc-text">二级索引（辅助索引、非聚簇索引）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95"><span class="toc-number">2.2.1.</span> <span class="toc-text">联合索引</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#InnoDB%E7%9A%84B-%E6%A0%91%E7%B4%A2%E5%BC%95%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-number">2.3.</span> <span class="toc-text">InnoDB的B+树索引的注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B9%E9%A1%B5%E9%9D%A2%E4%BD%8D%E7%BD%AE%E4%B8%87%E5%B9%B4%E4%B8%8D%E5%8F%98"><span class="toc-number">2.3.1.</span> <span class="toc-text">根页面位置万年不变</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%9E%E5%8F%B6%E5%AD%90%E8%8A%82%E7%82%B9%E4%B8%AD%E7%9A%84%E7%9B%AE%E5%BD%95%E9%A1%B9%E8%AE%B0%E5%BD%95%E7%9A%84%E5%94%AF%E4%B8%80%E6%80%A7"><span class="toc-number">2.4.</span> <span class="toc-text">非叶子节点中的目录项记录的唯一性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E6%95%B0%E6%8D%AE%E9%A1%B5%E6%9C%80%E5%B0%91%E5%AD%98%E5%82%A82%E6%9D%A1%E6%95%B0%E6%8D%AE"><span class="toc-number">2.5.</span> <span class="toc-text">一个数据页最少存储2条数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%80%89%E6%8B%A9%E7%9A%84%E5%90%88%E7%90%86%E6%80%A7"><span class="toc-number">2.6.</span> <span class="toc-text">MySQL数据结构选择的合理性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Hash%E7%BB%93%E6%9E%84"><span class="toc-number">2.6.1.</span> <span class="toc-text">Hash结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91"><span class="toc-number">2.6.2.</span> <span class="toc-text">二叉搜索树</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#AVL%E6%A0%91"><span class="toc-number">2.6.3.</span> <span class="toc-text">AVL树</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-Tree"><span class="toc-number">2.6.4.</span> <span class="toc-text">B-Tree</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#B-Tree-1"><span class="toc-number">2.6.5.</span> <span class="toc-text">B+Tree</span></a></li></ol></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Kubernetes-%E7%BB%84%E4%BB%B6"><span class="toc-number">2.</span> <span class="toc-text">Kubernetes 组件</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2%E7%BB%84%E4%BB%B6%EF%BC%88Control-Plane-Components%EF%BC%89"><span class="toc-number">2.1.</span> <span class="toc-text">控制平面组件（Control Plane Components）</span></a></li></ol></li></ol>
     </nav>
   </div>
 </aside>
 
 <main class="main" role="main">
   <div class="content">
-  <article id="post-InnoDB中的索引" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
+  <article id="post-k8s" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
     
     <div class="article-header">
       
         
   
     <h1 class="article-title" itemprop="name">
-      InnoDB中的索引
+      k8s
     </h1>
   
 
@@ -343,20 +339,20 @@
       <div class="article-meta">
         <span class="article-date">
     <i class="icon icon-calendar-check"></i>
-	<a href="/2022/01/12/InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95/" class="article-date">
-	  <time datetime="2022-01-11T16:00:00.000Z" itemprop="datePublished">2022-01-12</time>
+	<a href="/2024/03/09/k8s/" class="article-date">
+	  <time datetime="2024-03-08T16:00:00.000Z" itemprop="datePublished">2024-03-09</time>
 	</a>
 </span>
         
   <span class="article-category">
     <i class="icon icon-folder"></i>
-    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+    <a class="article-category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
   </span>
 
         
   <span class="article-tag">
     <i class="icon icon-tags"></i>
-	<a class="article-tag-link-link" href="/tags/MySQL/" rel="tag">MySQL</a>
+	<a class="article-tag-link-link" href="/tags/k8s/" rel="tag">k8s</a>
   </span>
 
 
@@ -371,57 +367,56 @@
 
 	<span class="article-read hidden-xs">
     	<i class="icon icon-eye-fill" aria-hidden="true"></i>
-    	<span id="/2022/01/12/InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95/" class="leancloud_visitors"  data-flag-title="InnoDB中的索引">
+    	<span id="/2024/03/09/k8s/" class="leancloud_visitors"  data-flag-title="k8s">
 			<span class="leancloud-visitors-count">0</span>
 		</span>
     </span>
 
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/01/12/InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95/#comments" class="article-comment-link">评论</a></span>
+        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2024/03/09/k8s/#comments" class="article-comment-link">评论</a></span>
         
 	
-		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 1.4k(字)</span>
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 984(字)</span>
 	
 	
-		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 4(分)</span>
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 3(分)</span>
 	
 
       </div>
     </div>
     <div class="article-entry marked-body" itemprop="articleBody">
       
-        <h2 id="InnoDB中的索引设计方案"><a href="#InnoDB中的索引设计方案" class="headerlink" title="InnoDB中的索引设计方案"></a>InnoDB中的索引设计方案</h2><ul>
-<li>0:普通的用户记录</li>
-<li>1:目录项记录</li>
-<li>2:最小记录</li>
-<li>3:最大记录<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419950340539.jpg" alt="聚簇索引"><br><strong>一般情况下，我们用到的B+树都不会超过4层。（减少磁盘I&#x2F;O）</strong><br>一个B+树的节点其实可以分成好多层，规定最下边的那层，也就是存放用户记录的那层为第0层，之后依次往上加。一个数据页可以存放16k的数据。假设所有存放用户记录的叶子节点代表的数据页可以存放100条用户记录，所有存放目录项记录的内节点代表的数据页可以存放1000条数据，那么：</li>
-<li>如果B+树只有1层，也就是只有一个用于存放记录的节点，最多能存放100条记录。</li>
-<li>如果B+树有2层，最多能存放1000 * 100 &#x3D; 10万条记录。</li>
-<li>如果B+树有3层，最多能存放1000 * 1000 * 100 &#x3D; 1亿条记录</li>
-<li>如果b+树有4层，做多能存放1000 * 1000 * 1000 * 100 &#x3D; 1000亿条记录<h2 id="常见索引概念"><a href="#常见索引概念" class="headerlink" title="常见索引概念"></a>常见索引概念</h2><h3 id="聚簇索引"><a href="#聚簇索引" class="headerlink" title="聚簇索引"></a>聚簇索引</h3><h3 id="二级索引（辅助索引、非聚簇索引）"><a href="#二级索引（辅助索引、非聚簇索引）" class="headerlink" title="二级索引（辅助索引、非聚簇索引）"></a>二级索引（辅助索引、非聚簇索引）</h3><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419967282458.jpg" alt="非聚簇索引"><h4 id="联合索引"><a href="#联合索引" class="headerlink" title="联合索引"></a>联合索引</h4><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419972009034.jpg" alt="联合索引"><h3 id="InnoDB的B-树索引的注意事项"><a href="#InnoDB的B-树索引的注意事项" class="headerlink" title="InnoDB的B+树索引的注意事项"></a>InnoDB的B+树索引的注意事项</h3><h4 id="根页面位置万年不变"><a href="#根页面位置万年不变" class="headerlink" title="根页面位置万年不变"></a>根页面位置万年不变</h4></li>
-<li>每当某个表创建一个B+树索引（聚簇索引）的时候，都会为这个索引创建一个根节点页，最开始表中没有数据的时候，每个B+树索引对应的根节点中，既没有用户记录，也没有目录项记录。</li>
-<li>随后向表中插入用户记录时，先把用户记录存储到这个根节点中。</li>
-<li>当根节点中的可用空间用完时，继续插入记录，此时会将根节点中的所有记录复制到新分配的页，比如页a中，然后后对这个新页进行页分裂的操作，得到另一个新页，比如页b，这时新插入的记录根据键值（也就是索引值）的大小就会被分配到页a或者页b中，而根节点便升级为存储目录项记录的页<br><strong>这个过程特别注意的是：</strong> 一个B+树索引的根节点自诞生之日起，便不会再移动。这样只要我们对某个表建立一个索引，那么它的根节点的页号便会被记录到某个地方，然后凡事InnoDB存储引擎需要用到这个索引的时候，都会从哪个固定的地方取出根节点的页，从而来访问这个索引。<h3 id="非叶子节点中的目录项记录的唯一性"><a href="#非叶子节点中的目录项记录的唯一性" class="headerlink" title="非叶子节点中的目录项记录的唯一性"></a>非叶子节点中的目录项记录的唯一性</h3>即非叶子节点的索引唯一（创建的索引默认后面会跟主键）<h3 id="一个数据页最少存储2条数据"><a href="#一个数据页最少存储2条数据" class="headerlink" title="一个数据页最少存储2条数据"></a>一个数据页最少存储2条数据</h3><h3 id="MySQL数据结构选择的合理性"><a href="#MySQL数据结构选择的合理性" class="headerlink" title="MySQL数据结构选择的合理性"></a>MySQL数据结构选择的合理性</h3><h4 id="Hash结构"><a href="#Hash结构" class="headerlink" title="Hash结构"></a>Hash结构</h4><ol>
-<li>Hash索引仅能满足（&#x3D;）（&lt;&gt;）和in查询。范围查询效率很差。</li>
-<li>Hash索引数据存储是没有顺序的。</li>
-<li>对于联合索引的情况，Hash值是将联合索引合并后一起来计算的，无法对单独的一个键或者几个索引键进行查询。</li>
-<li>对于等值查询来说，通常Hash索引的效率很高，不过存在一种情况，就是索引列的重复值很多，效率就会降低。</li>
-</ol>
+        <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>Kubernetes 是一个可移植、可扩展的开源平台，用于管理容器化的工作负载和服务，可促进声明式配置和自动化。 Kubernetes 拥有一个庞大且快速增长的生态，其服务、支持和工具的使用范围相当广泛。</p>
+<p>Kubernetes 这个名字源于希腊语，意为“舵手”或“飞行员”。k8s 这个缩写是因为 k 和 s 之间有八个字符的关系。 Google 在 2014 年开源了 Kubernetes 项目。 Kubernetes 建立在 Google 大规模运行生产工作负载十几年经验的基础上， 结合了社区中最优秀的想法和实践。</p>
+<p><img src="http://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2024/03/09/containerevolution.svg" alt="Container_Evolution"></p>
+<p>Kubernetes提供：</p>
+<ul>
+<li><p>服务发现和负载均衡<br>Kubernetes 可以使用 DNS 名称或自己的 IP 地址来暴露容器。 如果进入容器的流量很大，Kubernetes 可以负载均衡并分配网络流量，从而使部署稳定。</p>
+</li>
+<li><p>存储编排<br>Kubernetes 允许你自动挂载你选择的存储系统，例如本地存储、公共云提供商等。</p>
+</li>
+<li><p>自动部署和回滚<br>你可以使用 Kubernetes 描述已部署容器的所需状态， 它可以以受控的速率将实际状态更改为期望状态。 例如，你可以自动化 Kubernetes 来为你的部署创建新容器， 删除现有容器并将它们的所有资源用于新容器。</p>
+</li>
+<li><p>自动完成装箱计算<br>你为 Kubernetes 提供许多节点组成的集群，在这个集群上运行容器化的任务。 你告诉 Kubernetes 每个容器需要多少 CPU 和内存 (RAM)。 Kubernetes 可以将这些容器按实际情况调度到你的节点上，以最佳方式利用你的资源。</p>
+</li>
+<li><p>自我修复<br>Kubernetes 将重新启动失败的容器、替换容器、杀死不响应用户定义的运行状况检查的容器， 并且在准备好服务之前不将其通告给客户端。</p>
+</li>
+<li><p>密钥与配置管理<br>Kubernetes 允许你存储和管理敏感信息，例如密码、OAuth 令牌和 SSH 密钥。 你可以在不重建容器镜像的情况下部署和更新密钥和应用程序配置，也无需在堆栈配置中暴露密钥。</p>
+</li>
+<li><p>批处理执行<br>除了服务外，Kubernetes 还可以管理你的批处理和 CI（持续集成）工作负载，如有需要，可以替换失败的容器。</p>
+</li>
+<li><p>水平扩缩<br>使用简单的命令、用户界面或根据 CPU 使用率自动对你的应用进行扩缩。</p>
+</li>
+<li><p>IPv4&#x2F;IPv6 双栈<br>为 Pod（容器组）和 Service（服务）分配 IPv4 和 IPv6 地址。</p>
+</li>
+<li><p>为可扩展性设计<br>在不改变上游源代码的情况下为你的 Kubernetes 集群添加功能。</p>
 </li>
 </ul>
-<p>另外，InnoDB本身不支持Hash索引，但是提供了自适应hash索引（adaptive_hash_index）。如果某个数据经常被访问，当满足一定条件的时候，就会将这个数据页的地址存放到Hash表中。这样下次查询的时候，就可以直接找到这个页面的所在位置。这样让B+树也具备了Hash索引的优点。</p>
-<h4 id="二叉搜索树"><a href="#二叉搜索树" class="headerlink" title="二叉搜索树"></a>二叉搜索树</h4><p>二叉树特征：<br>    * 一个节点只能有两个子节点，也就是一个节点度不能超过2<br>    * 左子节点 &lt; 本节点 &lt;&#x3D; 右子节点<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420811937219.jpg" alt="二叉搜索树"><br> <strong>在极端情况下会变成一个线性链表</strong></p>
-<h4 id="AVL树"><a href="#AVL树" class="headerlink" title="AVL树"></a>AVL树</h4><p> 平衡二叉树特征：<br>    <strong>它是一棵空树或它的左右两个子树的高度差的绝对值不超过1，并且左右两个子树都是一棵平衡二叉树。</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420812487954.jpg" alt="AVL树"><br><strong>树的层数过多，访问一个节点相当于做一次磁盘IO</strong></p>
-<h4 id="B-Tree"><a href="#B-Tree" class="headerlink" title="B-Tree"></a>B-Tree</h4><p>Balance Tree，也就是多路平衡查找树。</p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420815935861.jpg" alt="16420815935861"></p>
-<ol>
-<li>B树在插入和删除节点的时候如果导致树不平衡，就通过自动调节节点的位置保持树的自平衡。</li>
-<li>关键字集合分布在整棵树中，即叶子节点和非叶子节点都存放数据。搜索有可能在非叶子节点结束</li>
-<li>其搜索性能等价于在关键字全集内做一次二分查找。<h4 id="B-Tree-1"><a href="#B-Tree-1" class="headerlink" title="B+Tree"></a>B+Tree</h4>B+树也是一种多路搜索树，基于B-Tree做了改进。B+树适合文件索引系统。<br><strong>B+树和B树的差异：</strong></li>
-<li>有k个子节点就有k个关键字。也就是子节点数量&#x3D;关键字数量。而B树中，子节点数量&#x3D;关键字数量+1。</li>
-<li>非叶子节点的关键字会同时存在在子节点中，并且是在子节点中所有关键字的最大（或最小）。</li>
-<li>非叶子节点仅用于索引，不保存数据记录，跟记录相关的信息都存放在叶子节点中。而B树中，非叶子节点即保存索引也保存数据记录。</li>
-<li>所有关键字都在叶子节点出现，叶子节点构成一个有序链表，而且叶子节点本身按照关键字的大小从小到大顺序链接。</li>
-</ol>
+<h1 id="Kubernetes-组件"><a href="#Kubernetes-组件" class="headerlink" title="Kubernetes 组件"></a>Kubernetes 组件</h1><p>当你部署完 Kubernetes，便拥有了一个完整的集群。</p>
+<p>一组工作机器，称为节点， 会运行容器化应用程序。每个集群至少有一个工作节点。</p>
+<p>工作节点会托管 Pod，而 Pod 就是作为应用负载的组件。 控制平面管理集群中的工作节点和 Pod。 在生产环境中，控制平面通常跨多台计算机运行， 一个集群通常运行多个节点，提供容错性和高可用性。</p>
+<p><img src="http://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2024/03/09/componentsofkubernetes.svg" alt="components-of-kubernetes"></p>
+<h2 id="控制平面组件（Control-Plane-Components）"><a href="#控制平面组件（Control-Plane-Components）" class="headerlink" title="控制平面组件（Control Plane Components）"></a>控制平面组件（Control Plane Components）</h2><p>控制平面组件会为集群做出全局决策，比如资源的调度。 以及检测和响应集群事件，例如当不满足部署的 replicas 字段时，要启动新的 Pod）。</p>
+<p>控制平面组件可以在集群中的任何节点上运行。 然而，为了简单起见，设置脚本通常会在同一个计算机上启动所有控制平面组件， 并且不会在此计算机上运行用户容器。 请参阅使用 kubeadm 构建高可用性集群 中关于跨多机器控制平面设置的示例。</p>
 
       
     </div>
@@ -431,7 +426,7 @@
     
     <li class="post-copyright-link hidden-xs">
       <strong>本文链接：</strong>
-      <a href="https://yh124.space/2022/01/12/InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95/" title="InnoDB中的索引" target="_blank" rel="external">https://yh124.space/2022/01/12/InnoDB中的索引/</a>
+      <a href="https://yh124.space/2024/03/09/k8s/" title="k8s" target="_blank" rel="external">https://yh124.space/2024/03/09/k8s/</a>
     </li>
     
     <li class="post-copyright-license">
@@ -477,13 +472,9 @@
   
   <ul class="pager pull-left">
     
-    <li class="prev">
-      <a href="/2022/01/15/%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/" title="索引的创建与设计原则"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
-    </li>
-    
     
     <li class="next">
-      <a href="/2021/12/04/Shell%E8%84%9A%E6%9C%AC/" title="Shell脚本"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
+      <a href="/2024/03/02/Camunda/" title="Camunda"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
     </li>
     
     
