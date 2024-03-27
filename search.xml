@@ -1,8 +1,170 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title></title>
-    <url>/2024/03/02/Camunda/</url>
+    <title>Docker实战</title>
+    <url>/2022/05/20/Docker%E5%AE%9E%E6%88%98/</url>
+    <content><![CDATA[<h1 id="Docker-部署springboot项目"><a href="#Docker-部署springboot项目" class="headerlink" title="Docker 部署springboot项目"></a>Docker 部署springboot项目</h1><pre><code>使用docker-maven-plugin maven插件
+</code></pre>
+<h2 id="服务器安装docker"><a href="#服务器安装docker" class="headerlink" title="服务器安装docker"></a>服务器安装docker</h2><pre><code>略
+</code></pre>
+<h2 id="Docker开启远程访问"><a href="#Docker开启远程访问" class="headerlink" title="Docker开启远程访问"></a>Docker开启远程访问</h2><ol>
+<li>查看docker服务状态（查看docker.service位置）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pi@raspberrypi:~ $ service docker status</span><br><span class="line">● docker.service - Docker Application Container Engine</span><br><span class="line">     Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)</span><br><span class="line">     Active: active (running) since Sun 2022-04-17 17:28:04 CST; 1 months 2 days ago</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">...</span><br></pre></td></tr></table></figure></li>
+<li>编辑docker.service<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vim /lib/systemd/system/docker.service</span><br></pre></td></tr></table></figure></li>
+<li>修改[Service]下的ExecStart，添加-H tcp:&#x2F;&#x2F;0.0.0.0:2375；对外开放docker服务（建议不要使用默认端口2375）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H fd:// --containerd=/run/containerd/containerd.sock</span><br></pre></td></tr></table></figure></li>
+<li>重新加载Docker配置生效 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl daemon-reload </span><br><span class="line">systemctl restart docker </span><br></pre></td></tr></table></figure></li>
+<li>服务器防火墙开放端口</li>
+<li>浏览器访问<a href="http://ip:2375/version%EF%BC%8C%E6%B5%8B%E8%AF%95%E6%98%AF%E5%90%A6%E6%88%90%E5%8A%9F">http://ip:2375/version，测试是否成功</a></li>
+</ol>
+<h2 id="使用TLS-HTTPS-保证Docker服务安全"><a href="#使用TLS-HTTPS-保证Docker服务安全" class="headerlink" title="使用TLS(HTTPS)保证Docker服务安全"></a>使用TLS(HTTPS)保证Docker服务安全</h2><h3 id="1-服务器端生成CA共钥和私钥"><a href="#1-服务器端生成CA共钥和私钥" class="headerlink" title="1. 服务器端生成CA共钥和私钥"></a>1. 服务器端生成CA共钥和私钥</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建目录存放CA证书</span><br><span class="line">pi@raspberrypi:~ $ mkdir ca</span><br><span class="line"></span><br><span class="line"># 进入目录</span><br><span class="line">pi@raspberrypi:~ $ cd ca</span><br><span class="line"></span><br><span class="line"># 生成私钥（会提示输入密码）</span><br><span class="line">pi@raspberrypi:~/ca $ openssl genrsa -aes256 -out ca-key.pem 4096</span><br><span class="line">Generating RSA private key, 4096 bit long modulus (2 primes)</span><br><span class="line">..........................++++</span><br><span class="line">.......++++</span><br><span class="line">e is 65537 (0x010001)</span><br><span class="line">Enter pass phrase for ca-key.pem:</span><br><span class="line"></span><br><span class="line"># 生成证书信息（需要输入上面的密码以及一些其他信息【注意Common Name填写服务器外网IP】）</span><br><span class="line">pi@raspberrypi:~/ca $ openssl req -new -x509 -days 3650 -key ca-key.pem -sha256 -out ca.pem</span><br><span class="line">Enter pass phrase for ca-key.pem:</span><br><span class="line">You are about to be asked to enter information that will be incorporated</span><br><span class="line">into your certificate request.</span><br><span class="line">What you are about to enter is what is called a Distinguished Name or a DN.</span><br><span class="line">There are quite a few fields but you can leave some blank</span><br><span class="line">For some fields there will be a default value,</span><br><span class="line">If you enter &#x27;.&#x27;, the field will be left blank.</span><br><span class="line">-----</span><br><span class="line">Country Name (2 letter code) [AU]:CN</span><br><span class="line">State or Province Name (full name) [Some-State]:ZheJiang</span><br><span class="line">Locality Name (eg, city) []:HangZhou</span><br><span class="line">Organization Name (eg, company) [Internet Widgits Pty Ltd]:yanghao </span><br><span class="line">Organizational Unit Name (eg, section) []:yanghao</span><br><span class="line">Common Name (e.g. server FQDN or YOUR name) []:192.168.3.3</span><br><span class="line">Email Address []:yh.124@qq.com</span><br></pre></td></tr></table></figure>
+<p><strong>有了CA之后，就可以创建服务器密钥和证书签名请求(CSR)了。确保“Common Name”与你连接Docker时使用的主机名匹配</strong></p>
+<h3 id="2-创建服务器密钥和证书签名请求"><a href="#2-创建服务器密钥和证书签名请求" class="headerlink" title="2. 创建服务器密钥和证书签名请求"></a>2. 创建服务器密钥和证书签名请求</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建服务器密钥</span><br><span class="line">pi@raspberrypi:~/ca $ openssl genrsa -out server-key.pem 4096</span><br><span class="line">Generating RSA private key, 4096 bit long modulus (2 primes)</span><br><span class="line">................................................................++++</span><br><span class="line">.........++++</span><br><span class="line">e is 65537 (0x010001)</span><br><span class="line"></span><br><span class="line"># 证书签名请求（注意修改为你的服务器IP）</span><br><span class="line">openssl req -subj &quot;/CN=192.168.3.3&quot; -sha256 -new -key server-key.pem -out server.csr</span><br></pre></td></tr></table></figure>
+<h3 id="3-配置白名单"><a href="#3-配置白名单" class="headerlink" title="3. 配置白名单"></a>3. 配置白名单</h3><p>配置白名单，允许连接的ip（通过证书）;IP可以配置多个</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo subjectAltName = IP:192.168.3.3,IP::192.168.3.5 &gt;&gt; extfile.cnf</span><br></pre></td></tr></table></figure>
+<h3 id="4-设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证"><a href="#4-设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证" class="headerlink" title="4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证"></a>4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo extendedKeyUsage = serverAuth &gt;&gt; extfile.cnf</span><br></pre></td></tr></table></figure>
+<h3 id="5-生成签名证书（需要输入密码）"><a href="#5-生成签名证书（需要输入密码）" class="headerlink" title="5. 生成签名证书（需要输入密码）"></a>5. 生成签名证书（需要输入密码）</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">openssl x509 -req -days 3650 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \</span><br><span class="line">  -CAcreateserial -out server-cert.pem -extfile extfile.cnf</span><br></pre></td></tr></table></figure>
+<h3 id="6-对于客户端身份验证，创建一个客户端密钥和证书签名请求"><a href="#6-对于客户端身份验证，创建一个客户端密钥和证书签名请求" class="headerlink" title="6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求"></a>6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成 key.pem</span><br><span class="line">openssl genrsa -out key.pem 4096</span><br><span class="line"></span><br><span class="line"># 生成 csr</span><br><span class="line">openssl req -subj &#x27;/CN=client&#x27; -new -key key.pem -out client.csr</span><br><span class="line"></span><br><span class="line"># 创建配置文件</span><br><span class="line">echo extendedKeyUsage = clientAuth &gt; extfile-client.cnf</span><br><span class="line"></span><br><span class="line"># 生成签名证书</span><br><span class="line">openssl x509 -req -days 3650 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \</span><br><span class="line">  -CAcreateserial -out cert.pem -extfile extfile-client.cnf</span><br><span class="line">  </span><br><span class="line"># 将服务器端的ca.pem cert.pem key.pem复制到本地</span><br><span class="line">scp ca.pem cert.pem key.pem yh@192.168.3.5:/Users/yh/ca</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="7-删除不需要的文件"><a href="#7-删除不需要的文件" class="headerlink" title="7. 删除不需要的文件"></a>7. 删除不需要的文件</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 服务器（服务端）</span><br><span class="line">rm -rf server.csr extfile.cnf client.csr extfile-client.cnf</span><br></pre></td></tr></table></figure>
+<h3 id="8-修改文件权限，防止误删"><a href="#8-修改文件权限，防止误删" class="headerlink" title="8. 修改文件权限，防止误删"></a>8. 修改文件权限，防止误删</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 服务端</span><br><span class="line">chmod -v 0400 ca-key.pem server-key.pem</span><br><span class="line">chmod -v 0444 ca.pem server-cert.pem</span><br><span class="line"># 客户端</span><br><span class="line">chmod -v 0400 key.pem</span><br><span class="line">chmod -v 0444 ca.pem cert.pem</span><br></pre></td></tr></table></figure>
+<h3 id="9-再次修改服务器docker-service"><a href="#9-再次修改服务器docker-service" class="headerlink" title="9. 再次修改服务器docker.service"></a>9. 再次修改服务器docker.service</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vim /lib/systemd/system/docker.service</span><br><span class="line"># 修改ExecStart（添加证书的路径）</span><br><span class="line">ExecStart=/usr/bin/dockerd --tlsverify --tlscacert=/home/pi/ca/ca.pem --tlscert=/home/pi/ca/server-cert.pem --tlskey=/home/pi/ca/server-key.pem -H tcp://0.0.0.0:2376 -H unix:///var/run/docker.sock</span><br></pre></td></tr></table></figure>
+<h3 id="10-重新加载daemon并重启docker"><a href="#10-重新加载daemon并重启docker" class="headerlink" title="10. 重新加载daemon并重启docker"></a>10. 重新加载daemon并重启docker</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl daemon-reload &amp;&amp; systemctl restart docker</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="11-配置本地环境变量"><a href="#11-配置本地环境变量" class="headerlink" title="11. 配置本地环境变量"></a>11. 配置本地环境变量</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mkdir -pv ~/.docker</span><br><span class="line"># 将证书copy到.docker下</span><br><span class="line">cp -v &#123;ca,cert,key&#125;.pem ~/.docker</span><br><span class="line">chmod -v 0400 key.pem</span><br><span class="line">chmod -v 0444 ca.pem cert.pem</span><br><span class="line"># 配置环境变量</span><br><span class="line">export DOCKER_HOST=tcp://0.0.0.0:2376 DOCKER_TLS_VERIFY=1</span><br></pre></td></tr></table></figure>
+<h3 id="12-客户端测试"><a href="#12-客户端测试" class="headerlink" title="12. 客户端测试"></a>12. 客户端测试</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 配置了环境变量后就可以访问服务器docker服务</span><br><span class="line">docker ps</span><br><span class="line"># 没有配置环境变量</span><br><span class="line">docker --tlsverify --tlscacert=/Users/yh/.docker/ca.pem --tlscert=/Users/yh/.docker/cert.pem --tlskey=/Users/yh/.docker/key.pem -H=tcp://192.168.3.3:2376 version</span><br></pre></td></tr></table></figure>
+<h2 id="项目配置"><a href="#项目配置" class="headerlink" title="项目配置"></a>项目配置</h2><h3 id="配置docker-file-maven-plugin插件"><a href="#配置docker-file-maven-plugin插件" class="headerlink" title="配置docker-file-maven-plugin插件"></a>配置docker-file-maven-plugin插件</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;build&gt;</span><br><span class="line">    &lt;plugins&gt;</span><br><span class="line">        &lt;!-- dockerfile maven --&gt;</span><br><span class="line">        &lt;plugin&gt;</span><br><span class="line">            &lt;groupId&gt;com.spotify&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;dockerfile-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">            &lt;executions&gt;</span><br><span class="line">                &lt;execution&gt;</span><br><span class="line">                    &lt;id&gt;default&lt;/id&gt;</span><br><span class="line">                    &lt;goals&gt;</span><br><span class="line">                        &lt;goal&gt;build&lt;/goal&gt;</span><br><span class="line">                        &lt;goal&gt;push&lt;/goal&gt;</span><br><span class="line">                    &lt;/goals&gt;</span><br><span class="line">                    &lt;configuration&gt;</span><br><span class="line">                    &lt;/configuration&gt;</span><br><span class="line">                &lt;/execution&gt;</span><br><span class="line">            &lt;/executions&gt;</span><br><span class="line">            &lt;!--docker镜像相关的配置信息--&gt;</span><br><span class="line">            &lt;configuration&gt;</span><br><span class="line">                &lt;contextDirectory&gt;$&#123;project.basedir&#125;&lt;/contextDirectory&gt;</span><br><span class="line">                &lt;dockerfile&gt;$&#123;project.basedir&#125;/Dockerfile&lt;/dockerfile&gt;</span><br><span class="line">                &lt;!--使用username和password标签，也可以使用useMavenSettingsForAuth，在settings.xml文件中的配置 servers--&gt;</span><br><span class="line">                &lt;useMavenSettingsForAuth&gt;false&lt;/useMavenSettingsForAuth&gt;</span><br><span class="line">                &lt;username&gt;xxx&lt;/username&gt;</span><br><span class="line">                &lt;password&gt;xxx&lt;/password&gt;</span><br><span class="line">                &lt;!--远程仓库地址--&gt;</span><br><span class="line">                &lt;repository&gt;$&#123;docker.repository.registry&#125;/$&#123;docker.repository.namespace&#125;/$&#123;project.artifactId&#125;&lt;/repository&gt;</span><br><span class="line">                &lt;tag&gt;$&#123;project.version&#125;&lt;/tag&gt;</span><br><span class="line">                &lt;buildArgs&gt;</span><br><span class="line">                    &lt;JAR_FILE&gt;$&#123;project.build.finalName&#125;.jar&lt;/JAR_FILE&gt;</span><br><span class="line">                &lt;/buildArgs&gt;</span><br><span class="line">            &lt;/configuration&gt;</span><br><span class="line">        &lt;/plugin&gt;</span><br><span class="line">    &lt;/plugins&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">FROM houwm/jdk8:arm64</span><br><span class="line"></span><br><span class="line">MAINTAINER yanghao&lt;yh.124@qq.com&gt;</span><br><span class="line"></span><br><span class="line"># 参数</span><br><span class="line">ARG JAR_FILE</span><br><span class="line"></span><br><span class="line"># 环境变量</span><br><span class="line">ENV TZ=Asia/Shanghai LANG=C.UTF-8</span><br><span class="line">ENV PARAMS=&quot;--server.port=8080 --spring.profiles.active=prod -Xms512m -Xmx512m&quot;</span><br><span class="line"></span><br><span class="line"># 设置时区</span><br><span class="line">RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime &amp;&amp; echo $TZ &gt; /etc/timezone</span><br><span class="line"></span><br><span class="line"># 复制jar包</span><br><span class="line">COPY target/$&#123;JAR_FILE&#125; /app.jar</span><br><span class="line"></span><br><span class="line"># 暴露端口</span><br><span class="line">EXPOSE 8080</span><br><span class="line"></span><br><span class="line"># 工作目录</span><br><span class="line">WORKDIR /</span><br><span class="line"></span><br><span class="line"># 执行命令</span><br><span class="line">ENTRYPOINT [&quot;/bin/sh&quot;,&quot;-c&quot;,&quot;java -jar /app.jar $&#123;PARAMS&#125;&quot;]</span><br></pre></td></tr></table></figure>
+<h3 id="部署项目"><a href="#部署项目" class="headerlink" title="部署项目"></a>部署项目</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 会自动在远程服务器构建镜像</span><br><span class="line">mvn package</span><br><span class="line"># 就可以省略这个步骤</span><br><span class="line">mvn dockerfile:build</span><br><span class="line"># 会自动推送镜像到远程仓库</span><br><span class="line">mvn deploy</span><br><span class="line"># 就可以省略这个步骤</span><br><span class="line">mvn dockerfile:push</span><br><span class="line"># 如果要临时跳过所有的Dockerfile相关的目标，执行如下Maven命令</span><br><span class="line">mvn clean install -Ddockerfile.skip</span><br><span class="line"># 想跳过某一个goal</span><br><span class="line">mvn clean package -Ddockerfile.build.skip</span><br><span class="line">mvn clean package -Ddockerfile.tag.skip</span><br><span class="line">mvn clean deploy -Ddockerfile.push.skip</span><br><span class="line"> </span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>运维</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Docker常用命令</title>
+    <url>/2021/07/31/Docker%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h1 id="Docker简介"><a href="#Docker简介" class="headerlink" title="Docker简介"></a>Docker简介</h1><pre><code>Docker是一个开源的应用容器引擎，让开发者可以打包应用及依赖包到一个可移植的镜像中，然后发布到任何流行的Linux或Windows机器上。使用Docker可以更方便地打包、测试以及部署应用程序。
+</code></pre>
+<span id="more"></span>
+
+<h1 id="Docker环境安装（Linux）"><a href="#Docker环境安装（Linux）" class="headerlink" title="Docker环境安装（Linux）"></a>Docker环境安装（Linux）</h1><h2 id="1-安装yum-utils；"><a href="#1-安装yum-utils；" class="headerlink" title="1. 安装yum-utils；"></a>1. 安装yum-utils；</h2><pre><code>yum install -y yum-utils device-mapper-persistent-data lvm2
+</code></pre>
+<h2 id="2-为yum源添加docker仓库位置；"><a href="#2-为yum源添加docker仓库位置；" class="headerlink" title="2. 为yum源添加docker仓库位置；"></a>2. 为yum源添加docker仓库位置；</h2><pre><code>yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+</code></pre>
+<h2 id="3-安装dokcer服务；"><a href="#3-安装dokcer服务；" class="headerlink" title="3. 安装dokcer服务；"></a>3. 安装dokcer服务；</h2><pre><code>yum install docker-ce
+</code></pre>
+<h2 id="4-启动docker服务；"><a href="#4-启动docker服务；" class="headerlink" title="4. 启动docker服务；"></a>4. 启动docker服务；</h2><pre><code>systemctl start docker
+</code></pre>
+<h1 id="Docker常用镜像命令"><a href="#Docker常用镜像命令" class="headerlink" title="Docker常用镜像命令"></a>Docker常用镜像命令</h1><h2 id="搜索镜像"><a href="#搜索镜像" class="headerlink" title="搜索镜像"></a>搜索镜像</h2><pre><code>docker search xxx
+</code></pre>
+<h2 id="下载镜像"><a href="#下载镜像" class="headerlink" title="下载镜像"></a>下载镜像</h2><pre><code>dockr pull xxx
+</code></pre>
+<h2 id="查看镜像版本"><a href="#查看镜像版本" class="headerlink" title="查看镜像版本"></a>查看镜像版本</h2><pre><code>由于docker search命令只能查找出是否有该镜像，不能找到该镜像支持的版本，所以我们需要通过Docker Hub来搜索支持的版本。
+进入Docker Hub的官网，地址：[https://hub.docker.com](https://hub.docker.com/)
+</code></pre>
+<h2 id="列出镜像"><a href="#列出镜像" class="headerlink" title="列出镜像"></a>列出镜像</h2><p>docker images</p>
+<h2 id="删除镜像"><a href="#删除镜像" class="headerlink" title="删除镜像"></a>删除镜像</h2><h3 id="1-指定名称删除镜像"><a href="#1-指定名称删除镜像" class="headerlink" title="1. 指定名称删除镜像"></a>1. 指定名称删除镜像</h3><pre><code>docker rmi java:8.0
+</code></pre>
+<h3 id="2-指定名称强制删除镜像"><a href="#2-指定名称强制删除镜像" class="headerlink" title="2. 指定名称强制删除镜像"></a>2. 指定名称强制删除镜像</h3><pre><code>docker rmi -f java:8.0
+</code></pre>
+<h3 id="3-删除所有没有引用的镜像"><a href="#3-删除所有没有引用的镜像" class="headerlink" title="3. 删除所有没有引用的镜像"></a>3. 删除所有没有引用的镜像</h3><pre><code>docker rmi `docker images | grep none | awk  &#39;&#123;print $3&#125;&#39;`
+</code></pre>
+<h3 id="4-强制删除所有镜像"><a href="#4-强制删除所有镜像" class="headerlink" title="4. 强制删除所有镜像"></a>4. 强制删除所有镜像</h3><pre><code>docker rmi -f $(docker images)
+</code></pre>
+<h2 id="构建镜像"><a href="#构建镜像" class="headerlink" title="构建镜像"></a>构建镜像</h2><pre><code>-t 表示指定镜像仓库名称/镜像名称:镜像标签 .表示使用当前目录下的Dockerfile文件 
+docker build -t yh124/test-porject:1.0-SNAPSHOT .
+</code></pre>
+<h1 id="Docker容器常用命令"><a href="#Docker容器常用命令" class="headerlink" title="Docker容器常用命令"></a>Docker容器常用命令</h1><h2 id="新建并启动容器"><a href="#新建并启动容器" class="headerlink" title="新建并启动容器"></a>新建并启动容器</h2><pre><code>docker run -p 80:80 --name nginx \ -e TZ=&quot;Asia/Shanghai&quot; \ -v /mydata/nginx/html:/usr/share/nginx/html \ -d nginx:1.17.0
+
+1. -p：将宿主机和容器端口进行映射，格式为：宿主机端口:容器端口。
+2. --name：自定义容器名称，之后可以通过容器名称进行操作。
+3. -e：设置容器的环境变量，这里设置的时区。
+4. -v：将宿主机的文件挂载到容器中，格式为：宿主机文件目录:容器文件目录。
+5. -d：表示容器以后台方式运行
+</code></pre>
+<h2 id="列出容器"><a href="#列出容器" class="headerlink" title="列出容器"></a>列出容器</h2><h3 id="1-列出运行中的所有容器"><a href="#1-列出运行中的所有容器" class="headerlink" title="1. 列出运行中的所有容器"></a>1. 列出运行中的所有容器</h3><pre><code>docker ps
+</code></pre>
+<h3 id="2-列出所有容器"><a href="#2-列出所有容器" class="headerlink" title="2. 列出所有容器"></a>2. 列出所有容器</h3><pre><code>docker ps -a
+</code></pre>
+<h2 id="停止容器"><a href="#停止容器" class="headerlink" title="停止容器"></a>停止容器</h2><pre><code>docker stop \$containerName(or \$containerID)
+</code></pre>
+<h2 id="强制停止容器"><a href="#强制停止容器" class="headerlink" title="强制停止容器"></a>强制停止容器</h2><pre><code>docker kill xxx
+</code></pre>
+<h2 id="启动容器"><a href="#启动容器" class="headerlink" title="启动容器"></a>启动容器</h2><pre><code>docker start xxx
+</code></pre>
+<h2 id="进入容器"><a href="#进入容器" class="headerlink" title="进入容器"></a>进入容器</h2><h3 id="1-先查出容器pid"><a href="#1-先查出容器pid" class="headerlink" title="1. 先查出容器pid"></a>1. 先查出容器pid</h3><pre><code>docker inspect --format &quot;&#123;&#123;.State.Pid&#125;&#125;&quot; $ContainerName
+</code></pre>
+<h3 id="2-根据容器pid进入容器"><a href="#2-根据容器pid进入容器" class="headerlink" title="2. 根据容器pid进入容器"></a>2. 根据容器pid进入容器</h3><pre><code>nsenter --target &quot;$pid&quot; --mount --uts --ipc --net --pid
+</code></pre>
+<h2 id="删除容器"><a href="#删除容器" class="headerlink" title="删除容器"></a>删除容器</h2><h3 id="1-删除指定容器"><a href="#1-删除指定容器" class="headerlink" title="1. 删除指定容器"></a>1. 删除指定容器</h3><pre><code>docker rm $ContainerName
+</code></pre>
+<h3 id="2-按名称通配符删除容器，比如删除以名称test-开头的容器"><a href="#2-按名称通配符删除容器，比如删除以名称test-开头的容器" class="headerlink" title="2. 按名称通配符删除容器，比如删除以名称test-开头的容器"></a>2. 按名称通配符删除容器，比如删除以名称test-开头的容器</h3><pre><code>docker rm &#39;docker ps -a | grep test-* | awk &#123;print $1&#125;&#39;
+</code></pre>
+<h3 id="3-强制删除所有容器"><a href="#3-强制删除所有容器" class="headerlink" title="3. 强制删除所有容器"></a>3. 强制删除所有容器</h3><pre><code>docker rm -f $(docker ps -a -q)
+</code></pre>
+<h2 id="查看容器日志"><a href="#查看容器日志" class="headerlink" title="查看容器日志"></a>查看容器日志</h2><h3 id="1-查看容器产生的全部日志"><a href="#1-查看容器产生的全部日志" class="headerlink" title="1. 查看容器产生的全部日志"></a>1. 查看容器产生的全部日志</h3><pre><code>docker logs $ContainerName
+</code></pre>
+<h3 id="2-动态查看日志"><a href="#2-动态查看日志" class="headerlink" title="2. 动态查看日志"></a>2. 动态查看日志</h3><pre><code>docker logs -f -t --tail=100 $ContainerName
+</code></pre>
+<h2 id="查看容器的IP地址"><a href="#查看容器的IP地址" class="headerlink" title="查看容器的IP地址"></a>查看容器的IP地址</h2><pre><code>docker inspect --format &#39;&#123;&#123;.NetworkSettings.IPAddress&#125;&#125;&#39; $ContainerName
+</code></pre>
+<h2 id="修改容器的启动方式"><a href="#修改容器的启动方式" class="headerlink" title="修改容器的启动方式"></a>修改容器的启动方式</h2><h3 id="1-将容器启动方式改为always"><a href="#1-将容器启动方式改为always" class="headerlink" title="1. 将容器启动方式改为always"></a>1. 将容器启动方式改为always</h3><pre><code>    docker container update --restart=always $ContainerName 
+</code></pre>
+<h3 id="2-关闭自动重启"><a href="#2-关闭自动重启" class="headerlink" title="2. 关闭自动重启"></a>2. 关闭自动重启</h3><pre><code>    docker container update --restart=no $ContainerName
+</code></pre>
+<h2 id="同步宿主机时间到容器"><a href="#同步宿主机时间到容器" class="headerlink" title="同步宿主机时间到容器"></a>同步宿主机时间到容器</h2><pre><code>docker cp /etc/localtime $ContainerName:/etc
+</code></pre>
+<h2 id="指定容器时区"><a href="#指定容器时区" class="headerlink" title="指定容器时区"></a>指定容器时区</h2><pre><code>docker run -p 80:80 --name nginx \ -e TZ=&quot;Asia/Shanghai&quot; \ -d nginx:1.17.0
+</code></pre>
+<h2 id="查看容器资源占用状况"><a href="#查看容器资源占用状况" class="headerlink" title="查看容器资源占用状况"></a>查看容器资源占用状况</h2><h3 id="1-查看指定容器资源占用状况，比如cpu，网络，内存，IO状态"><a href="#1-查看指定容器资源占用状况，比如cpu，网络，内存，IO状态" class="headerlink" title="1. 查看指定容器资源占用状况，比如cpu，网络，内存，IO状态"></a>1. 查看指定容器资源占用状况，比如cpu，网络，内存，IO状态</h3><pre><code>docker stats $ContainerName
+</code></pre>
+<h3 id="2-查看所有容器医院占用情况"><a href="#2-查看所有容器医院占用情况" class="headerlink" title="2. 查看所有容器医院占用情况"></a>2. 查看所有容器医院占用情况</h3><pre><code>docker stats -a
+</code></pre>
+<h2 id="查看磁盘使用情况"><a href="#查看磁盘使用情况" class="headerlink" title="查看磁盘使用情况"></a>查看磁盘使用情况</h2><pre><code>docker system df
+</code></pre>
+<h2 id="执行容器内部命令（进入容器）"><a href="#执行容器内部命令（进入容器）" class="headerlink" title="执行容器内部命令（进入容器）"></a>执行容器内部命令（进入容器）</h2><pre><code>docker exec -it $ContainerName /bin/bash
+</code></pre>
+<h2 id="指定账号进入容器内部"><a href="#指定账号进入容器内部" class="headerlink" title="指定账号进入容器内部"></a>指定账号进入容器内部</h2><pre><code>使用root账号进入容器内部 
+docker exec -it --user root $ContainerName /bin/bash
+</code></pre>
+<h2 id="查看所有网络"><a href="#查看所有网络" class="headerlink" title="查看所有网络"></a>查看所有网络</h2><pre><code>docker network ls
+</code></pre>
+<h2 id="创建外部网络"><a href="#创建外部网络" class="headerlink" title="创建外部网络"></a>创建外部网络</h2><pre><code>docker network create -d bridge my-bridge-network
+</code></pre>
+<h2 id="指定容器网络"><a href="#指定容器网络" class="headerlink" title="指定容器网络"></a>指定容器网络</h2><pre><code>docker run -p 80:80 --name nginx \ --network my-bridge-network \ -d nginx:1.17.0
+</code></pre>
+<h2 id="修改镜像的存放位置"><a href="#修改镜像的存放位置" class="headerlink" title="修改镜像的存放位置"></a>修改镜像的存放位置</h2><h3 id="1-查看镜像的存放位置"><a href="#1-查看镜像的存放位置" class="headerlink" title="1. 查看镜像的存放位置"></a>1. 查看镜像的存放位置</h3><pre><code>docker info | grep &quot;Docker Root Dir&quot;
+</code></pre>
+<h3 id="2-关闭docker-服务"><a href="#2-关闭docker-服务" class="headerlink" title="2. 关闭docker 服务"></a>2. 关闭docker 服务</h3><pre><code>systemctl stop docker
+</code></pre>
+<h3 id="3-先将原镜像目录移动到目标目录"><a href="#3-先将原镜像目录移动到目标目录" class="headerlink" title="3. 先将原镜像目录移动到目标目录"></a>3. 先将原镜像目录移动到目标目录</h3><pre><code>mv /var/lib/docker /mydata/docker
+</code></pre>
+<h3 id="4-建立软连接"><a href="#4-建立软连接" class="headerlink" title="4. 建立软连接"></a>4. 建立软连接</h3><pre><code>ln -s /mydata/docker /var/lib/docker
+</code></pre>
+<h2 id="Docker容器清理"><a href="#Docker容器清理" class="headerlink" title="Docker容器清理"></a>Docker容器清理</h2><h3 id="1-查看Docker占用磁盘空间"><a href="#1-查看Docker占用磁盘空间" class="headerlink" title="1. 查看Docker占用磁盘空间"></a>1. 查看Docker占用磁盘空间</h3><pre><code>docker system df
+</code></pre>
+<h3 id="2-删除所有关闭的容器"><a href="#2-删除所有关闭的容器" class="headerlink" title="2. 删除所有关闭的容器"></a>2. 删除所有关闭的容器</h3><pre><code>docker ps -a | grep Exit | cut -d &#39; &#39; -f 1 | xargs docker rm
+</code></pre>
+<h3 id="3-删除所有dangling镜像（没有Tag的镜像）"><a href="#3-删除所有dangling镜像（没有Tag的镜像）" class="headerlink" title="3. 删除所有dangling镜像（没有Tag的镜像）"></a>3. 删除所有dangling镜像（没有Tag的镜像）</h3><pre><code>docker rmi $(docker images | grep &quot;^&lt;none&gt;&quot; | awk &quot;&#123;print $3&#125;&quot;)
+</code></pre>
+<h3 id="4-删除所有dangling-数据卷（即无用的volume）"><a href="#4-删除所有dangling-数据卷（即无用的volume）" class="headerlink" title="4. 删除所有dangling 数据卷（即无用的volume）"></a>4. 删除所有dangling 数据卷（即无用的volume）</h3><pre><code>docker volume rm $(docker volume ls -qf dangling=true)
+</code></pre>
+<h1 id="Docker-Compose"><a href="#Docker-Compose" class="headerlink" title="Docker Compose"></a>Docker Compose</h1><h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><h3 id="构建、创建、启动相关容器"><a href="#构建、创建、启动相关容器" class="headerlink" title="构建、创建、启动相关容器"></a>构建、创建、启动相关容器</h3><pre><code>docker-compose up -d #指定yaml文件 -f 指定文件(file) -d 后台运行 docker-compose -f docker-compose.yml up -d
+</code></pre>
+<h3 id="停止所有相关容器"><a href="#停止所有相关容器" class="headerlink" title="停止所有相关容器"></a>停止所有相关容器</h3><pre><code>docker-compose stop
+</code></pre>
+<h3 id="列出所有容器信息"><a href="#列出所有容器信息" class="headerlink" title="列出所有容器信息"></a>列出所有容器信息</h3><pre><code>docker-compose ps
+</code></pre>
+]]></content>
+      <categories>
+        <category>运维</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Camunda</title>
+    <url>/2024/03/27/Camunda/</url>
     <content><![CDATA[<h1 id="Camunda"><a href="#Camunda" class="headerlink" title="Camunda"></a>Camunda</h1><h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>Camunda是一个基于java的框架，支持用于工作流和过程自动化的BPMN、用于案例管理的CMMN和用于商业决策管理的DMN。</p>
 <ul>
 <li>BPMN ： Business Process Management And Notation 业务流程管理和符号</li>
@@ -334,128 +496,11 @@
 </ul>
 <p>运行Camunda所需的隔离级别是 <strong>不可重复读（READ COMMITTED）</strong> ，根据你的数据库系统不同，它可能有不同的名称。将隔离级别设置为 REPEATABLE READS 会导致死锁，所以在改变隔离级别时需要谨慎。</p>
 ]]></content>
-  </entry>
-  <entry>
-    <title>Docker常用命令</title>
-    <url>/2021/07/31/Docker%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<h1 id="Docker简介"><a href="#Docker简介" class="headerlink" title="Docker简介"></a>Docker简介</h1><pre><code>Docker是一个开源的应用容器引擎，让开发者可以打包应用及依赖包到一个可移植的镜像中，然后发布到任何流行的Linux或Windows机器上。使用Docker可以更方便地打包、测试以及部署应用程序。
-</code></pre>
-<span id="more"></span>
-
-<h1 id="Docker环境安装（Linux）"><a href="#Docker环境安装（Linux）" class="headerlink" title="Docker环境安装（Linux）"></a>Docker环境安装（Linux）</h1><h2 id="1-安装yum-utils；"><a href="#1-安装yum-utils；" class="headerlink" title="1. 安装yum-utils；"></a>1. 安装yum-utils；</h2><pre><code>yum install -y yum-utils device-mapper-persistent-data lvm2
-</code></pre>
-<h2 id="2-为yum源添加docker仓库位置；"><a href="#2-为yum源添加docker仓库位置；" class="headerlink" title="2. 为yum源添加docker仓库位置；"></a>2. 为yum源添加docker仓库位置；</h2><pre><code>yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-</code></pre>
-<h2 id="3-安装dokcer服务；"><a href="#3-安装dokcer服务；" class="headerlink" title="3. 安装dokcer服务；"></a>3. 安装dokcer服务；</h2><pre><code>yum install docker-ce
-</code></pre>
-<h2 id="4-启动docker服务；"><a href="#4-启动docker服务；" class="headerlink" title="4. 启动docker服务；"></a>4. 启动docker服务；</h2><pre><code>systemctl start docker
-</code></pre>
-<h1 id="Docker常用镜像命令"><a href="#Docker常用镜像命令" class="headerlink" title="Docker常用镜像命令"></a>Docker常用镜像命令</h1><h2 id="搜索镜像"><a href="#搜索镜像" class="headerlink" title="搜索镜像"></a>搜索镜像</h2><pre><code>docker search xxx
-</code></pre>
-<h2 id="下载镜像"><a href="#下载镜像" class="headerlink" title="下载镜像"></a>下载镜像</h2><pre><code>dockr pull xxx
-</code></pre>
-<h2 id="查看镜像版本"><a href="#查看镜像版本" class="headerlink" title="查看镜像版本"></a>查看镜像版本</h2><pre><code>由于docker search命令只能查找出是否有该镜像，不能找到该镜像支持的版本，所以我们需要通过Docker Hub来搜索支持的版本。
-进入Docker Hub的官网，地址：[https://hub.docker.com](https://hub.docker.com/)
-</code></pre>
-<h2 id="列出镜像"><a href="#列出镜像" class="headerlink" title="列出镜像"></a>列出镜像</h2><p>docker images</p>
-<h2 id="删除镜像"><a href="#删除镜像" class="headerlink" title="删除镜像"></a>删除镜像</h2><h3 id="1-指定名称删除镜像"><a href="#1-指定名称删除镜像" class="headerlink" title="1. 指定名称删除镜像"></a>1. 指定名称删除镜像</h3><pre><code>docker rmi java:8.0
-</code></pre>
-<h3 id="2-指定名称强制删除镜像"><a href="#2-指定名称强制删除镜像" class="headerlink" title="2. 指定名称强制删除镜像"></a>2. 指定名称强制删除镜像</h3><pre><code>docker rmi -f java:8.0
-</code></pre>
-<h3 id="3-删除所有没有引用的镜像"><a href="#3-删除所有没有引用的镜像" class="headerlink" title="3. 删除所有没有引用的镜像"></a>3. 删除所有没有引用的镜像</h3><pre><code>docker rmi `docker images | grep none | awk  &#39;&#123;print $3&#125;&#39;`
-</code></pre>
-<h3 id="4-强制删除所有镜像"><a href="#4-强制删除所有镜像" class="headerlink" title="4. 强制删除所有镜像"></a>4. 强制删除所有镜像</h3><pre><code>docker rmi -f $(docker images)
-</code></pre>
-<h2 id="构建镜像"><a href="#构建镜像" class="headerlink" title="构建镜像"></a>构建镜像</h2><pre><code>-t 表示指定镜像仓库名称/镜像名称:镜像标签 .表示使用当前目录下的Dockerfile文件 
-docker build -t yh124/test-porject:1.0-SNAPSHOT .
-</code></pre>
-<h1 id="Docker容器常用命令"><a href="#Docker容器常用命令" class="headerlink" title="Docker容器常用命令"></a>Docker容器常用命令</h1><h2 id="新建并启动容器"><a href="#新建并启动容器" class="headerlink" title="新建并启动容器"></a>新建并启动容器</h2><pre><code>docker run -p 80:80 --name nginx \ -e TZ=&quot;Asia/Shanghai&quot; \ -v /mydata/nginx/html:/usr/share/nginx/html \ -d nginx:1.17.0
-
-1. -p：将宿主机和容器端口进行映射，格式为：宿主机端口:容器端口。
-2. --name：自定义容器名称，之后可以通过容器名称进行操作。
-3. -e：设置容器的环境变量，这里设置的时区。
-4. -v：将宿主机的文件挂载到容器中，格式为：宿主机文件目录:容器文件目录。
-5. -d：表示容器以后台方式运行
-</code></pre>
-<h2 id="列出容器"><a href="#列出容器" class="headerlink" title="列出容器"></a>列出容器</h2><h3 id="1-列出运行中的所有容器"><a href="#1-列出运行中的所有容器" class="headerlink" title="1. 列出运行中的所有容器"></a>1. 列出运行中的所有容器</h3><pre><code>docker ps
-</code></pre>
-<h3 id="2-列出所有容器"><a href="#2-列出所有容器" class="headerlink" title="2. 列出所有容器"></a>2. 列出所有容器</h3><pre><code>docker ps -a
-</code></pre>
-<h2 id="停止容器"><a href="#停止容器" class="headerlink" title="停止容器"></a>停止容器</h2><pre><code>docker stop \$containerName(or \$containerID)
-</code></pre>
-<h2 id="强制停止容器"><a href="#强制停止容器" class="headerlink" title="强制停止容器"></a>强制停止容器</h2><pre><code>docker kill xxx
-</code></pre>
-<h2 id="启动容器"><a href="#启动容器" class="headerlink" title="启动容器"></a>启动容器</h2><pre><code>docker start xxx
-</code></pre>
-<h2 id="进入容器"><a href="#进入容器" class="headerlink" title="进入容器"></a>进入容器</h2><h3 id="1-先查出容器pid"><a href="#1-先查出容器pid" class="headerlink" title="1. 先查出容器pid"></a>1. 先查出容器pid</h3><pre><code>docker inspect --format &quot;&#123;&#123;.State.Pid&#125;&#125;&quot; $ContainerName
-</code></pre>
-<h3 id="2-根据容器pid进入容器"><a href="#2-根据容器pid进入容器" class="headerlink" title="2. 根据容器pid进入容器"></a>2. 根据容器pid进入容器</h3><pre><code>nsenter --target &quot;$pid&quot; --mount --uts --ipc --net --pid
-</code></pre>
-<h2 id="删除容器"><a href="#删除容器" class="headerlink" title="删除容器"></a>删除容器</h2><h3 id="1-删除指定容器"><a href="#1-删除指定容器" class="headerlink" title="1. 删除指定容器"></a>1. 删除指定容器</h3><pre><code>docker rm $ContainerName
-</code></pre>
-<h3 id="2-按名称通配符删除容器，比如删除以名称test-开头的容器"><a href="#2-按名称通配符删除容器，比如删除以名称test-开头的容器" class="headerlink" title="2. 按名称通配符删除容器，比如删除以名称test-开头的容器"></a>2. 按名称通配符删除容器，比如删除以名称test-开头的容器</h3><pre><code>docker rm &#39;docker ps -a | grep test-* | awk &#123;print $1&#125;&#39;
-</code></pre>
-<h3 id="3-强制删除所有容器"><a href="#3-强制删除所有容器" class="headerlink" title="3. 强制删除所有容器"></a>3. 强制删除所有容器</h3><pre><code>docker rm -f $(docker ps -a -q)
-</code></pre>
-<h2 id="查看容器日志"><a href="#查看容器日志" class="headerlink" title="查看容器日志"></a>查看容器日志</h2><h3 id="1-查看容器产生的全部日志"><a href="#1-查看容器产生的全部日志" class="headerlink" title="1. 查看容器产生的全部日志"></a>1. 查看容器产生的全部日志</h3><pre><code>docker logs $ContainerName
-</code></pre>
-<h3 id="2-动态查看日志"><a href="#2-动态查看日志" class="headerlink" title="2. 动态查看日志"></a>2. 动态查看日志</h3><pre><code>docker logs -f -t --tail=100 $ContainerName
-</code></pre>
-<h2 id="查看容器的IP地址"><a href="#查看容器的IP地址" class="headerlink" title="查看容器的IP地址"></a>查看容器的IP地址</h2><pre><code>docker inspect --format &#39;&#123;&#123;.NetworkSettings.IPAddress&#125;&#125;&#39; $ContainerName
-</code></pre>
-<h2 id="修改容器的启动方式"><a href="#修改容器的启动方式" class="headerlink" title="修改容器的启动方式"></a>修改容器的启动方式</h2><h3 id="1-将容器启动方式改为always"><a href="#1-将容器启动方式改为always" class="headerlink" title="1. 将容器启动方式改为always"></a>1. 将容器启动方式改为always</h3><pre><code>    docker container update --restart=always $ContainerName 
-</code></pre>
-<h3 id="2-关闭自动重启"><a href="#2-关闭自动重启" class="headerlink" title="2. 关闭自动重启"></a>2. 关闭自动重启</h3><pre><code>    docker container update --restart=no $ContainerName
-</code></pre>
-<h2 id="同步宿主机时间到容器"><a href="#同步宿主机时间到容器" class="headerlink" title="同步宿主机时间到容器"></a>同步宿主机时间到容器</h2><pre><code>docker cp /etc/localtime $ContainerName:/etc
-</code></pre>
-<h2 id="指定容器时区"><a href="#指定容器时区" class="headerlink" title="指定容器时区"></a>指定容器时区</h2><pre><code>docker run -p 80:80 --name nginx \ -e TZ=&quot;Asia/Shanghai&quot; \ -d nginx:1.17.0
-</code></pre>
-<h2 id="查看容器资源占用状况"><a href="#查看容器资源占用状况" class="headerlink" title="查看容器资源占用状况"></a>查看容器资源占用状况</h2><h3 id="1-查看指定容器资源占用状况，比如cpu，网络，内存，IO状态"><a href="#1-查看指定容器资源占用状况，比如cpu，网络，内存，IO状态" class="headerlink" title="1. 查看指定容器资源占用状况，比如cpu，网络，内存，IO状态"></a>1. 查看指定容器资源占用状况，比如cpu，网络，内存，IO状态</h3><pre><code>docker stats $ContainerName
-</code></pre>
-<h3 id="2-查看所有容器医院占用情况"><a href="#2-查看所有容器医院占用情况" class="headerlink" title="2. 查看所有容器医院占用情况"></a>2. 查看所有容器医院占用情况</h3><pre><code>docker stats -a
-</code></pre>
-<h2 id="查看磁盘使用情况"><a href="#查看磁盘使用情况" class="headerlink" title="查看磁盘使用情况"></a>查看磁盘使用情况</h2><pre><code>docker system df
-</code></pre>
-<h2 id="执行容器内部命令（进入容器）"><a href="#执行容器内部命令（进入容器）" class="headerlink" title="执行容器内部命令（进入容器）"></a>执行容器内部命令（进入容器）</h2><pre><code>docker exec -it $ContainerName /bin/bash
-</code></pre>
-<h2 id="指定账号进入容器内部"><a href="#指定账号进入容器内部" class="headerlink" title="指定账号进入容器内部"></a>指定账号进入容器内部</h2><pre><code>使用root账号进入容器内部 
-docker exec -it --user root $ContainerName /bin/bash
-</code></pre>
-<h2 id="查看所有网络"><a href="#查看所有网络" class="headerlink" title="查看所有网络"></a>查看所有网络</h2><pre><code>docker network ls
-</code></pre>
-<h2 id="创建外部网络"><a href="#创建外部网络" class="headerlink" title="创建外部网络"></a>创建外部网络</h2><pre><code>docker network create -d bridge my-bridge-network
-</code></pre>
-<h2 id="指定容器网络"><a href="#指定容器网络" class="headerlink" title="指定容器网络"></a>指定容器网络</h2><pre><code>docker run -p 80:80 --name nginx \ --network my-bridge-network \ -d nginx:1.17.0
-</code></pre>
-<h2 id="修改镜像的存放位置"><a href="#修改镜像的存放位置" class="headerlink" title="修改镜像的存放位置"></a>修改镜像的存放位置</h2><h3 id="1-查看镜像的存放位置"><a href="#1-查看镜像的存放位置" class="headerlink" title="1. 查看镜像的存放位置"></a>1. 查看镜像的存放位置</h3><pre><code>docker info | grep &quot;Docker Root Dir&quot;
-</code></pre>
-<h3 id="2-关闭docker-服务"><a href="#2-关闭docker-服务" class="headerlink" title="2. 关闭docker 服务"></a>2. 关闭docker 服务</h3><pre><code>systemctl stop docker
-</code></pre>
-<h3 id="3-先将原镜像目录移动到目标目录"><a href="#3-先将原镜像目录移动到目标目录" class="headerlink" title="3. 先将原镜像目录移动到目标目录"></a>3. 先将原镜像目录移动到目标目录</h3><pre><code>mv /var/lib/docker /mydata/docker
-</code></pre>
-<h3 id="4-建立软连接"><a href="#4-建立软连接" class="headerlink" title="4. 建立软连接"></a>4. 建立软连接</h3><pre><code>ln -s /mydata/docker /var/lib/docker
-</code></pre>
-<h2 id="Docker容器清理"><a href="#Docker容器清理" class="headerlink" title="Docker容器清理"></a>Docker容器清理</h2><h3 id="1-查看Docker占用磁盘空间"><a href="#1-查看Docker占用磁盘空间" class="headerlink" title="1. 查看Docker占用磁盘空间"></a>1. 查看Docker占用磁盘空间</h3><pre><code>docker system df
-</code></pre>
-<h3 id="2-删除所有关闭的容器"><a href="#2-删除所有关闭的容器" class="headerlink" title="2. 删除所有关闭的容器"></a>2. 删除所有关闭的容器</h3><pre><code>docker ps -a | grep Exit | cut -d &#39; &#39; -f 1 | xargs docker rm
-</code></pre>
-<h3 id="3-删除所有dangling镜像（没有Tag的镜像）"><a href="#3-删除所有dangling镜像（没有Tag的镜像）" class="headerlink" title="3. 删除所有dangling镜像（没有Tag的镜像）"></a>3. 删除所有dangling镜像（没有Tag的镜像）</h3><pre><code>docker rmi $(docker images | grep &quot;^&lt;none&gt;&quot; | awk &quot;&#123;print $3&#125;&quot;)
-</code></pre>
-<h3 id="4-删除所有dangling-数据卷（即无用的volume）"><a href="#4-删除所有dangling-数据卷（即无用的volume）" class="headerlink" title="4. 删除所有dangling 数据卷（即无用的volume）"></a>4. 删除所有dangling 数据卷（即无用的volume）</h3><pre><code>docker volume rm $(docker volume ls -qf dangling=true)
-</code></pre>
-<h1 id="Docker-Compose"><a href="#Docker-Compose" class="headerlink" title="Docker Compose"></a>Docker Compose</h1><h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><h3 id="构建、创建、启动相关容器"><a href="#构建、创建、启动相关容器" class="headerlink" title="构建、创建、启动相关容器"></a>构建、创建、启动相关容器</h3><pre><code>docker-compose up -d #指定yaml文件 -f 指定文件(file) -d 后台运行 docker-compose -f docker-compose.yml up -d
-</code></pre>
-<h3 id="停止所有相关容器"><a href="#停止所有相关容器" class="headerlink" title="停止所有相关容器"></a>停止所有相关容器</h3><pre><code>docker-compose stop
-</code></pre>
-<h3 id="列出所有容器信息"><a href="#列出所有容器信息" class="headerlink" title="列出所有容器信息"></a>列出所有容器信息</h3><pre><code>docker-compose ps
-</code></pre>
-]]></content>
       <categories>
-        <category>运维</category>
+        <category>后端</category>
       </categories>
       <tags>
-        <tag>Docker</tag>
+        <tag>Camunda</tag>
       </tags>
   </entry>
   <entry>
@@ -477,6 +522,97 @@ docker exec -it --user root $ContainerName /bin/bash
       </categories>
       <tags>
         <tag>微服务</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>InnoDB中的索引</title>
+    <url>/2022/01/12/InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95/</url>
+    <content><![CDATA[<h2 id="InnoDB中的索引设计方案"><a href="#InnoDB中的索引设计方案" class="headerlink" title="InnoDB中的索引设计方案"></a>InnoDB中的索引设计方案</h2><ul>
+<li>0:普通的用户记录</li>
+<li>1:目录项记录</li>
+<li>2:最小记录</li>
+<li>3:最大记录<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419950340539.jpg" alt="聚簇索引"><br><strong>一般情况下，我们用到的B+树都不会超过4层。（减少磁盘I&#x2F;O）</strong><br>一个B+树的节点其实可以分成好多层，规定最下边的那层，也就是存放用户记录的那层为第0层，之后依次往上加。一个数据页可以存放16k的数据。假设所有存放用户记录的叶子节点代表的数据页可以存放100条用户记录，所有存放目录项记录的内节点代表的数据页可以存放1000条数据，那么：</li>
+<li>如果B+树只有1层，也就是只有一个用于存放记录的节点，最多能存放100条记录。</li>
+<li>如果B+树有2层，最多能存放1000 * 100 &#x3D; 10万条记录。</li>
+<li>如果B+树有3层，最多能存放1000 * 1000 * 100 &#x3D; 1亿条记录</li>
+<li>如果b+树有4层，做多能存放1000 * 1000 * 1000 * 100 &#x3D; 1000亿条记录<h2 id="常见索引概念"><a href="#常见索引概念" class="headerlink" title="常见索引概念"></a>常见索引概念</h2><h3 id="聚簇索引"><a href="#聚簇索引" class="headerlink" title="聚簇索引"></a>聚簇索引</h3><h3 id="二级索引（辅助索引、非聚簇索引）"><a href="#二级索引（辅助索引、非聚簇索引）" class="headerlink" title="二级索引（辅助索引、非聚簇索引）"></a>二级索引（辅助索引、非聚簇索引）</h3><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419967282458.jpg" alt="非聚簇索引"><h4 id="联合索引"><a href="#联合索引" class="headerlink" title="联合索引"></a>联合索引</h4><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419972009034.jpg" alt="联合索引"><h3 id="InnoDB的B-树索引的注意事项"><a href="#InnoDB的B-树索引的注意事项" class="headerlink" title="InnoDB的B+树索引的注意事项"></a>InnoDB的B+树索引的注意事项</h3><h4 id="根页面位置万年不变"><a href="#根页面位置万年不变" class="headerlink" title="根页面位置万年不变"></a>根页面位置万年不变</h4></li>
+<li>每当某个表创建一个B+树索引（聚簇索引）的时候，都会为这个索引创建一个根节点页，最开始表中没有数据的时候，每个B+树索引对应的根节点中，既没有用户记录，也没有目录项记录。</li>
+<li>随后向表中插入用户记录时，先把用户记录存储到这个根节点中。</li>
+<li>当根节点中的可用空间用完时，继续插入记录，此时会将根节点中的所有记录复制到新分配的页，比如页a中，然后后对这个新页进行页分裂的操作，得到另一个新页，比如页b，这时新插入的记录根据键值（也就是索引值）的大小就会被分配到页a或者页b中，而根节点便升级为存储目录项记录的页<br><strong>这个过程特别注意的是：</strong> 一个B+树索引的根节点自诞生之日起，便不会再移动。这样只要我们对某个表建立一个索引，那么它的根节点的页号便会被记录到某个地方，然后凡事InnoDB存储引擎需要用到这个索引的时候，都会从哪个固定的地方取出根节点的页，从而来访问这个索引。<h3 id="非叶子节点中的目录项记录的唯一性"><a href="#非叶子节点中的目录项记录的唯一性" class="headerlink" title="非叶子节点中的目录项记录的唯一性"></a>非叶子节点中的目录项记录的唯一性</h3>即非叶子节点的索引唯一（创建的索引默认后面会跟主键）<h3 id="一个数据页最少存储2条数据"><a href="#一个数据页最少存储2条数据" class="headerlink" title="一个数据页最少存储2条数据"></a>一个数据页最少存储2条数据</h3><h3 id="MySQL数据结构选择的合理性"><a href="#MySQL数据结构选择的合理性" class="headerlink" title="MySQL数据结构选择的合理性"></a>MySQL数据结构选择的合理性</h3><h4 id="Hash结构"><a href="#Hash结构" class="headerlink" title="Hash结构"></a>Hash结构</h4><ol>
+<li>Hash索引仅能满足（&#x3D;）（&lt;&gt;）和in查询。范围查询效率很差。</li>
+<li>Hash索引数据存储是没有顺序的。</li>
+<li>对于联合索引的情况，Hash值是将联合索引合并后一起来计算的，无法对单独的一个键或者几个索引键进行查询。</li>
+<li>对于等值查询来说，通常Hash索引的效率很高，不过存在一种情况，就是索引列的重复值很多，效率就会降低。</li>
+</ol>
+</li>
+</ul>
+<p>另外，InnoDB本身不支持Hash索引，但是提供了自适应hash索引（adaptive_hash_index）。如果某个数据经常被访问，当满足一定条件的时候，就会将这个数据页的地址存放到Hash表中。这样下次查询的时候，就可以直接找到这个页面的所在位置。这样让B+树也具备了Hash索引的优点。</p>
+<h4 id="二叉搜索树"><a href="#二叉搜索树" class="headerlink" title="二叉搜索树"></a>二叉搜索树</h4><p>二叉树特征：<br>    * 一个节点只能有两个子节点，也就是一个节点度不能超过2<br>    * 左子节点 &lt; 本节点 &lt;&#x3D; 右子节点<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420811937219.jpg" alt="二叉搜索树"><br> <strong>在极端情况下会变成一个线性链表</strong></p>
+<h4 id="AVL树"><a href="#AVL树" class="headerlink" title="AVL树"></a>AVL树</h4><p> 平衡二叉树特征：<br>    <strong>它是一棵空树或它的左右两个子树的高度差的绝对值不超过1，并且左右两个子树都是一棵平衡二叉树。</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420812487954.jpg" alt="AVL树"><br><strong>树的层数过多，访问一个节点相当于做一次磁盘IO</strong></p>
+<h4 id="B-Tree"><a href="#B-Tree" class="headerlink" title="B-Tree"></a>B-Tree</h4><p>Balance Tree，也就是多路平衡查找树。</p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420815935861.jpg" alt="16420815935861"></p>
+<ol>
+<li>B树在插入和删除节点的时候如果导致树不平衡，就通过自动调节节点的位置保持树的自平衡。</li>
+<li>关键字集合分布在整棵树中，即叶子节点和非叶子节点都存放数据。搜索有可能在非叶子节点结束</li>
+<li>其搜索性能等价于在关键字全集内做一次二分查找。<h4 id="B-Tree-1"><a href="#B-Tree-1" class="headerlink" title="B+Tree"></a>B+Tree</h4>B+树也是一种多路搜索树，基于B-Tree做了改进。B+树适合文件索引系统。<br><strong>B+树和B树的差异：</strong></li>
+<li>有k个子节点就有k个关键字。也就是子节点数量&#x3D;关键字数量。而B树中，子节点数量&#x3D;关键字数量+1。</li>
+<li>非叶子节点的关键字会同时存在在子节点中，并且是在子节点中所有关键字的最大（或最小）。</li>
+<li>非叶子节点仅用于索引，不保存数据记录，跟记录相关的信息都存放在叶子节点中。而B树中，非叶子节点即保存索引也保存数据记录。</li>
+<li>所有关键字都在叶子节点出现，叶子节点构成一个有序链表，而且叶子节点本身按照关键字的大小从小到大顺序链接。</li>
+</ol>
+]]></content>
+      <categories>
+        <category>后端</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>InnoDB数据存储结构</title>
+    <url>/2022/01/15/InnoDB%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/</url>
+    <content><![CDATA[<h2 id="数据库的存储结构：页"><a href="#数据库的存储结构：页" class="headerlink" title="数据库的存储结构：页"></a>数据库的存储结构：页</h2><p>MySQL服务器上的存储引擎负责对表中的数据的读取和写入工作，不同存储引擎中存放的格式一般不同。此处只剖析InnoDB存储引擎的数据存储结构。</p>
+<h3 id="磁盘与内存交互的基本单位：页"><a href="#磁盘与内存交互的基本单位：页" class="headerlink" title="磁盘与内存交互的基本单位：页"></a>磁盘与内存交互的基本单位：页</h3><p>InnoDB将数据划分为若干个页，InnoDB中页的大小默认为<strong>16KB</strong>。</p>
+<p><strong>在数据库中，不论读一行，还是读多行，都是将这些行所在的页进行加载，也就是说，数据库管理存储空间的基本单位是页（Page），数据库I&#x2F;O操作的最小单位为页。</strong></p>
+<h3 id="页结构概述"><a href="#页结构概述" class="headerlink" title="页结构概述"></a>页结构概述</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/15/16422446514180.jpg" alt="页结构"><br>页a、页b、页c…页n，这些页可以<strong>不在物理结构上相连</strong>，只要通过<strong>双向链表</strong>相关联即可。每个数据页中的记录会按照主键值从小到大的顺序组成一个<strong>单向链表</strong>，每个数据页都会为存储在它里面的记录生成一个<strong>页目录</strong>，在通过主键查找时就可以在页目录中<strong>使用二分法</strong>快速定位到对应的槽，然后再遍历该槽对应分组中的记录即可快速找到指定记录。</p>
+<h3 id="页的上层结构"><a href="#页的上层结构" class="headerlink" title="页的上层结构"></a>页的上层结构</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/15/16422451759284.jpg" alt="页的上层结构"></p>
+<ul>
+<li>区（Extent）是比页大一级的存储结构，在InnoDB存储引擎中，一个区会分配64个连续的页。因为InnoDB中页的默认大小是16KB，所以一个区的大小是 64 * 16KB &#x3D; 1M。</li>
+<li>段（Segment）由一个或多个区组成，区在文件系统是一个连续分配的空间（在InnoDB中是连续的64个页），不过在段中不要求区与区之间是相邻的。<strong>段是数据库中的分配单位，不同类型的数据库对象以不同的段形式存在</strong>。当我们创建数据表、索引的时候，就会相应创建对应的段，比如创建一张表时会创建一个表段，创建一个索引时会创建一个索引段。</li>
+<li>表空间（TableSpace）是一个逻辑容器，表空间存储的对象是段，在一个表空间中可以有一个或多个段，但是一个段只能属于一个表空间。数据库由一个或多个表空间组成。表空间从管理上可以分为<strong>系统表空间、用户表空间、撤销表空间、临时表空间</strong>等。<h2 id="页的内部结构"><a href="#页的内部结构" class="headerlink" title="页的内部结构"></a>页的内部结构</h2>页如果按类来划分的话，常见的有数据页（保存B+树节点）、系统页、Undo页和事务数据页等。数据页是我们最常使用的页。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/16/16423369880923.jpg" alt="页的内部结构"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/16/16423371212785.jpg" alt="页的内部结构"><h2 id="InnoDB行格式（或记录格式）"><a href="#InnoDB行格式（或记录格式）" class="headerlink" title="InnoDB行格式（或记录格式）"></a>InnoDB行格式（或记录格式）</h2><h3 id="COMPACT行格式"><a href="#COMPACT行格式" class="headerlink" title="COMPACT行格式"></a>COMPACT行格式</h3><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425967631225.jpg" alt="16425967631225"><h4 id="变长字段长度列表"><a href="#变长字段长度列表" class="headerlink" title="变长字段长度列表"></a>变长字段长度列表</h4>MySQL支持一些变长的数据类型，比如VARCHAR(M)、VARBINARY(M)、TEXT类型，BOLB类型，这些数据类型修饰列称为变长字段。<br><strong>注意：</strong> 这里面存储的变长长度和字段顺序是<strong>反过来</strong>的。比如在表中字段是a(10),b(15)，那么在变长字段列表中存储的长度顺序就是15，10。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425971738917.jpg" alt="16425971738917"><h4 id="NULL值列表"><a href="#NULL值列表" class="headerlink" title="NULL值列表"></a>NULL值列表</h4></li>
+</ul>
+<ol>
+<li>二进制位的值为1时，代表该列的值为NULL。</li>
+<li>二进制位的值为0时，代表该列的值不为NULL。</li>
+<li>NOT NULL的字段没有。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425973039144.jpg" alt="16425973039144"><h4 id="记录头信息（5字节）"><a href="#记录头信息（5字节）" class="headerlink" title="记录头信息（5字节）"></a>记录头信息（5字节）</h4><h4 id="记录真实数据"><a href="#记录真实数据" class="headerlink" title="记录真实数据"></a>记录真实数据</h4><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425974458867.jpg" alt="16425974458867"><h3 id="Dynamic和Compressed行格式"><a href="#Dynamic和Compressed行格式" class="headerlink" title="Dynamic和Compressed行格式"></a>Dynamic和Compressed行格式</h3><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425990444803.jpg" alt="16425990444803"><br>一个页的大小一般是16KB，也就是16384字节，而VARCHAR(M)最多可储存65533个字节。这样就出现了一个页存放不了一条记录，这种现象称为行溢出。<br>Dynamic和Compressed行格式和Compact行格式挺像，只不过在处理行溢出数据时有分歧：</li>
+</ol>
+<ul>
+<li>Dynamic和Compressed两种行格式对于存放在BLOB中的数据采用了完全的行溢出方式，如图，在数据页中只存放20个字节的指针（溢出页的地址），实际的数据都存放在Off Page（溢出页）中。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/02/10/16445002427093.jpg" alt="16445002427093"></li>
+<li>Compact和Redundant两种格式会在记录的真实数据处存储一部分数据（存放768个前缀字节）。<br><strong>Compressed行记录格式的另一个功能就是，存储在其中的行数据会以zlib的算法进行非常压缩。因此对于BLOL，TEXT，VARCHAR这类大长度类型的数据能够进行非常有效的存储。</strong><h3 id="Redundant行格式"><a href="#Redundant行格式" class="headerlink" title="Redundant行格式"></a>Redundant行格式</h3>Redundant行格式是MySQL5.0版本及之前InnoDB的行记录存储方式。<h2 id="区、段与碎片区"><a href="#区、段与碎片区" class="headerlink" title="区、段与碎片区"></a>区、段与碎片区</h2><h3 id="为什么要有区？"><a href="#为什么要有区？" class="headerlink" title="为什么要有区？"></a>为什么要有区？</h3><code>B+</code>树的每一层中的页都会形成一个双向链表如果<strong>以页为单位</strong>来分配存储空间的话，双向链表相邻的两个页之间的<strong>物理位置可能离的非常远</strong>。 扫描页就会是<strong>随机IO</strong>。随机IO是非常慢的，所以我们应该尽量的让链表中页的<strong>物理位置也相邻</strong>，这样进行范围查询的时候时候才可以使用所谓的<strong>顺序IO</strong>。<br>一个区就是在物理位置上连续的<strong>64个页</strong>。因为InnoDB中的页大小。默认是<strong>16kb</strong>，所以一个区的大小是<strong>64*16&#x3D;1M</strong>。在表中数据量大的时候，为某个索引分配空间的时候就不再按照页为单位分配了，而是按照<strong>区为单位分配</strong>，甚至在表中数据特别多的时候，可以一次性分配多个连续的区。虽然可能造成<strong>一点点空间的浪费</strong>（数据不足以填满整个区），但是从性能角度看，可以消除很多随机IO，<strong>利大于弊</strong>。<h3 id="为什么要有段？"><a href="#为什么要有段？" class="headerlink" title="为什么要有段？"></a>为什么要有段？</h3>对于范围查询，其实是对B+树叶子节点的记录进行顺序扫描，而如果不区分叶子节点和非叶子节点，统统把节点代表的页面放到申请到的区中的话，进行范围扫描的效果就可能会比较差。所以InnoDB对B+树的<strong>叶子节点</strong>和<strong>非叶子节点</strong>进行区别对待，也就是说叶子节点有自己独有的区，非叶子节点也有自己独特的区。存放叶子节点的区的集合就是一个<strong>段（segment）</strong>，存放非叶子节点的区的集合也是一个段。也就是说一个索引会生成2个段，一个<strong>叶子节点段</strong>，一个<strong>非叶子节点段</strong>。</li>
+</ul>
+<p>除了索引的叶子节点段和非叶子节点段之外，InnoDB中还有为储存一些特殊的数据定义的段，比如回滚段。所以常见的段有<strong>数据段</strong>，<strong>索引段</strong>，<strong>回滚段</strong>。数据段即为B+树的叶子节点，索引段即为非叶子节点段。</p>
+<p>段其实不对应表空间中某一个连续的物理区域，而是一个逻辑上的概念，由若干个零散的页面以及一些完整的区组成。</p>
+<h3 id="为什么要有碎片区？"><a href="#为什么要有碎片区？" class="headerlink" title="为什么要有碎片区？"></a>为什么要有碎片区？</h3><p>一个区默认占用1M（64*16K）存储空间，所以默认情况下一个只存了几条记录的小表也需要2M存储空间吗？</p>
+<p>为了考虑以完整的区为单位分配给某个段，对于<strong>数量较小的</strong>表太浪费存储空间的这种情况，InnoDB提出了一个<strong>碎片区（fragment）</strong> 的概念。在一个碎片区中，并不是所有的页都是为了存储同一个段的数据而存在的，而是碎片区中的页可以用于不同的目的，比如有些页用于段A，有些页用于段B，有些页用于段C，有些页甚至哪个段都不属于。<strong>碎片区直属于表空间</strong>，并不属于任何一个段。</p>
+<p>所以此后为某个段分配存储空间的策略是这样的：</p>
+<ul>
+<li>在刚开始向表中插入数据的时候，段是从某个碎片区以单个页面为单位来分配存储空间的。</li>
+<li>当某个段已经占用了<strong>32个碎片</strong>区页面之后，就会申请以完整的区为单位来分配存储空间的。<h3 id="区的分类"><a href="#区的分类" class="headerlink" title="区的分类"></a>区的分类</h3></li>
+<li>空闲的区（free）：现在还没有用到这个区中的任何页面。</li>
+<li>有剩余空间的碎片区（free_frag）：表示碎片区中还有可用页面。</li>
+<li>没有剩余空间的碎片区（full_frag）：表示碎片区的所有页面都被使用，没有空闲的页面。</li>
+<li>附属于某个段的区（fseg）：每一个索引都可以分为叶子节点段和非叶子节点段。<br>处于free、free_frag、full_frag都是碎片区，fseg为属于某个段的区。<h2 id="表空间"><a href="#表空间" class="headerlink" title="表空间"></a>表空间</h2>表空间可以看作是InnoDB存储引擎逻辑结构的最高层，所有的数据都存放在表空间中。</li>
+</ul>
+<p>表空间是一个<strong>逻辑容器</strong>，表空间存储的对象是段，在一个表空间中可以有一个或多个段，但是一个段只能属于一个表空间。数据库由一个或多个表空间组成，表空间从管理上可以划分为<strong>系统表空间</strong>（system Tablespace），<strong>独立表空间</strong>（File-per-table Tablespace）、<strong>撤销表空间</strong>（Undo-tablesapce）和<strong>临时表空间</strong>（Temporary Tablespace）等。</p>
+<h3 id="独立表空间"><a href="#独立表空间" class="headerlink" title="独立表空间"></a>独立表空间</h3><h4 id="独立表空间结构"><a href="#独立表空间结构" class="headerlink" title="独立表空间结构"></a>独立表空间结构</h4><p>独立表空间由段、区、页组成。</p>
+<h4 id="表空间对应的文件"><a href="#表空间对应的文件" class="headerlink" title="表空间对应的文件"></a>表空间对应的文件</h4><p>一个新建的表对应的 <strong>.idb</strong> 文件文件只占用了<strong>96k</strong>，才6个页面的大小（MySQL5.7），这是因为一开始表中没有数据。随着表中的数据增加，表空间对应的文件也逐渐增大。</p>
+<h3 id="系统表空间"><a href="#系统表空间" class="headerlink" title="系统表空间"></a>系统表空间</h3><p>系统表空间和独立表空间基本类似，只不过MySQL只有一个系统表空间，在系统表空间中会额外记录一些有关整个系统信息的页面，这部分是独立表空间没有的。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/02/13/16447536181188.jpg" alt="16447536181188"></p>
+]]></content>
+      <categories>
+        <category>后端</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
       </tags>
   </entry>
   <entry>
@@ -752,42 +888,60 @@ docker exec -it --user root $ContainerName /bin/bash
       </tags>
   </entry>
   <entry>
-    <title>Docker实战</title>
-    <url>/2022/05/20/Docker%E5%AE%9E%E6%88%98/</url>
-    <content><![CDATA[<h1 id="Docker-部署springboot项目"><a href="#Docker-部署springboot项目" class="headerlink" title="Docker 部署springboot项目"></a>Docker 部署springboot项目</h1><pre><code>使用docker-maven-plugin maven插件
-</code></pre>
-<h2 id="服务器安装docker"><a href="#服务器安装docker" class="headerlink" title="服务器安装docker"></a>服务器安装docker</h2><pre><code>略
-</code></pre>
-<h2 id="Docker开启远程访问"><a href="#Docker开启远程访问" class="headerlink" title="Docker开启远程访问"></a>Docker开启远程访问</h2><ol>
-<li>查看docker服务状态（查看docker.service位置）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pi@raspberrypi:~ $ service docker status</span><br><span class="line">● docker.service - Docker Application Container Engine</span><br><span class="line">     Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)</span><br><span class="line">     Active: active (running) since Sun 2022-04-17 17:28:04 CST; 1 months 2 days ago</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">...</span><br></pre></td></tr></table></figure></li>
-<li>编辑docker.service<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vim /lib/systemd/system/docker.service</span><br></pre></td></tr></table></figure></li>
-<li>修改[Service]下的ExecStart，添加-H tcp:&#x2F;&#x2F;0.0.0.0:2375；对外开放docker服务（建议不要使用默认端口2375）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H fd:// --containerd=/run/containerd/containerd.sock</span><br></pre></td></tr></table></figure></li>
-<li>重新加载Docker配置生效 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl daemon-reload </span><br><span class="line">systemctl restart docker </span><br></pre></td></tr></table></figure></li>
-<li>服务器防火墙开放端口</li>
-<li>浏览器访问<a href="http://ip:2375/version%EF%BC%8C%E6%B5%8B%E8%AF%95%E6%98%AF%E5%90%A6%E6%88%90%E5%8A%9F">http://ip:2375/version，测试是否成功</a></li>
-</ol>
-<h2 id="使用TLS-HTTPS-保证Docker服务安全"><a href="#使用TLS-HTTPS-保证Docker服务安全" class="headerlink" title="使用TLS(HTTPS)保证Docker服务安全"></a>使用TLS(HTTPS)保证Docker服务安全</h2><h3 id="1-服务器端生成CA共钥和私钥"><a href="#1-服务器端生成CA共钥和私钥" class="headerlink" title="1. 服务器端生成CA共钥和私钥"></a>1. 服务器端生成CA共钥和私钥</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建目录存放CA证书</span><br><span class="line">pi@raspberrypi:~ $ mkdir ca</span><br><span class="line"></span><br><span class="line"># 进入目录</span><br><span class="line">pi@raspberrypi:~ $ cd ca</span><br><span class="line"></span><br><span class="line"># 生成私钥（会提示输入密码）</span><br><span class="line">pi@raspberrypi:~/ca $ openssl genrsa -aes256 -out ca-key.pem 4096</span><br><span class="line">Generating RSA private key, 4096 bit long modulus (2 primes)</span><br><span class="line">..........................++++</span><br><span class="line">.......++++</span><br><span class="line">e is 65537 (0x010001)</span><br><span class="line">Enter pass phrase for ca-key.pem:</span><br><span class="line"></span><br><span class="line"># 生成证书信息（需要输入上面的密码以及一些其他信息【注意Common Name填写服务器外网IP】）</span><br><span class="line">pi@raspberrypi:~/ca $ openssl req -new -x509 -days 3650 -key ca-key.pem -sha256 -out ca.pem</span><br><span class="line">Enter pass phrase for ca-key.pem:</span><br><span class="line">You are about to be asked to enter information that will be incorporated</span><br><span class="line">into your certificate request.</span><br><span class="line">What you are about to enter is what is called a Distinguished Name or a DN.</span><br><span class="line">There are quite a few fields but you can leave some blank</span><br><span class="line">For some fields there will be a default value,</span><br><span class="line">If you enter &#x27;.&#x27;, the field will be left blank.</span><br><span class="line">-----</span><br><span class="line">Country Name (2 letter code) [AU]:CN</span><br><span class="line">State or Province Name (full name) [Some-State]:ZheJiang</span><br><span class="line">Locality Name (eg, city) []:HangZhou</span><br><span class="line">Organization Name (eg, company) [Internet Widgits Pty Ltd]:yanghao </span><br><span class="line">Organizational Unit Name (eg, section) []:yanghao</span><br><span class="line">Common Name (e.g. server FQDN or YOUR name) []:192.168.3.3</span><br><span class="line">Email Address []:yh.124@qq.com</span><br></pre></td></tr></table></figure>
-<p><strong>有了CA之后，就可以创建服务器密钥和证书签名请求(CSR)了。确保“Common Name”与你连接Docker时使用的主机名匹配</strong></p>
-<h3 id="2-创建服务器密钥和证书签名请求"><a href="#2-创建服务器密钥和证书签名请求" class="headerlink" title="2. 创建服务器密钥和证书签名请求"></a>2. 创建服务器密钥和证书签名请求</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建服务器密钥</span><br><span class="line">pi@raspberrypi:~/ca $ openssl genrsa -out server-key.pem 4096</span><br><span class="line">Generating RSA private key, 4096 bit long modulus (2 primes)</span><br><span class="line">................................................................++++</span><br><span class="line">.........++++</span><br><span class="line">e is 65537 (0x010001)</span><br><span class="line"></span><br><span class="line"># 证书签名请求（注意修改为你的服务器IP）</span><br><span class="line">openssl req -subj &quot;/CN=192.168.3.3&quot; -sha256 -new -key server-key.pem -out server.csr</span><br></pre></td></tr></table></figure>
-<h3 id="3-配置白名单"><a href="#3-配置白名单" class="headerlink" title="3. 配置白名单"></a>3. 配置白名单</h3><p>配置白名单，允许连接的ip（通过证书）;IP可以配置多个</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo subjectAltName = IP:192.168.3.3,IP::192.168.3.5 &gt;&gt; extfile.cnf</span><br></pre></td></tr></table></figure>
-<h3 id="4-设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证"><a href="#4-设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证" class="headerlink" title="4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证"></a>4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo extendedKeyUsage = serverAuth &gt;&gt; extfile.cnf</span><br></pre></td></tr></table></figure>
-<h3 id="5-生成签名证书（需要输入密码）"><a href="#5-生成签名证书（需要输入密码）" class="headerlink" title="5. 生成签名证书（需要输入密码）"></a>5. 生成签名证书（需要输入密码）</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">openssl x509 -req -days 3650 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \</span><br><span class="line">  -CAcreateserial -out server-cert.pem -extfile extfile.cnf</span><br></pre></td></tr></table></figure>
-<h3 id="6-对于客户端身份验证，创建一个客户端密钥和证书签名请求"><a href="#6-对于客户端身份验证，创建一个客户端密钥和证书签名请求" class="headerlink" title="6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求"></a>6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成 key.pem</span><br><span class="line">openssl genrsa -out key.pem 4096</span><br><span class="line"></span><br><span class="line"># 生成 csr</span><br><span class="line">openssl req -subj &#x27;/CN=client&#x27; -new -key key.pem -out client.csr</span><br><span class="line"></span><br><span class="line"># 创建配置文件</span><br><span class="line">echo extendedKeyUsage = clientAuth &gt; extfile-client.cnf</span><br><span class="line"></span><br><span class="line"># 生成签名证书</span><br><span class="line">openssl x509 -req -days 3650 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \</span><br><span class="line">  -CAcreateserial -out cert.pem -extfile extfile-client.cnf</span><br><span class="line">  </span><br><span class="line"># 将服务器端的ca.pem cert.pem key.pem复制到本地</span><br><span class="line">scp ca.pem cert.pem key.pem yh@192.168.3.5:/Users/yh/ca</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h3 id="7-删除不需要的文件"><a href="#7-删除不需要的文件" class="headerlink" title="7. 删除不需要的文件"></a>7. 删除不需要的文件</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 服务器（服务端）</span><br><span class="line">rm -rf server.csr extfile.cnf client.csr extfile-client.cnf</span><br></pre></td></tr></table></figure>
-<h3 id="8-修改文件权限，防止误删"><a href="#8-修改文件权限，防止误删" class="headerlink" title="8. 修改文件权限，防止误删"></a>8. 修改文件权限，防止误删</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 服务端</span><br><span class="line">chmod -v 0400 ca-key.pem server-key.pem</span><br><span class="line">chmod -v 0444 ca.pem server-cert.pem</span><br><span class="line"># 客户端</span><br><span class="line">chmod -v 0400 key.pem</span><br><span class="line">chmod -v 0444 ca.pem cert.pem</span><br></pre></td></tr></table></figure>
-<h3 id="9-再次修改服务器docker-service"><a href="#9-再次修改服务器docker-service" class="headerlink" title="9. 再次修改服务器docker.service"></a>9. 再次修改服务器docker.service</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vim /lib/systemd/system/docker.service</span><br><span class="line"># 修改ExecStart（添加证书的路径）</span><br><span class="line">ExecStart=/usr/bin/dockerd --tlsverify --tlscacert=/home/pi/ca/ca.pem --tlscert=/home/pi/ca/server-cert.pem --tlskey=/home/pi/ca/server-key.pem -H tcp://0.0.0.0:2376 -H unix:///var/run/docker.sock</span><br></pre></td></tr></table></figure>
-<h3 id="10-重新加载daemon并重启docker"><a href="#10-重新加载daemon并重启docker" class="headerlink" title="10. 重新加载daemon并重启docker"></a>10. 重新加载daemon并重启docker</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl daemon-reload &amp;&amp; systemctl restart docker</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h3 id="11-配置本地环境变量"><a href="#11-配置本地环境变量" class="headerlink" title="11. 配置本地环境变量"></a>11. 配置本地环境变量</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mkdir -pv ~/.docker</span><br><span class="line"># 将证书copy到.docker下</span><br><span class="line">cp -v &#123;ca,cert,key&#125;.pem ~/.docker</span><br><span class="line">chmod -v 0400 key.pem</span><br><span class="line">chmod -v 0444 ca.pem cert.pem</span><br><span class="line"># 配置环境变量</span><br><span class="line">export DOCKER_HOST=tcp://0.0.0.0:2376 DOCKER_TLS_VERIFY=1</span><br></pre></td></tr></table></figure>
-<h3 id="12-客户端测试"><a href="#12-客户端测试" class="headerlink" title="12. 客户端测试"></a>12. 客户端测试</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 配置了环境变量后就可以访问服务器docker服务</span><br><span class="line">docker ps</span><br><span class="line"># 没有配置环境变量</span><br><span class="line">docker --tlsverify --tlscacert=/Users/yh/.docker/ca.pem --tlscert=/Users/yh/.docker/cert.pem --tlskey=/Users/yh/.docker/key.pem -H=tcp://192.168.3.3:2376 version</span><br></pre></td></tr></table></figure>
-<h2 id="项目配置"><a href="#项目配置" class="headerlink" title="项目配置"></a>项目配置</h2><h3 id="配置docker-file-maven-plugin插件"><a href="#配置docker-file-maven-plugin插件" class="headerlink" title="配置docker-file-maven-plugin插件"></a>配置docker-file-maven-plugin插件</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;build&gt;</span><br><span class="line">    &lt;plugins&gt;</span><br><span class="line">        &lt;!-- dockerfile maven --&gt;</span><br><span class="line">        &lt;plugin&gt;</span><br><span class="line">            &lt;groupId&gt;com.spotify&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;dockerfile-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">            &lt;executions&gt;</span><br><span class="line">                &lt;execution&gt;</span><br><span class="line">                    &lt;id&gt;default&lt;/id&gt;</span><br><span class="line">                    &lt;goals&gt;</span><br><span class="line">                        &lt;goal&gt;build&lt;/goal&gt;</span><br><span class="line">                        &lt;goal&gt;push&lt;/goal&gt;</span><br><span class="line">                    &lt;/goals&gt;</span><br><span class="line">                    &lt;configuration&gt;</span><br><span class="line">                    &lt;/configuration&gt;</span><br><span class="line">                &lt;/execution&gt;</span><br><span class="line">            &lt;/executions&gt;</span><br><span class="line">            &lt;!--docker镜像相关的配置信息--&gt;</span><br><span class="line">            &lt;configuration&gt;</span><br><span class="line">                &lt;contextDirectory&gt;$&#123;project.basedir&#125;&lt;/contextDirectory&gt;</span><br><span class="line">                &lt;dockerfile&gt;$&#123;project.basedir&#125;/Dockerfile&lt;/dockerfile&gt;</span><br><span class="line">                &lt;!--使用username和password标签，也可以使用useMavenSettingsForAuth，在settings.xml文件中的配置 servers--&gt;</span><br><span class="line">                &lt;useMavenSettingsForAuth&gt;false&lt;/useMavenSettingsForAuth&gt;</span><br><span class="line">                &lt;username&gt;xxx&lt;/username&gt;</span><br><span class="line">                &lt;password&gt;xxx&lt;/password&gt;</span><br><span class="line">                &lt;!--远程仓库地址--&gt;</span><br><span class="line">                &lt;repository&gt;$&#123;docker.repository.registry&#125;/$&#123;docker.repository.namespace&#125;/$&#123;project.artifactId&#125;&lt;/repository&gt;</span><br><span class="line">                &lt;tag&gt;$&#123;project.version&#125;&lt;/tag&gt;</span><br><span class="line">                &lt;buildArgs&gt;</span><br><span class="line">                    &lt;JAR_FILE&gt;$&#123;project.build.finalName&#125;.jar&lt;/JAR_FILE&gt;</span><br><span class="line">                &lt;/buildArgs&gt;</span><br><span class="line">            &lt;/configuration&gt;</span><br><span class="line">        &lt;/plugin&gt;</span><br><span class="line">    &lt;/plugins&gt;</span><br></pre></td></tr></table></figure>
-<h3 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">FROM houwm/jdk8:arm64</span><br><span class="line"></span><br><span class="line">MAINTAINER yanghao&lt;yh.124@qq.com&gt;</span><br><span class="line"></span><br><span class="line"># 参数</span><br><span class="line">ARG JAR_FILE</span><br><span class="line"></span><br><span class="line"># 环境变量</span><br><span class="line">ENV TZ=Asia/Shanghai LANG=C.UTF-8</span><br><span class="line">ENV PARAMS=&quot;--server.port=8080 --spring.profiles.active=prod -Xms512m -Xmx512m&quot;</span><br><span class="line"></span><br><span class="line"># 设置时区</span><br><span class="line">RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime &amp;&amp; echo $TZ &gt; /etc/timezone</span><br><span class="line"></span><br><span class="line"># 复制jar包</span><br><span class="line">COPY target/$&#123;JAR_FILE&#125; /app.jar</span><br><span class="line"></span><br><span class="line"># 暴露端口</span><br><span class="line">EXPOSE 8080</span><br><span class="line"></span><br><span class="line"># 工作目录</span><br><span class="line">WORKDIR /</span><br><span class="line"></span><br><span class="line"># 执行命令</span><br><span class="line">ENTRYPOINT [&quot;/bin/sh&quot;,&quot;-c&quot;,&quot;java -jar /app.jar $&#123;PARAMS&#125;&quot;]</span><br></pre></td></tr></table></figure>
-<h3 id="部署项目"><a href="#部署项目" class="headerlink" title="部署项目"></a>部署项目</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 会自动在远程服务器构建镜像</span><br><span class="line">mvn package</span><br><span class="line"># 就可以省略这个步骤</span><br><span class="line">mvn dockerfile:build</span><br><span class="line"># 会自动推送镜像到远程仓库</span><br><span class="line">mvn deploy</span><br><span class="line"># 就可以省略这个步骤</span><br><span class="line">mvn dockerfile:push</span><br><span class="line"># 如果要临时跳过所有的Dockerfile相关的目标，执行如下Maven命令</span><br><span class="line">mvn clean install -Ddockerfile.skip</span><br><span class="line"># 想跳过某一个goal</span><br><span class="line">mvn clean package -Ddockerfile.build.skip</span><br><span class="line">mvn clean package -Ddockerfile.tag.skip</span><br><span class="line">mvn clean deploy -Ddockerfile.push.skip</span><br><span class="line"> </span><br></pre></td></tr></table></figure>]]></content>
+    <title>MySQL性能分析工具的使用</title>
+    <url>/2022/06/06/MySQL%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/</url>
+    <content><![CDATA[<p>在数据库调优中，我们的目标就是<strong>响应时间更快，吞吐量更大</strong>。利用宏观的监控工具和微观的日志分析可以帮助我们快速的找到调优的思路和方式。</p>
+<h2 id="数据库服务优化步骤"><a href="#数据库服务优化步骤" class="headerlink" title="数据库服务优化步骤"></a>数据库服务优化步骤</h2><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/06/16545259909755.jpg" alt="16545259909755"><br><strong>小结：</strong></p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/07/16546045730301.jpg" alt="16546045730301"></p>
+<h2 id="查看系统性能参数"><a href="#查看系统性能参数" class="headerlink" title="查看系统性能参数"></a>查看系统性能参数</h2><p>在MySQL中，可以使用<strong>show status</strong>语句查询一些MySQL数据库服务器的<strong>性能参数</strong>、<strong>执行频率</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SHOW [GLOBAL | SESSION] STATUS LIKE &#x27;参数&#x27;</span><br></pre></td></tr></table></figure>
+<p>一些常用的性能参数如下：</p>
+<ul>
+<li>Connections：连接MySQL服务器的次数</li>
+<li>Uptime：MySQL服务器的上线时间</li>
+<li>Slow_queries：慢查询的次数</li>
+<li>Innodb_rows_read：select查询返回的行数</li>
+<li>Innodb_rows_inserted：insert操作插入的行数</li>
+<li>Innodb_rows_updated：update操作更新的行数</li>
+<li>Innodb_rows_deleted：delete操作删除的行数</li>
+<li>Com_select：查询操作的次数</li>
+<li>Com_insert：插入操作的次数，对于批量插入的insert操作，只累加一次。</li>
+<li>Com_update：更新操作的次数</li>
+<li>Com_delete：删除操作的次数<h2 id="统计SQL的查询成本：last-query-cost"><a href="#统计SQL的查询成本：last-query-cost" class="headerlink" title="统计SQL的查询成本：last_query_cost"></a>统计SQL的查询成本：last_query_cost</h2>如果想要查看某条SQL语句的查询成本，可以在执行完这条SQL语句之后，通过查询当前会话的last_query_cost变量值来得到当前查询的成本。它通常也是我们<strong>评价一个查询的执行效率</strong>的一个常用指标。这个查询的成本对应的是<strong>SQL语句所需要读取的页的数量</strong>。<h2 id="定位执行慢的SQL：慢查询日志"><a href="#定位执行慢的SQL：慢查询日志" class="headerlink" title="定位执行慢的SQL：慢查询日志"></a>定位执行慢的SQL：慢查询日志</h2>默认情况下，MySQL数据库没有开启慢查询日志，需要手动设置这个参数。如果不是调优的需要的话，一般不建议启动该参数，因为开启慢查询日志或多或少会带来一些性能影响。<h3 id="开启慢查询日志参数"><a href="#开启慢查询日志参数" class="headerlink" title="开启慢查询日志参数"></a>开启慢查询日志参数</h3><h4 id="开启slow-query-log"><a href="#开启slow-query-log" class="headerlink" title="开启slow_query_log"></a>开启slow_query_log</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 查看是否开启</span><br><span class="line">SHOW VARIABLES LIKE &#x27;%slow_query%&#x27;;</span><br><span class="line"># 开启慢查询日志</span><br><span class="line">SET GLOBAL slow_query_log = on;</span><br></pre></td></tr></table></figure>
+<h4 id="设置long-query-time"><a href="#设置long-query-time" class="headerlink" title="设置long_query_time"></a>设置long_query_time</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 查看long_query_time</span><br><span class="line">SHOW VARIABLES LIKE &#x27;%long_query_time%&#x27;;</span><br><span class="line"># 修改为1秒</span><br><span class="line">SET SESSION long_query_time = 1;</span><br><span class="line">SET GLOBAL long_query_time = 1;</span><br></pre></td></tr></table></figure>
+<h4 id="永久设置"><a href="#永久设置" class="headerlink" title="永久设置"></a>永久设置</h4>配置my.conf<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/07/16546070983974.jpg" alt="16546070983974"><h4 id="慢查询日志分析工具：mysqldumpslow"><a href="#慢查询日志分析工具：mysqldumpslow" class="headerlink" title="慢查询日志分析工具：mysqldumpslow"></a>慢查询日志分析工具：mysqldumpslow</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 取出使用最多的10条慢查询</span><br><span class="line">mysqldumpslow -s c -t 10 /data/mysql/xxx-slow.log</span><br><span class="line"> </span><br><span class="line"># 取出查询时间最慢的3条慢查询 </span><br><span class="line">mysqldumpslow -s t -t 3 /data/mysql/xxx-slow.log</span><br><span class="line"> </span><br><span class="line"># 得到按照时间排序的前10条里面含有左连接的查询语句 </span><br><span class="line">mysqldumpslow -s t -t 10 -g “left join” /data/mysql/xxx-slow.log</span><br><span class="line"> </span><br><span class="line"># 按照扫描行数最多的</span><br><span class="line">mysqldumpslow -s r -t 10 -g &#x27;left join&#x27; /data/mysql/xxx-slow.log</span><br></pre></td></tr></table></figure>
+<h2 id="查看SQL执行成本：SHOW-PROFILE"><a href="#查看SQL执行成本：SHOW-PROFILE" class="headerlink" title="查看SQL执行成本：SHOW PROFILE"></a>查看SQL执行成本：SHOW PROFILE</h2>SHOW PROFILE是MySQL提供的可以用来分析当前会话中的SQL都做了什么，执行的资源消耗情况，可用于sql调优的测量。<strong>默认情况下是关闭的</strong>。并保存最近15次的运行结果。<br>我们可以在会话级别开启这个功能<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SHOW VARIABLES LIKE &#x27;profiling&#x27;;</span><br><span class="line">SET profiling = ON;</span><br></pre></td></tr></table></figure>
+查看最近的查询<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SHOW PROFILES;</span><br></pre></td></tr></table></figure>
+查看某一个查询的详细信息<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SHOW PROFILE ALL FOR QUERY [QUERY_ID];</span><br></pre></td></tr></table></figure>
+<img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/07/16546092097996.jpg" alt="16546092097996"></li>
+</ul>
+<h2 id="分析查询语句：EXPLAIN"><a href="#分析查询语句：EXPLAIN" class="headerlink" title="分析查询语句：EXPLAIN"></a>分析查询语句：EXPLAIN</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">EXPLAIN SELECT|DELETE|UPDATE|INSERT xxxx;</span><br></pre></td></tr></table></figure>
+<h3 id="EXPLAIN语句输出的各个列的作用如下："><a href="#EXPLAIN语句输出的各个列的作用如下：" class="headerlink" title="EXPLAIN语句输出的各个列的作用如下："></a>EXPLAIN语句输出的各个列的作用如下：</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/07/16546100275416.jpg" alt="16546100275416"></p>
+<h2 id="EXPLAIN的进一步使用"><a href="#EXPLAIN的进一步使用" class="headerlink" title="EXPLAIN的进一步使用"></a>EXPLAIN的进一步使用</h2><h3 id="EXPLAIN四种输出格式"><a href="#EXPLAIN四种输出格式" class="headerlink" title="EXPLAIN四种输出格式"></a>EXPLAIN四种输出格式</h3><h4 id="传统格式"><a href="#传统格式" class="headerlink" title="传统格式"></a>传统格式</h4><p>传统格式输出一个表格形式，概要说明查询计划。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">EXPLAIN xxxxxx</span><br></pre></td></tr></table></figure>
+<h4 id="JSON格式"><a href="#JSON格式" class="headerlink" title="JSON格式"></a>JSON格式</h4><p>第一种格式中介绍的EXPLAIN语句输出中缺少了一个衡量执行计划好坏的重要属性 – <strong>成本</strong>。而JSON格式是四种格式中输出<strong>信息最详尽</strong>的格式，里面包含了执行的成本信息。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">EXPLAIN FORMAT=JSON xxxxx</span><br></pre></td></tr></table></figure>
+<p>EXPLAIN的Column与JSON的对应关系：（来源于Mysql5.7文档）<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/14/16552108538058.jpg" alt="16552108538058"></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;query_block&quot;: &#123;</span><br><span class="line">    &quot;select_id&quot;: 1,</span><br><span class="line">    &quot;cost_info&quot;: &#123;</span><br><span class="line">      &quot;query_cost&quot;: &quot;3.83&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;table&quot;: &#123;</span><br><span class="line">      &quot;table_name&quot;: &quot;sys_user&quot;,</span><br><span class="line">      &quot;access_type&quot;: &quot;range&quot;,</span><br><span class="line">      &quot;possible_keys&quot;: [</span><br><span class="line">        &quot;PRIMARY&quot;</span><br><span class="line">      ],</span><br><span class="line">      &quot;key&quot;: &quot;PRIMARY&quot;,</span><br><span class="line">      &quot;used_key_parts&quot;: [</span><br><span class="line">        &quot;id&quot;</span><br><span class="line">      ],</span><br><span class="line">      &quot;key_length&quot;: &quot;4&quot;,</span><br><span class="line">      &quot;rows_examined_per_scan&quot;: 7,</span><br><span class="line">      &quot;rows_produced_per_join&quot;: 7,</span><br><span class="line">      &quot;filtered&quot;: &quot;100.00&quot;,</span><br><span class="line">      &quot;cost_info&quot;: &#123;</span><br><span class="line">        &quot;read_cost&quot;: &quot;2.43&quot;,</span><br><span class="line">        &quot;eval_cost&quot;: &quot;1.40&quot;,</span><br><span class="line">        &quot;prefix_cost&quot;: &quot;3.83&quot;,</span><br><span class="line">        &quot;data_read_per_join&quot;: &quot;80K&quot;</span><br><span class="line">      &#125;,</span><br><span class="line">      &quot;used_columns&quot;: [</span><br><span class="line">        &quot;id&quot;,</span><br><span class="line">        &quot;login_name&quot;,</span><br><span class="line">        &quot;password&quot;,</span><br><span class="line">        ...</span><br><span class="line">      ],</span><br><span class="line">      &quot;attached_condition&quot;: &quot;(`sys_user`.`id` &gt; 1)&quot;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="TREE格式"><a href="#TREE格式" class="headerlink" title="TREE格式"></a>TREE格式</h4><p>tree格式是8.0.16版本之后引入的新格式，主要根据查询的<strong>各个部分之间的关系</strong>和<strong>各部分的执行顺序</strong>来描述如何查询。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/14/16552115947740.jpg" alt="16552115947740"></p>
+<h4 id="可视化输出"><a href="#可视化输出" class="headerlink" title="可视化输出"></a>可视化输出</h4><h3 id="SHOW-WARNINGS的使用"><a href="#SHOW-WARNINGS的使用" class="headerlink" title="SHOW WARNINGS的使用"></a>SHOW WARNINGS的使用</h3><p>在使用了EXPLAIN语句查看了某个查询的执行计划后，紧跟着还可以使用SHOW WARNINGS语句查看与这个查询的执行计划有关的一些扩展信息。</p>
+<h2 id="分析优化器执行计划：trace"><a href="#分析优化器执行计划：trace" class="headerlink" title="分析优化器执行计划：trace"></a>分析优化器执行计划：trace</h2><p>OPTIMIZED_TRACE是MySQL5.6引入的一项跟踪功能，他可以跟踪优化器做出的各种决策（比如访问表的方法、各种开销计算、各种转换等），并将跟踪结果记录到<strong>INFORMATION_SCHEMA.OPTIMIZER_TACE</strong>表中。<br>此功能默认是关闭的。开启trace，并设置格式为JSON，同时设置trace最大能够使用的内存的大小，避免解析过程中因为默认内存大小而不能够完整展示。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SET optimizer_trace=&quot;enable=on&quot;,end_markers_in_json=on;</span><br><span class="line">SET optimizer_trace_max_mem_size=1000000;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">select xxxxxx;</span><br><span class="line"></span><br><span class="line">SELECT * FROM information_schema.OPTIMIZER_TRACE;</span><br></pre></td></tr></table></figure>
+<h2 id="MySQL监控分析视图：sys-schema"><a href="#MySQL监控分析视图：sys-schema" class="headerlink" title="MySQL监控分析视图：sys schema"></a>MySQL监控分析视图：sys schema</h2><h3 id="索引情况"><a href="#索引情况" class="headerlink" title="索引情况"></a>索引情况</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 1.查询冗余的索引</span><br><span class="line">SELECT * FROM sys.schema_redundant_indexes;</span><br><span class="line"># 2.查询未使用过的索引</span><br><span class="line">SELECT * FROM sys.schema_unused_indexes;</span><br><span class="line"># 3.查询索引的使用情况</span><br><span class="line">SELECT * FROM sys.schema_index_statistics WHERE table_schema=&#x27;dbname&#x27;;</span><br></pre></td></tr></table></figure>
+<h3 id="表相关"><a href="#表相关" class="headerlink" title="表相关"></a>表相关</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 4.查询表的访问量</span><br><span class="line">SELECT table_schema,table_name,SUM(io_read_requests+io_write_requests) AS io FROM sys.schema_table_statistics GROUP BY table_schema,table_name ORDER BY io desc;</span><br><span class="line"># 5.查询占用buffer pool较多的表</span><br><span class="line">SELECT object_schema,object_name,allocated,data FROM sys.innodb_buffer_stats_by_table ORDER BY allocated LIMIT 10;</span><br><span class="line"># 6.查看表的全表扫描情况</span><br><span class="line">SELECT * FROM sys.statements_with_full_table_scans WHERE db=&#x27;dbname&#x27;;</span><br></pre></td></tr></table></figure>
+<h3 id="语句相关"><a href="#语句相关" class="headerlink" title="语句相关"></a>语句相关</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 7.监控SQL执行的频率</span><br><span class="line">SELECT db,exec_count,query FROM sys.statement_analysis ORDER BY exec_count desc;</span><br><span class="line"># 8.监控使用了排序的SQL</span><br><span class="line">SELECT db,exec_count,first_seen,last_seen,query FROM sys.statements_with_sorting LIMIT 1;</span><br><span class="line"># 9.监控使用了临时表或者磁盘临时表的SQL</span><br><span class="line">SELECT db,exec_count,tmp_tables,tmp_disk_tables,query FROM sys.statement_analysis WHERE tmp_tables&gt;0 OR tmp_disk_tables &gt; 0 ORDER BY (tmp_tables+tmp_disk_tables) DESC;</span><br></pre></td></tr></table></figure>
+<h3 id="IO相关"><a href="#IO相关" class="headerlink" title="IO相关"></a>IO相关</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 10.查看消耗的磁盘IO文件</span><br><span class="line">SELECT file,avg_read,avg_write,avg_read+avg_write as avg_io FROM sys.io_global_by_file_by_bytes ORDER BY avg_read limit 10;</span><br></pre></td></tr></table></figure>
+<h3 id="innodb相关"><a href="#innodb相关" class="headerlink" title="innodb相关"></a>innodb相关</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SELECT * FROM sys.innodb_lock_waits;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>风险提示：</strong><br>通过sys库去查询时，MySQL会消耗大量资源去收集相关信息，严重的可能会导致业务请求被阻塞，从而引起故障。建议生产环境不要频繁去查询sys或performance_schema、information_schema来完成监控、巡检等工作。</p>
+</blockquote>
+]]></content>
       <categories>
-        <category>运维</category>
+        <category>后端</category>
       </categories>
       <tags>
-        <tag>Docker</tag>
+        <tag>MySQL</tag>
       </tags>
   </entry>
   <entry>
@@ -1289,154 +1443,6 @@ docker exec -it --user root $ContainerName /bin/bash
 <p>默认情况下，该日志功能是开启的，通过如下命令查找错误日志文件的存放路径。</p>
 <p>SHOW VARIABLES LIKE &#39;log_error&#39;;</p>
 <p><strong>注意：</strong>错误日志中记录的可并非全是错误信息，像 MySQL 如何启动 InnoDB的表空间文件、如何初始化自己的存储引擎，初始化 buffer pool等等，这些也记录在错误日志文件中。</p>
-]]></content>
-      <categories>
-        <category>后端</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>InnoDB数据存储结构</title>
-    <url>/2022/01/15/InnoDB%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/</url>
-    <content><![CDATA[<h2 id="数据库的存储结构：页"><a href="#数据库的存储结构：页" class="headerlink" title="数据库的存储结构：页"></a>数据库的存储结构：页</h2><p>MySQL服务器上的存储引擎负责对表中的数据的读取和写入工作，不同存储引擎中存放的格式一般不同。此处只剖析InnoDB存储引擎的数据存储结构。</p>
-<h3 id="磁盘与内存交互的基本单位：页"><a href="#磁盘与内存交互的基本单位：页" class="headerlink" title="磁盘与内存交互的基本单位：页"></a>磁盘与内存交互的基本单位：页</h3><p>InnoDB将数据划分为若干个页，InnoDB中页的大小默认为<strong>16KB</strong>。</p>
-<p><strong>在数据库中，不论读一行，还是读多行，都是将这些行所在的页进行加载，也就是说，数据库管理存储空间的基本单位是页（Page），数据库I&#x2F;O操作的最小单位为页。</strong></p>
-<h3 id="页结构概述"><a href="#页结构概述" class="headerlink" title="页结构概述"></a>页结构概述</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/15/16422446514180.jpg" alt="页结构"><br>页a、页b、页c…页n，这些页可以<strong>不在物理结构上相连</strong>，只要通过<strong>双向链表</strong>相关联即可。每个数据页中的记录会按照主键值从小到大的顺序组成一个<strong>单向链表</strong>，每个数据页都会为存储在它里面的记录生成一个<strong>页目录</strong>，在通过主键查找时就可以在页目录中<strong>使用二分法</strong>快速定位到对应的槽，然后再遍历该槽对应分组中的记录即可快速找到指定记录。</p>
-<h3 id="页的上层结构"><a href="#页的上层结构" class="headerlink" title="页的上层结构"></a>页的上层结构</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/15/16422451759284.jpg" alt="页的上层结构"></p>
-<ul>
-<li>区（Extent）是比页大一级的存储结构，在InnoDB存储引擎中，一个区会分配64个连续的页。因为InnoDB中页的默认大小是16KB，所以一个区的大小是 64 * 16KB &#x3D; 1M。</li>
-<li>段（Segment）由一个或多个区组成，区在文件系统是一个连续分配的空间（在InnoDB中是连续的64个页），不过在段中不要求区与区之间是相邻的。<strong>段是数据库中的分配单位，不同类型的数据库对象以不同的段形式存在</strong>。当我们创建数据表、索引的时候，就会相应创建对应的段，比如创建一张表时会创建一个表段，创建一个索引时会创建一个索引段。</li>
-<li>表空间（TableSpace）是一个逻辑容器，表空间存储的对象是段，在一个表空间中可以有一个或多个段，但是一个段只能属于一个表空间。数据库由一个或多个表空间组成。表空间从管理上可以分为<strong>系统表空间、用户表空间、撤销表空间、临时表空间</strong>等。<h2 id="页的内部结构"><a href="#页的内部结构" class="headerlink" title="页的内部结构"></a>页的内部结构</h2>页如果按类来划分的话，常见的有数据页（保存B+树节点）、系统页、Undo页和事务数据页等。数据页是我们最常使用的页。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/16/16423369880923.jpg" alt="页的内部结构"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/16/16423371212785.jpg" alt="页的内部结构"><h2 id="InnoDB行格式（或记录格式）"><a href="#InnoDB行格式（或记录格式）" class="headerlink" title="InnoDB行格式（或记录格式）"></a>InnoDB行格式（或记录格式）</h2><h3 id="COMPACT行格式"><a href="#COMPACT行格式" class="headerlink" title="COMPACT行格式"></a>COMPACT行格式</h3><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425967631225.jpg" alt="16425967631225"><h4 id="变长字段长度列表"><a href="#变长字段长度列表" class="headerlink" title="变长字段长度列表"></a>变长字段长度列表</h4>MySQL支持一些变长的数据类型，比如VARCHAR(M)、VARBINARY(M)、TEXT类型，BOLB类型，这些数据类型修饰列称为变长字段。<br><strong>注意：</strong> 这里面存储的变长长度和字段顺序是<strong>反过来</strong>的。比如在表中字段是a(10),b(15)，那么在变长字段列表中存储的长度顺序就是15，10。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425971738917.jpg" alt="16425971738917"><h4 id="NULL值列表"><a href="#NULL值列表" class="headerlink" title="NULL值列表"></a>NULL值列表</h4></li>
-</ul>
-<ol>
-<li>二进制位的值为1时，代表该列的值为NULL。</li>
-<li>二进制位的值为0时，代表该列的值不为NULL。</li>
-<li>NOT NULL的字段没有。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425973039144.jpg" alt="16425973039144"><h4 id="记录头信息（5字节）"><a href="#记录头信息（5字节）" class="headerlink" title="记录头信息（5字节）"></a>记录头信息（5字节）</h4><h4 id="记录真实数据"><a href="#记录真实数据" class="headerlink" title="记录真实数据"></a>记录真实数据</h4><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425974458867.jpg" alt="16425974458867"><h3 id="Dynamic和Compressed行格式"><a href="#Dynamic和Compressed行格式" class="headerlink" title="Dynamic和Compressed行格式"></a>Dynamic和Compressed行格式</h3><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425990444803.jpg" alt="16425990444803"><br>一个页的大小一般是16KB，也就是16384字节，而VARCHAR(M)最多可储存65533个字节。这样就出现了一个页存放不了一条记录，这种现象称为行溢出。<br>Dynamic和Compressed行格式和Compact行格式挺像，只不过在处理行溢出数据时有分歧：</li>
-</ol>
-<ul>
-<li>Dynamic和Compressed两种行格式对于存放在BLOB中的数据采用了完全的行溢出方式，如图，在数据页中只存放20个字节的指针（溢出页的地址），实际的数据都存放在Off Page（溢出页）中。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/02/10/16445002427093.jpg" alt="16445002427093"></li>
-<li>Compact和Redundant两种格式会在记录的真实数据处存储一部分数据（存放768个前缀字节）。<br><strong>Compressed行记录格式的另一个功能就是，存储在其中的行数据会以zlib的算法进行非常压缩。因此对于BLOL，TEXT，VARCHAR这类大长度类型的数据能够进行非常有效的存储。</strong><h3 id="Redundant行格式"><a href="#Redundant行格式" class="headerlink" title="Redundant行格式"></a>Redundant行格式</h3>Redundant行格式是MySQL5.0版本及之前InnoDB的行记录存储方式。<h2 id="区、段与碎片区"><a href="#区、段与碎片区" class="headerlink" title="区、段与碎片区"></a>区、段与碎片区</h2><h3 id="为什么要有区？"><a href="#为什么要有区？" class="headerlink" title="为什么要有区？"></a>为什么要有区？</h3><code>B+</code>树的每一层中的页都会形成一个双向链表如果<strong>以页为单位</strong>来分配存储空间的话，双向链表相邻的两个页之间的<strong>物理位置可能离的非常远</strong>。 扫描页就会是<strong>随机IO</strong>。随机IO是非常慢的，所以我们应该尽量的让链表中页的<strong>物理位置也相邻</strong>，这样进行范围查询的时候时候才可以使用所谓的<strong>顺序IO</strong>。<br>一个区就是在物理位置上连续的<strong>64个页</strong>。因为InnoDB中的页大小。默认是<strong>16kb</strong>，所以一个区的大小是<strong>64*16&#x3D;1M</strong>。在表中数据量大的时候，为某个索引分配空间的时候就不再按照页为单位分配了，而是按照<strong>区为单位分配</strong>，甚至在表中数据特别多的时候，可以一次性分配多个连续的区。虽然可能造成<strong>一点点空间的浪费</strong>（数据不足以填满整个区），但是从性能角度看，可以消除很多随机IO，<strong>利大于弊</strong>。<h3 id="为什么要有段？"><a href="#为什么要有段？" class="headerlink" title="为什么要有段？"></a>为什么要有段？</h3>对于范围查询，其实是对B+树叶子节点的记录进行顺序扫描，而如果不区分叶子节点和非叶子节点，统统把节点代表的页面放到申请到的区中的话，进行范围扫描的效果就可能会比较差。所以InnoDB对B+树的<strong>叶子节点</strong>和<strong>非叶子节点</strong>进行区别对待，也就是说叶子节点有自己独有的区，非叶子节点也有自己独特的区。存放叶子节点的区的集合就是一个<strong>段（segment）</strong>，存放非叶子节点的区的集合也是一个段。也就是说一个索引会生成2个段，一个<strong>叶子节点段</strong>，一个<strong>非叶子节点段</strong>。</li>
-</ul>
-<p>除了索引的叶子节点段和非叶子节点段之外，InnoDB中还有为储存一些特殊的数据定义的段，比如回滚段。所以常见的段有<strong>数据段</strong>，<strong>索引段</strong>，<strong>回滚段</strong>。数据段即为B+树的叶子节点，索引段即为非叶子节点段。</p>
-<p>段其实不对应表空间中某一个连续的物理区域，而是一个逻辑上的概念，由若干个零散的页面以及一些完整的区组成。</p>
-<h3 id="为什么要有碎片区？"><a href="#为什么要有碎片区？" class="headerlink" title="为什么要有碎片区？"></a>为什么要有碎片区？</h3><p>一个区默认占用1M（64*16K）存储空间，所以默认情况下一个只存了几条记录的小表也需要2M存储空间吗？</p>
-<p>为了考虑以完整的区为单位分配给某个段，对于<strong>数量较小的</strong>表太浪费存储空间的这种情况，InnoDB提出了一个<strong>碎片区（fragment）</strong> 的概念。在一个碎片区中，并不是所有的页都是为了存储同一个段的数据而存在的，而是碎片区中的页可以用于不同的目的，比如有些页用于段A，有些页用于段B，有些页用于段C，有些页甚至哪个段都不属于。<strong>碎片区直属于表空间</strong>，并不属于任何一个段。</p>
-<p>所以此后为某个段分配存储空间的策略是这样的：</p>
-<ul>
-<li>在刚开始向表中插入数据的时候，段是从某个碎片区以单个页面为单位来分配存储空间的。</li>
-<li>当某个段已经占用了<strong>32个碎片</strong>区页面之后，就会申请以完整的区为单位来分配存储空间的。<h3 id="区的分类"><a href="#区的分类" class="headerlink" title="区的分类"></a>区的分类</h3></li>
-<li>空闲的区（free）：现在还没有用到这个区中的任何页面。</li>
-<li>有剩余空间的碎片区（free_frag）：表示碎片区中还有可用页面。</li>
-<li>没有剩余空间的碎片区（full_frag）：表示碎片区的所有页面都被使用，没有空闲的页面。</li>
-<li>附属于某个段的区（fseg）：每一个索引都可以分为叶子节点段和非叶子节点段。<br>处于free、free_frag、full_frag都是碎片区，fseg为属于某个段的区。<h2 id="表空间"><a href="#表空间" class="headerlink" title="表空间"></a>表空间</h2>表空间可以看作是InnoDB存储引擎逻辑结构的最高层，所有的数据都存放在表空间中。</li>
-</ul>
-<p>表空间是一个<strong>逻辑容器</strong>，表空间存储的对象是段，在一个表空间中可以有一个或多个段，但是一个段只能属于一个表空间。数据库由一个或多个表空间组成，表空间从管理上可以划分为<strong>系统表空间</strong>（system Tablespace），<strong>独立表空间</strong>（File-per-table Tablespace）、<strong>撤销表空间</strong>（Undo-tablesapce）和<strong>临时表空间</strong>（Temporary Tablespace）等。</p>
-<h3 id="独立表空间"><a href="#独立表空间" class="headerlink" title="独立表空间"></a>独立表空间</h3><h4 id="独立表空间结构"><a href="#独立表空间结构" class="headerlink" title="独立表空间结构"></a>独立表空间结构</h4><p>独立表空间由段、区、页组成。</p>
-<h4 id="表空间对应的文件"><a href="#表空间对应的文件" class="headerlink" title="表空间对应的文件"></a>表空间对应的文件</h4><p>一个新建的表对应的 <strong>.idb</strong> 文件文件只占用了<strong>96k</strong>，才6个页面的大小（MySQL5.7），这是因为一开始表中没有数据。随着表中的数据增加，表空间对应的文件也逐渐增大。</p>
-<h3 id="系统表空间"><a href="#系统表空间" class="headerlink" title="系统表空间"></a>系统表空间</h3><p>系统表空间和独立表空间基本类似，只不过MySQL只有一个系统表空间，在系统表空间中会额外记录一些有关整个系统信息的页面，这部分是独立表空间没有的。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/02/13/16447536181188.jpg" alt="16447536181188"></p>
-]]></content>
-      <categories>
-        <category>后端</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>InnoDB中的索引</title>
-    <url>/2022/01/12/InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95/</url>
-    <content><![CDATA[<h2 id="InnoDB中的索引设计方案"><a href="#InnoDB中的索引设计方案" class="headerlink" title="InnoDB中的索引设计方案"></a>InnoDB中的索引设计方案</h2><ul>
-<li>0:普通的用户记录</li>
-<li>1:目录项记录</li>
-<li>2:最小记录</li>
-<li>3:最大记录<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419950340539.jpg" alt="聚簇索引"><br><strong>一般情况下，我们用到的B+树都不会超过4层。（减少磁盘I&#x2F;O）</strong><br>一个B+树的节点其实可以分成好多层，规定最下边的那层，也就是存放用户记录的那层为第0层，之后依次往上加。一个数据页可以存放16k的数据。假设所有存放用户记录的叶子节点代表的数据页可以存放100条用户记录，所有存放目录项记录的内节点代表的数据页可以存放1000条数据，那么：</li>
-<li>如果B+树只有1层，也就是只有一个用于存放记录的节点，最多能存放100条记录。</li>
-<li>如果B+树有2层，最多能存放1000 * 100 &#x3D; 10万条记录。</li>
-<li>如果B+树有3层，最多能存放1000 * 1000 * 100 &#x3D; 1亿条记录</li>
-<li>如果b+树有4层，做多能存放1000 * 1000 * 1000 * 100 &#x3D; 1000亿条记录<h2 id="常见索引概念"><a href="#常见索引概念" class="headerlink" title="常见索引概念"></a>常见索引概念</h2><h3 id="聚簇索引"><a href="#聚簇索引" class="headerlink" title="聚簇索引"></a>聚簇索引</h3><h3 id="二级索引（辅助索引、非聚簇索引）"><a href="#二级索引（辅助索引、非聚簇索引）" class="headerlink" title="二级索引（辅助索引、非聚簇索引）"></a>二级索引（辅助索引、非聚簇索引）</h3><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419967282458.jpg" alt="非聚簇索引"><h4 id="联合索引"><a href="#联合索引" class="headerlink" title="联合索引"></a>联合索引</h4><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/12/16419972009034.jpg" alt="联合索引"><h3 id="InnoDB的B-树索引的注意事项"><a href="#InnoDB的B-树索引的注意事项" class="headerlink" title="InnoDB的B+树索引的注意事项"></a>InnoDB的B+树索引的注意事项</h3><h4 id="根页面位置万年不变"><a href="#根页面位置万年不变" class="headerlink" title="根页面位置万年不变"></a>根页面位置万年不变</h4></li>
-<li>每当某个表创建一个B+树索引（聚簇索引）的时候，都会为这个索引创建一个根节点页，最开始表中没有数据的时候，每个B+树索引对应的根节点中，既没有用户记录，也没有目录项记录。</li>
-<li>随后向表中插入用户记录时，先把用户记录存储到这个根节点中。</li>
-<li>当根节点中的可用空间用完时，继续插入记录，此时会将根节点中的所有记录复制到新分配的页，比如页a中，然后后对这个新页进行页分裂的操作，得到另一个新页，比如页b，这时新插入的记录根据键值（也就是索引值）的大小就会被分配到页a或者页b中，而根节点便升级为存储目录项记录的页<br><strong>这个过程特别注意的是：</strong> 一个B+树索引的根节点自诞生之日起，便不会再移动。这样只要我们对某个表建立一个索引，那么它的根节点的页号便会被记录到某个地方，然后凡事InnoDB存储引擎需要用到这个索引的时候，都会从哪个固定的地方取出根节点的页，从而来访问这个索引。<h3 id="非叶子节点中的目录项记录的唯一性"><a href="#非叶子节点中的目录项记录的唯一性" class="headerlink" title="非叶子节点中的目录项记录的唯一性"></a>非叶子节点中的目录项记录的唯一性</h3>即非叶子节点的索引唯一（创建的索引默认后面会跟主键）<h3 id="一个数据页最少存储2条数据"><a href="#一个数据页最少存储2条数据" class="headerlink" title="一个数据页最少存储2条数据"></a>一个数据页最少存储2条数据</h3><h3 id="MySQL数据结构选择的合理性"><a href="#MySQL数据结构选择的合理性" class="headerlink" title="MySQL数据结构选择的合理性"></a>MySQL数据结构选择的合理性</h3><h4 id="Hash结构"><a href="#Hash结构" class="headerlink" title="Hash结构"></a>Hash结构</h4><ol>
-<li>Hash索引仅能满足（&#x3D;）（&lt;&gt;）和in查询。范围查询效率很差。</li>
-<li>Hash索引数据存储是没有顺序的。</li>
-<li>对于联合索引的情况，Hash值是将联合索引合并后一起来计算的，无法对单独的一个键或者几个索引键进行查询。</li>
-<li>对于等值查询来说，通常Hash索引的效率很高，不过存在一种情况，就是索引列的重复值很多，效率就会降低。</li>
-</ol>
-</li>
-</ul>
-<p>另外，InnoDB本身不支持Hash索引，但是提供了自适应hash索引（adaptive_hash_index）。如果某个数据经常被访问，当满足一定条件的时候，就会将这个数据页的地址存放到Hash表中。这样下次查询的时候，就可以直接找到这个页面的所在位置。这样让B+树也具备了Hash索引的优点。</p>
-<h4 id="二叉搜索树"><a href="#二叉搜索树" class="headerlink" title="二叉搜索树"></a>二叉搜索树</h4><p>二叉树特征：<br>    * 一个节点只能有两个子节点，也就是一个节点度不能超过2<br>    * 左子节点 &lt; 本节点 &lt;&#x3D; 右子节点<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420811937219.jpg" alt="二叉搜索树"><br> <strong>在极端情况下会变成一个线性链表</strong></p>
-<h4 id="AVL树"><a href="#AVL树" class="headerlink" title="AVL树"></a>AVL树</h4><p> 平衡二叉树特征：<br>    <strong>它是一棵空树或它的左右两个子树的高度差的绝对值不超过1，并且左右两个子树都是一棵平衡二叉树。</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420812487954.jpg" alt="AVL树"><br><strong>树的层数过多，访问一个节点相当于做一次磁盘IO</strong></p>
-<h4 id="B-Tree"><a href="#B-Tree" class="headerlink" title="B-Tree"></a>B-Tree</h4><p>Balance Tree，也就是多路平衡查找树。</p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/13/16420815935861.jpg" alt="16420815935861"></p>
-<ol>
-<li>B树在插入和删除节点的时候如果导致树不平衡，就通过自动调节节点的位置保持树的自平衡。</li>
-<li>关键字集合分布在整棵树中，即叶子节点和非叶子节点都存放数据。搜索有可能在非叶子节点结束</li>
-<li>其搜索性能等价于在关键字全集内做一次二分查找。<h4 id="B-Tree-1"><a href="#B-Tree-1" class="headerlink" title="B+Tree"></a>B+Tree</h4>B+树也是一种多路搜索树，基于B-Tree做了改进。B+树适合文件索引系统。<br><strong>B+树和B树的差异：</strong></li>
-<li>有k个子节点就有k个关键字。也就是子节点数量&#x3D;关键字数量。而B树中，子节点数量&#x3D;关键字数量+1。</li>
-<li>非叶子节点的关键字会同时存在在子节点中，并且是在子节点中所有关键字的最大（或最小）。</li>
-<li>非叶子节点仅用于索引，不保存数据记录，跟记录相关的信息都存放在叶子节点中。而B树中，非叶子节点即保存索引也保存数据记录。</li>
-<li>所有关键字都在叶子节点出现，叶子节点构成一个有序链表，而且叶子节点本身按照关键字的大小从小到大顺序链接。</li>
-</ol>
-]]></content>
-      <categories>
-        <category>后端</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>MySQL性能分析工具的使用</title>
-    <url>/2022/06/06/MySQL%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/</url>
-    <content><![CDATA[<p>在数据库调优中，我们的目标就是<strong>响应时间更快，吞吐量更大</strong>。利用宏观的监控工具和微观的日志分析可以帮助我们快速的找到调优的思路和方式。</p>
-<h2 id="数据库服务优化步骤"><a href="#数据库服务优化步骤" class="headerlink" title="数据库服务优化步骤"></a>数据库服务优化步骤</h2><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/06/16545259909755.jpg" alt="16545259909755"><br><strong>小结：</strong></p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/07/16546045730301.jpg" alt="16546045730301"></p>
-<h2 id="查看系统性能参数"><a href="#查看系统性能参数" class="headerlink" title="查看系统性能参数"></a>查看系统性能参数</h2><p>在MySQL中，可以使用<strong>show status</strong>语句查询一些MySQL数据库服务器的<strong>性能参数</strong>、<strong>执行频率</strong>。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SHOW [GLOBAL | SESSION] STATUS LIKE &#x27;参数&#x27;</span><br></pre></td></tr></table></figure>
-<p>一些常用的性能参数如下：</p>
-<ul>
-<li>Connections：连接MySQL服务器的次数</li>
-<li>Uptime：MySQL服务器的上线时间</li>
-<li>Slow_queries：慢查询的次数</li>
-<li>Innodb_rows_read：select查询返回的行数</li>
-<li>Innodb_rows_inserted：insert操作插入的行数</li>
-<li>Innodb_rows_updated：update操作更新的行数</li>
-<li>Innodb_rows_deleted：delete操作删除的行数</li>
-<li>Com_select：查询操作的次数</li>
-<li>Com_insert：插入操作的次数，对于批量插入的insert操作，只累加一次。</li>
-<li>Com_update：更新操作的次数</li>
-<li>Com_delete：删除操作的次数<h2 id="统计SQL的查询成本：last-query-cost"><a href="#统计SQL的查询成本：last-query-cost" class="headerlink" title="统计SQL的查询成本：last_query_cost"></a>统计SQL的查询成本：last_query_cost</h2>如果想要查看某条SQL语句的查询成本，可以在执行完这条SQL语句之后，通过查询当前会话的last_query_cost变量值来得到当前查询的成本。它通常也是我们<strong>评价一个查询的执行效率</strong>的一个常用指标。这个查询的成本对应的是<strong>SQL语句所需要读取的页的数量</strong>。<h2 id="定位执行慢的SQL：慢查询日志"><a href="#定位执行慢的SQL：慢查询日志" class="headerlink" title="定位执行慢的SQL：慢查询日志"></a>定位执行慢的SQL：慢查询日志</h2>默认情况下，MySQL数据库没有开启慢查询日志，需要手动设置这个参数。如果不是调优的需要的话，一般不建议启动该参数，因为开启慢查询日志或多或少会带来一些性能影响。<h3 id="开启慢查询日志参数"><a href="#开启慢查询日志参数" class="headerlink" title="开启慢查询日志参数"></a>开启慢查询日志参数</h3><h4 id="开启slow-query-log"><a href="#开启slow-query-log" class="headerlink" title="开启slow_query_log"></a>开启slow_query_log</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 查看是否开启</span><br><span class="line">SHOW VARIABLES LIKE &#x27;%slow_query%&#x27;;</span><br><span class="line"># 开启慢查询日志</span><br><span class="line">SET GLOBAL slow_query_log = on;</span><br></pre></td></tr></table></figure>
-<h4 id="设置long-query-time"><a href="#设置long-query-time" class="headerlink" title="设置long_query_time"></a>设置long_query_time</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 查看long_query_time</span><br><span class="line">SHOW VARIABLES LIKE &#x27;%long_query_time%&#x27;;</span><br><span class="line"># 修改为1秒</span><br><span class="line">SET SESSION long_query_time = 1;</span><br><span class="line">SET GLOBAL long_query_time = 1;</span><br></pre></td></tr></table></figure>
-<h4 id="永久设置"><a href="#永久设置" class="headerlink" title="永久设置"></a>永久设置</h4>配置my.conf<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/07/16546070983974.jpg" alt="16546070983974"><h4 id="慢查询日志分析工具：mysqldumpslow"><a href="#慢查询日志分析工具：mysqldumpslow" class="headerlink" title="慢查询日志分析工具：mysqldumpslow"></a>慢查询日志分析工具：mysqldumpslow</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 取出使用最多的10条慢查询</span><br><span class="line">mysqldumpslow -s c -t 10 /data/mysql/xxx-slow.log</span><br><span class="line"> </span><br><span class="line"># 取出查询时间最慢的3条慢查询 </span><br><span class="line">mysqldumpslow -s t -t 3 /data/mysql/xxx-slow.log</span><br><span class="line"> </span><br><span class="line"># 得到按照时间排序的前10条里面含有左连接的查询语句 </span><br><span class="line">mysqldumpslow -s t -t 10 -g “left join” /data/mysql/xxx-slow.log</span><br><span class="line"> </span><br><span class="line"># 按照扫描行数最多的</span><br><span class="line">mysqldumpslow -s r -t 10 -g &#x27;left join&#x27; /data/mysql/xxx-slow.log</span><br></pre></td></tr></table></figure>
-<h2 id="查看SQL执行成本：SHOW-PROFILE"><a href="#查看SQL执行成本：SHOW-PROFILE" class="headerlink" title="查看SQL执行成本：SHOW PROFILE"></a>查看SQL执行成本：SHOW PROFILE</h2>SHOW PROFILE是MySQL提供的可以用来分析当前会话中的SQL都做了什么，执行的资源消耗情况，可用于sql调优的测量。<strong>默认情况下是关闭的</strong>。并保存最近15次的运行结果。<br>我们可以在会话级别开启这个功能<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SHOW VARIABLES LIKE &#x27;profiling&#x27;;</span><br><span class="line">SET profiling = ON;</span><br></pre></td></tr></table></figure>
-查看最近的查询<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SHOW PROFILES;</span><br></pre></td></tr></table></figure>
-查看某一个查询的详细信息<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SHOW PROFILE ALL FOR QUERY [QUERY_ID];</span><br></pre></td></tr></table></figure>
-<img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/07/16546092097996.jpg" alt="16546092097996"></li>
-</ul>
-<h2 id="分析查询语句：EXPLAIN"><a href="#分析查询语句：EXPLAIN" class="headerlink" title="分析查询语句：EXPLAIN"></a>分析查询语句：EXPLAIN</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">EXPLAIN SELECT|DELETE|UPDATE|INSERT xxxx;</span><br></pre></td></tr></table></figure>
-<h3 id="EXPLAIN语句输出的各个列的作用如下："><a href="#EXPLAIN语句输出的各个列的作用如下：" class="headerlink" title="EXPLAIN语句输出的各个列的作用如下："></a>EXPLAIN语句输出的各个列的作用如下：</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/07/16546100275416.jpg" alt="16546100275416"></p>
-<h2 id="EXPLAIN的进一步使用"><a href="#EXPLAIN的进一步使用" class="headerlink" title="EXPLAIN的进一步使用"></a>EXPLAIN的进一步使用</h2><h3 id="EXPLAIN四种输出格式"><a href="#EXPLAIN四种输出格式" class="headerlink" title="EXPLAIN四种输出格式"></a>EXPLAIN四种输出格式</h3><h4 id="传统格式"><a href="#传统格式" class="headerlink" title="传统格式"></a>传统格式</h4><p>传统格式输出一个表格形式，概要说明查询计划。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">EXPLAIN xxxxxx</span><br></pre></td></tr></table></figure>
-<h4 id="JSON格式"><a href="#JSON格式" class="headerlink" title="JSON格式"></a>JSON格式</h4><p>第一种格式中介绍的EXPLAIN语句输出中缺少了一个衡量执行计划好坏的重要属性 – <strong>成本</strong>。而JSON格式是四种格式中输出<strong>信息最详尽</strong>的格式，里面包含了执行的成本信息。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">EXPLAIN FORMAT=JSON xxxxx</span><br></pre></td></tr></table></figure>
-<p>EXPLAIN的Column与JSON的对应关系：（来源于Mysql5.7文档）<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/14/16552108538058.jpg" alt="16552108538058"></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;query_block&quot;: &#123;</span><br><span class="line">    &quot;select_id&quot;: 1,</span><br><span class="line">    &quot;cost_info&quot;: &#123;</span><br><span class="line">      &quot;query_cost&quot;: &quot;3.83&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;table&quot;: &#123;</span><br><span class="line">      &quot;table_name&quot;: &quot;sys_user&quot;,</span><br><span class="line">      &quot;access_type&quot;: &quot;range&quot;,</span><br><span class="line">      &quot;possible_keys&quot;: [</span><br><span class="line">        &quot;PRIMARY&quot;</span><br><span class="line">      ],</span><br><span class="line">      &quot;key&quot;: &quot;PRIMARY&quot;,</span><br><span class="line">      &quot;used_key_parts&quot;: [</span><br><span class="line">        &quot;id&quot;</span><br><span class="line">      ],</span><br><span class="line">      &quot;key_length&quot;: &quot;4&quot;,</span><br><span class="line">      &quot;rows_examined_per_scan&quot;: 7,</span><br><span class="line">      &quot;rows_produced_per_join&quot;: 7,</span><br><span class="line">      &quot;filtered&quot;: &quot;100.00&quot;,</span><br><span class="line">      &quot;cost_info&quot;: &#123;</span><br><span class="line">        &quot;read_cost&quot;: &quot;2.43&quot;,</span><br><span class="line">        &quot;eval_cost&quot;: &quot;1.40&quot;,</span><br><span class="line">        &quot;prefix_cost&quot;: &quot;3.83&quot;,</span><br><span class="line">        &quot;data_read_per_join&quot;: &quot;80K&quot;</span><br><span class="line">      &#125;,</span><br><span class="line">      &quot;used_columns&quot;: [</span><br><span class="line">        &quot;id&quot;,</span><br><span class="line">        &quot;login_name&quot;,</span><br><span class="line">        &quot;password&quot;,</span><br><span class="line">        ...</span><br><span class="line">      ],</span><br><span class="line">      &quot;attached_condition&quot;: &quot;(`sys_user`.`id` &gt; 1)&quot;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h4 id="TREE格式"><a href="#TREE格式" class="headerlink" title="TREE格式"></a>TREE格式</h4><p>tree格式是8.0.16版本之后引入的新格式，主要根据查询的<strong>各个部分之间的关系</strong>和<strong>各部分的执行顺序</strong>来描述如何查询。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/14/16552115947740.jpg" alt="16552115947740"></p>
-<h4 id="可视化输出"><a href="#可视化输出" class="headerlink" title="可视化输出"></a>可视化输出</h4><h3 id="SHOW-WARNINGS的使用"><a href="#SHOW-WARNINGS的使用" class="headerlink" title="SHOW WARNINGS的使用"></a>SHOW WARNINGS的使用</h3><p>在使用了EXPLAIN语句查看了某个查询的执行计划后，紧跟着还可以使用SHOW WARNINGS语句查看与这个查询的执行计划有关的一些扩展信息。</p>
-<h2 id="分析优化器执行计划：trace"><a href="#分析优化器执行计划：trace" class="headerlink" title="分析优化器执行计划：trace"></a>分析优化器执行计划：trace</h2><p>OPTIMIZED_TRACE是MySQL5.6引入的一项跟踪功能，他可以跟踪优化器做出的各种决策（比如访问表的方法、各种开销计算、各种转换等），并将跟踪结果记录到<strong>INFORMATION_SCHEMA.OPTIMIZER_TACE</strong>表中。<br>此功能默认是关闭的。开启trace，并设置格式为JSON，同时设置trace最大能够使用的内存的大小，避免解析过程中因为默认内存大小而不能够完整展示。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SET optimizer_trace=&quot;enable=on&quot;,end_markers_in_json=on;</span><br><span class="line">SET optimizer_trace_max_mem_size=1000000;</span><br></pre></td></tr></table></figure>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">select xxxxxx;</span><br><span class="line"></span><br><span class="line">SELECT * FROM information_schema.OPTIMIZER_TRACE;</span><br></pre></td></tr></table></figure>
-<h2 id="MySQL监控分析视图：sys-schema"><a href="#MySQL监控分析视图：sys-schema" class="headerlink" title="MySQL监控分析视图：sys schema"></a>MySQL监控分析视图：sys schema</h2><h3 id="索引情况"><a href="#索引情况" class="headerlink" title="索引情况"></a>索引情况</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 1.查询冗余的索引</span><br><span class="line">SELECT * FROM sys.schema_redundant_indexes;</span><br><span class="line"># 2.查询未使用过的索引</span><br><span class="line">SELECT * FROM sys.schema_unused_indexes;</span><br><span class="line"># 3.查询索引的使用情况</span><br><span class="line">SELECT * FROM sys.schema_index_statistics WHERE table_schema=&#x27;dbname&#x27;;</span><br></pre></td></tr></table></figure>
-<h3 id="表相关"><a href="#表相关" class="headerlink" title="表相关"></a>表相关</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 4.查询表的访问量</span><br><span class="line">SELECT table_schema,table_name,SUM(io_read_requests+io_write_requests) AS io FROM sys.schema_table_statistics GROUP BY table_schema,table_name ORDER BY io desc;</span><br><span class="line"># 5.查询占用buffer pool较多的表</span><br><span class="line">SELECT object_schema,object_name,allocated,data FROM sys.innodb_buffer_stats_by_table ORDER BY allocated LIMIT 10;</span><br><span class="line"># 6.查看表的全表扫描情况</span><br><span class="line">SELECT * FROM sys.statements_with_full_table_scans WHERE db=&#x27;dbname&#x27;;</span><br></pre></td></tr></table></figure>
-<h3 id="语句相关"><a href="#语句相关" class="headerlink" title="语句相关"></a>语句相关</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 7.监控SQL执行的频率</span><br><span class="line">SELECT db,exec_count,query FROM sys.statement_analysis ORDER BY exec_count desc;</span><br><span class="line"># 8.监控使用了排序的SQL</span><br><span class="line">SELECT db,exec_count,first_seen,last_seen,query FROM sys.statements_with_sorting LIMIT 1;</span><br><span class="line"># 9.监控使用了临时表或者磁盘临时表的SQL</span><br><span class="line">SELECT db,exec_count,tmp_tables,tmp_disk_tables,query FROM sys.statement_analysis WHERE tmp_tables&gt;0 OR tmp_disk_tables &gt; 0 ORDER BY (tmp_tables+tmp_disk_tables) DESC;</span><br></pre></td></tr></table></figure>
-<h3 id="IO相关"><a href="#IO相关" class="headerlink" title="IO相关"></a>IO相关</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 10.查看消耗的磁盘IO文件</span><br><span class="line">SELECT file,avg_read,avg_write,avg_read+avg_write as avg_io FROM sys.io_global_by_file_by_bytes ORDER BY avg_read limit 10;</span><br></pre></td></tr></table></figure>
-<h3 id="innodb相关"><a href="#innodb相关" class="headerlink" title="innodb相关"></a>innodb相关</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SELECT * FROM sys.innodb_lock_waits;</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><strong>风险提示：</strong><br>通过sys库去查询时，MySQL会消耗大量资源去收集相关信息，严重的可能会导致业务请求被阻塞，从而引起故障。建议生产环境不要频繁去查询sys或performance_schema、information_schema来完成监控、巡检等工作。</p>
-</blockquote>
 ]]></content>
       <categories>
         <category>后端</category>
