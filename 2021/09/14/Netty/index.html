@@ -62,7 +62,7 @@
 <meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/10/16365493912838.jpg">
 <meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/12/07/16388835610980.jpg">
 <meta property="article:published_time" content="2021-09-13T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-10-02T10:40:34.217Z">
+<meta property="article:modified_time" content="2024-10-02T10:45:59.468Z">
 <meta property="article:author" content="yangh">
 <meta property="article:tag" content="网络编程">
 <meta name="twitter:card" content="summary">
@@ -82,7 +82,7 @@
     <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
   
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
+<meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
 </head>
 
 
@@ -450,12 +450,16 @@
 <li>java共支持3种网络编程模型IO模式：NIO、BIO、AIO<ol>
 <li>BIO：同步并阻塞（传统阻塞型），服务器实现模式为一个连接一个线程，即客户端有连接请求时服务器端就需要启动一个线程进行处理，如果这个连接不做任何事情会造成不必要的线程开销。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/14/16316252775663.jpg" alt="16316252775663"></li>
 <li>NIO：同步非阻塞，服务器实现模式为一个线程处理多个请求（连接），即客户端发送连接请求都会注册到多路复用器上， 多路复用器轮询到连接有IO请求就进行处理。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/14/16316256732370.jpg" alt="16316256732370"></li>
-<li>AIO（NIO.2）：异步非阻塞，AIO引入异步通道的概念，采用了Proactor模式，简化了程序编写，有效的请求才启动线程，它的特点是先由操作系统完成后才通知服务端程序启动线程取处理，一般适用于连接数多且连接时间较长的应用。<h4 id="适用场景分析"><a href="#适用场景分析" class="headerlink" title="适用场景分析"></a>适用场景分析</h4></li>
+<li>AIO（NIO.2）：异步非阻塞，AIO引入异步通道的概念，采用了Proactor模式，简化了程序编写，有效的请求才启动线程，它的特点是先由操作系统完成后才通知服务端程序启动线程取处理，一般适用于连接数多且连接时间较长的应用。</li>
 </ol>
 </li>
+</ol>
+<h4 id="适用场景分析"><a href="#适用场景分析" class="headerlink" title="适用场景分析"></a>适用场景分析</h4><ol>
 <li>BIO方式适用于连接数目较小且固定的架构，这种方式对服务器资源要求比较高，并发局限于应用中，JDK1.4以前的唯一选择，但程序简单易理解。</li>
 <li>NIO方式适用于连接数目多且连接时间比较短（轻操作）的架构，比如聊天服务器，弹幕系统，服务间通讯等。编程比较复杂，JDK1.4开始支持。</li>
-<li>AIO方式适用于连接数目多且连接比较长（重操作）的架构，比如相册服务器，充分调用OS参与并发操作，编程比较复杂，JDk7开始支持。<h3 id="Java-BIO"><a href="#Java-BIO" class="headerlink" title="Java BIO"></a>Java BIO</h3></li>
+<li>AIO方式适用于连接数目多且连接比较长（重操作）的架构，比如相册服务器，充分调用OS参与并发操作，编程比较复杂，JDk7开始支持。</li>
+</ol>
+<h3 id="Java-BIO"><a href="#Java-BIO" class="headerlink" title="Java BIO"></a>Java BIO</h3><ol>
 <li>Java BIO就是传统的java io编程，其相关的类和接口在java.io </li>
 <li>BIO（block IO）：同步阻塞，服务器实现模式为一个连接一个线程，即客户端有连接请求是服务端就需要启动一个线程进行处理，如果连接不做任何事情会造成不必要的线程开销，可以通过线程池机制改善（实现多个客户端连接服务器）。</li>
 <li>BIO方式适用于连接数目比较小且固定的架构，这种方式对服务器资源的要求比较高，并发局限于应用中，JDK1.4以前唯一的选择程序简单易理解</li>
@@ -470,21 +474,25 @@
 <li>使用BIO模型编写一个服务端，监听6666端口，当有客户端连接时，就启动一个线程与之通信。</li>
 <li>要求使用线程池机制改善，可以连接多个客户端。</li>
 <li>服务端可以接收客户端发送的数据（telnet方式即可）</li>
-<li>demo见netty-study<h3 id="Java-NIO"><a href="#Java-NIO" class="headerlink" title="Java NIO"></a>Java NIO</h3></li>
+<li>demo见netty-study</li>
 </ol>
 </li>
+</ol>
+<h3 id="Java-NIO"><a href="#Java-NIO" class="headerlink" title="Java NIO"></a>Java NIO</h3><ol>
 <li>Java NIO全称 java non-blocking IO，是指JDK提供的新API。从JDK1.4开始，Java提供了一系列改进的输入&#x2F;输出的新特性，被统称为NIO（New IO），是同步非阻塞的</li>
 <li>NIO相关类都被放在java.nio包及子包下，并且对原java.nio包中的很多类进行改写。</li>
 <li>NIO有三大核心部分：Channel（通道），Buffer（缓冲区），Selector（选择器）。</li>
 <li>NIO是面向缓冲区，或者面向块编程的。数据读取到一个它稍后处理的缓冲区，需要时可在缓冲区中前后移动，这就增加了处理过程中的灵活性，使用它可以提供非阻塞的高伸缩性网络</li>
 <li>Java NIO的非阻塞模式，使一个线程从某通道发送请求或者读取数据，但是它仅能得到目前可用的数据，如果目前没有可用的数据，就什么都不会获取，而不是保持线程阻塞，所以直至数据变得可以读之前，该线程可以继续做其他的事情。非阻塞写也是如此，一个线程请求写入一些数据到某通道，但不需要等待它完全写入，这个线程同时可以去做别的事情。</li>
 <li>通俗理解：NIO是可以做到用一个线程来处理多个操作的。假设有10000个请求过来，根据实际情况，可以分配50或者100个线程来处理。不像之前的阻塞IO那样，非得分配10000个线程。</li>
-<li>http2.0使用了多路复用的技术，做到同一个连接并发处理多个请求，而且并发请求的数量比http1.1大了好几个数量级。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/22/16323168494091.jpg" alt="16323168494091"><h3 id="NIO和BIO的比较"><a href="#NIO和BIO的比较" class="headerlink" title="NIO和BIO的比较"></a>NIO和BIO的比较</h3></li>
+<li>http2.0使用了多路复用的技术，做到同一个连接并发处理多个请求，而且并发请求的数量比http1.1大了好几个数量级。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/22/16323168494091.jpg" alt="16323168494091"></li>
+</ol>
+<h3 id="NIO和BIO的比较"><a href="#NIO和BIO的比较" class="headerlink" title="NIO和BIO的比较"></a>NIO和BIO的比较</h3><ol>
 <li>BIO以流的方式处理数据，而NIO以块的方式处理数据，块IO的效率比流IO高很多</li>
 <li>BIO是阻塞的，NIO则是非阻塞的</li>
-<li>BIO基于字节流和字符流进行操作，而NIO基于Channel（通道）和Buffer（缓冲区）进行操作，数据总是从通道读取到缓冲区中，或者从缓冲区写入到通道中。Selector（选择器）用于监听多个通道的事件（比如：连接请求，数据到达等），因此使用当个线程就可以监听多个客户端通道<h3 id="NIO三大核心"><a href="#NIO三大核心" class="headerlink" title="NIO三大核心"></a>NIO三大核心</h3></li>
+<li>BIO基于字节流和字符流进行操作，而NIO基于Channel（通道）和Buffer（缓冲区）进行操作，数据总是从通道读取到缓冲区中，或者从缓冲区写入到通道中。Selector（选择器）用于监听多个通道的事件（比如：连接请求，数据到达等），因此使用当个线程就可以监听多个客户端通道</li>
 </ol>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/22/16323190875807.jpg" alt="16323190875807"></p>
+<h3 id="NIO三大核心"><a href="#NIO三大核心" class="headerlink" title="NIO三大核心"></a>NIO三大核心</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/09/22/16323190875807.jpg" alt="16323190875807"></p>
 <ol>
 <li>每个Channel都会对应一个Buffer</li>
 <li>Selector会对应一个线程，一个线程对应多个Channel（连接）</li>
@@ -532,36 +540,55 @@
 <li>线程通常将非阻塞IO的空闲时间用于在其他通道上执行IO操作，所以单独的线程可以管理多个输入和输出通道。</li>
 <li>由于读写操作时非阻塞的，这就可以充分提升IO线程的运行效率，避免由于频繁的IO阻塞导致线程挂起。</li>
 <li>一个IO线程可以并发的处理N个客户端连接和读写操作，这从根本上解决传统同步阻塞IO一连接一线程模型，架构的性能、弹性伸缩能力和可靠性都得到了极大的提升。</li>
-<li>Selector相关方法说明： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">selector.select();// 阻塞</span><br><span class="line">selector.select(1000);// 阻塞1秒，在1秒后返回</span><br><span class="line">selector.wakeup();// 唤醒selector</span><br><span class="line">selector.selectNow();// 不阻塞，立即返回</span><br></pre></td></tr></table></figure>
-<strong>NIO非阻塞网络编程原理分析图</strong></li>
+<li>Selector相关方法说明： <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">selector.select();// 阻塞</span><br><span class="line">selector.select(1000);// 阻塞1秒，在1秒后返回</span><br><span class="line">selector.wakeup();// 唤醒selector</span><br><span class="line">selector.selectNow();// 不阻塞，立即返回</span><br></pre></td></tr></table></figure></li>
 </ol>
 </li>
 </ol>
+<p><strong>NIO非阻塞网络编程原理分析图</strong></p>
 <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/08/16336985904631.jpg" alt="16336985904631"><br>    说明：<br>        1. 当客户端连接时，会通过ServerSocketChannel得到SocketChannel。<br>        2. 将socketChannel注册到Selector上（register(Selector selector, int ops)），一个selector上可以注册多个SocketChannel。<br>        3. 注册后返回一个selectionKey，会和该Selector关联（集合）。<br>        4. Selector进行监听（select方法），返回有时间发生的通道个数,得到各个SelectionKey<br>        5. 通过SelectionKey反向获取SocketChannel（channel方法）<br>        6. 最后可以通过得到channel，完成业务处理</p>
 <h5 id="SelectionKey"><a href="#SelectionKey" class="headerlink" title="SelectionKey"></a>SelectionKey</h5><p>SelectionKey,表示Selector和网络通道的注册关系，共4种：<br>    * OP_ACCEPT：有新的网络连接可以accept，值为16<br>    * OP_CONNECT：代表连接已经建立，值为8<br>    * OP_READ：代表读操作，值为1<br>    * OP_WRITE：代表写操作，值为4<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/13/16341300676869.jpg" alt="16341300676869"></p>
 <h5 id="ServerSocketChannel"><a href="#ServerSocketChannel" class="headerlink" title="ServerSocketChannel"></a>ServerSocketChannel</h5><ol>
 <li>ServerSocketChannel在服务器端监听新的客户端Socket连接</li>
-<li>相关方法<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/13/16341310234601.jpg" alt="16341310234601"><h5 id="SocketChannel"><a href="#SocketChannel" class="headerlink" title="SocketChannel"></a>SocketChannel</h5></li>
+<li>相关方法<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/13/16341310234601.jpg" alt="16341310234601"></li>
+</ol>
+<h5 id="SocketChannel"><a href="#SocketChannel" class="headerlink" title="SocketChannel"></a>SocketChannel</h5><ol>
 <li>SocketChannel，网络IO通道，具体负责进行读写操作。NIO把缓冲区的数据写入通道，或者把通道里的数据读到缓冲区。</li>
-<li>相关方法<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/13/16341315034228.jpg" alt="16341315034228"><h3 id="NIO网络编程应用实例-群聊系统"><a href="#NIO网络编程应用实例-群聊系统" class="headerlink" title="NIO网络编程应用实例-群聊系统"></a>NIO网络编程应用实例-群聊系统</h3></li>
+<li>相关方法<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/13/16341315034228.jpg" alt="16341315034228"></li>
+</ol>
+<h3 id="NIO网络编程应用实例-群聊系统"><a href="#NIO网络编程应用实例-群聊系统" class="headerlink" title="NIO网络编程应用实例-群聊系统"></a>NIO网络编程应用实例-群聊系统</h3><ol>
 <li>编写一个NIO群聊系统，实现服务器和客户端之间的数据简单通讯（非阻塞）</li>
 <li>实现多人群聊</li>
 <li>服务端：可以监测用户上下线，并实现消息转发功能</li>
 <li>客户端：通过Channel可以无阻塞发送消息给其它所有用户，同时可以接受其它用户发送的消息（由服务器转发得到）</li>
-<li>目的：进一步理解NIO非阻塞网络编程<h3 id="NIO于零拷贝"><a href="#NIO于零拷贝" class="headerlink" title="NIO于零拷贝"></a>NIO于零拷贝</h3></li>
+<li>目的：进一步理解NIO非阻塞网络编程</li>
+</ol>
+<h3 id="NIO于零拷贝"><a href="#NIO于零拷贝" class="headerlink" title="NIO于零拷贝"></a>NIO于零拷贝</h3><ol>
 <li>零拷贝（没有CPU拷贝）是网络编程的关键，很多性能优化都离不开。</li>
-<li>在Java程序中，常用的零拷贝有mmap（内存映射）和sendFile。<h4 id="传统IO"><a href="#传统IO" class="headerlink" title="传统IO"></a>传统IO</h4><strong>4次拷贝，3次切换状态</strong><br>DMA：direct memory access（直接内存访问）<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/16/16343550358155.jpg" alt="16343550358155"><h4 id="mmap优化"><a href="#mmap优化" class="headerlink" title="mmap优化"></a>mmap优化</h4><strong>3次拷贝，3次切换状态</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/16/16343550554506.jpg" alt="16343550554506"><h4 id="sendFile优化"><a href="#sendFile优化" class="headerlink" title="sendFile优化"></a>sendFile优化</h4></li>
+<li>在Java程序中，常用的零拷贝有mmap（内存映射）和sendFile。</li>
+</ol>
+<h4 id="传统IO"><a href="#传统IO" class="headerlink" title="传统IO"></a>传统IO</h4><p><strong>4次拷贝，3次切换状态</strong><br>DMA：direct memory access（直接内存访问）<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/16/16343550358155.jpg" alt="16343550358155"></p>
+<h4 id="mmap优化"><a href="#mmap优化" class="headerlink" title="mmap优化"></a>mmap优化</h4><p><strong>3次拷贝，3次切换状态</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/16/16343550554506.jpg" alt="16343550554506"></p>
+<h4 id="sendFile优化"><a href="#sendFile优化" class="headerlink" title="sendFile优化"></a>sendFile优化</h4><ol>
 <li>Linux2.1版本提供了sendFile函数，其基本原理如下：数据根本不用经过用户态，直接从内核缓冲区进入到Socket Buffer，同时，由于和用户态完全无关，就减少了一次上下文切换。<br><strong>3次拷贝，2次切换状态</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/16/16343554344704.jpg" alt="16343554344704"></li>
-<li>Linux2.4版本中，做了一些修改，避免从内核缓冲区拷贝到Socket Buffer的操作，直接拷贝到协议栈，从而又一次减少了数据拷贝。<br><strong>2次拷贝*，2次切换状态</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/16/16343557877424.jpg" alt="16343557877424"><br>*这里其实是有一次cpu拷贝的，但是拷贝的信息很少，拷贝一些元数据（length，offset..）,消耗很低，可以忽略<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4></li>
+<li>Linux2.4版本中，做了一些修改，避免从内核缓冲区拷贝到Socket Buffer的操作，直接拷贝到协议栈，从而又一次减少了数据拷贝。<br><strong>2次拷贝*，2次切换状态</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/16/16343557877424.jpg" alt="16343557877424"><br>*这里其实是有一次cpu拷贝的，但是拷贝的信息很少，拷贝一些元数据（length，offset..）,消耗很低，可以忽略</li>
+</ol>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><ol>
 <li>我们说零拷贝，是从操作系统的角度来说的。因为内核缓冲区之间，没有数据重复的（只有Kernel buffer中有一份数据）。</li>
-<li>零拷贝不仅仅带来更少的数据复制，还能带来其他的性能优势，例如更少的上下文切换，更少的CPU缓存伪共享以及无CPU校验和计算。<h3 id="Java-AIO"><a href="#Java-AIO" class="headerlink" title="Java AIO"></a>Java AIO</h3></li>
+<li>零拷贝不仅仅带来更少的数据复制，还能带来其他的性能优势，例如更少的上下文切换，更少的CPU缓存伪共享以及无CPU校验和计算。</li>
+</ol>
+<h3 id="Java-AIO"><a href="#Java-AIO" class="headerlink" title="Java AIO"></a>Java AIO</h3><ol>
 <li>JDK7引入了Asynchronous IO，即AIO。在进行IO编程中，常用到两种模式：Reactor和Proactor。Java的NIO就是Reactor，当有事件触发时，服务端得到通知，进行相应的处理</li>
 <li>AIO及NIO2.0，叫做异步不阻塞的IO。AIO引入异步通道的概念，采用了Proactor模式，简化了程序编写，有效的请求才启动线程，它的特点是先由操作系统完成后才通知服务端程序启动线程去处理，一般适用于连接数较多且连接事件较长的应用</li>
-<li>目前AIO还没有广泛应用，Netty也是基于NIO的<h2 id="Netty-1"><a href="#Netty-1" class="headerlink" title="Netty"></a>Netty</h2><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/17/16344771397316.jpg" alt="16344771397316"><h3 id="原生NIO存在的问题"><a href="#原生NIO存在的问题" class="headerlink" title="原生NIO存在的问题"></a>原生NIO存在的问题</h3></li>
+<li>目前AIO还没有广泛应用，Netty也是基于NIO的</li>
+</ol>
+<h2 id="Netty-1"><a href="#Netty-1" class="headerlink" title="Netty"></a>Netty</h2><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/17/16344771397316.jpg" alt="16344771397316"></p>
+<h3 id="原生NIO存在的问题"><a href="#原生NIO存在的问题" class="headerlink" title="原生NIO存在的问题"></a>原生NIO存在的问题</h3><ol>
 <li>NIO的类库和API繁杂，使用麻烦：需要熟练掌握Selector、ServerSocketChannel、SocketChannel、ByteBuffer等。</li>
 <li>需要具备其他额外的技能：要熟悉java多线程编程，因为NIO编程涉及到Reactor模式，你必须对多线程网络编程非常熟悉，才能编写出高质量的NIO程序。</li>
 <li>开发工作量和难度非常大：例如客户端面临断连重连、网络闪断、半包读写、失败缓存、网络拥塞和异常流的处理等等。</li>
-<li>JDK NIO的BUG：例如臭名昭著的Epoll Bug，它会导致Selector空轮询，最终导致CPU 100%。直到JDK1.7版本该问题依旧存在，没有被根本解决。<h3 id="Netty高性能架构设计"><a href="#Netty高性能架构设计" class="headerlink" title="Netty高性能架构设计"></a>Netty高性能架构设计</h3><h4 id="线程模型基本介绍"><a href="#线程模型基本介绍" class="headerlink" title="线程模型基本介绍"></a>线程模型基本介绍</h4></li>
+<li>JDK NIO的BUG：例如臭名昭著的Epoll Bug，它会导致Selector空轮询，最终导致CPU 100%。直到JDK1.7版本该问题依旧存在，没有被根本解决。</li>
+</ol>
+<h3 id="Netty高性能架构设计"><a href="#Netty高性能架构设计" class="headerlink" title="Netty高性能架构设计"></a>Netty高性能架构设计</h3><h4 id="线程模型基本介绍"><a href="#线程模型基本介绍" class="headerlink" title="线程模型基本介绍"></a>线程模型基本介绍</h4><ol>
 <li>目前存在的线程模型有：<ul>
 <li>传统的阻塞IO服务模型</li>
 <li>Reactor模式</li>
@@ -579,16 +606,25 @@
 <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/17/16344791404243.jpg" alt="16344791404243"><br>说明：<br>    1. Reactor模式，通过一个或多个输入同时传递给服务处理器的模式（基于事件驱动）<br>    2. 服务端程序处理传入的多个请求，并将它们同步分派到相应的处理线程，因此Reactor模式也叫做Dispather模式<br>    3. Reactor模式使用IO复用监听事件，收到事件后，分发给某个线程（进程）。这就是支持高并发的原因</p>
 <h4 id="Reactor模式核心组成"><a href="#Reactor模式核心组成" class="headerlink" title="Reactor模式核心组成"></a>Reactor模式核心组成</h4><ol>
 <li>Reactor：Reactor在一个单独的线程中运行，负责监听和分发事件，分发给适当的处理程序来对IO事件做出反应。它就像公司的电话接线员，它接听来自客户的电话并将线路转移到适当的联系人。</li>
-<li>Handlers：处理程序执行IO事件要完成的实际事件，类似于客户想要与之交谈的公司中的实际人员。Reactor通过调度适当的处理程序来响应IO事件，处理程序执行非阻塞操作。<h3 id="单Reactor单线程"><a href="#单Reactor单线程" class="headerlink" title="单Reactor单线程"></a>单Reactor单线程</h3><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345582830238.jpg" alt="16345582830238"></li>
+<li>Handlers：处理程序执行IO事件要完成的实际事件，类似于客户想要与之交谈的公司中的实际人员。Reactor通过调度适当的处理程序来响应IO事件，处理程序执行非阻塞操作。</li>
+</ol>
+<h3 id="单Reactor单线程"><a href="#单Reactor单线程" class="headerlink" title="单Reactor单线程"></a>单Reactor单线程</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345582830238.jpg" alt="16345582830238"></p>
+<ol>
 <li>优点：模型简单，没有多线程、进程通信、竞争的问题，全部都在一个线程中完成</li>
 <li>缺点：性能问题，只有一个线程，无法完全发挥多核CPU的性能。Handler在处理某个连接上的业务时，整个进程无法处理其他连接事件，很容易导致性能瓶颈；可靠性问题，线程意外终止，或者进入死循环，会导致整个系统通信模块不可用，不能接收和处理外部消息，造成节点故障。</li>
-<li>使用场景：客户端数量有限，业务处理非常快速，比如Redis在业务处理的时间复杂度O(1)的情况<h3 id="单Reactor多线程"><a href="#单Reactor多线程" class="headerlink" title="单Reactor多线程"></a>单Reactor多线程</h3><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345609747836.jpg" alt="16345609747836"><br>说明：</li>
+<li>使用场景：客户端数量有限，业务处理非常快速，比如Redis在业务处理的时间复杂度O(1)的情况</li>
+</ol>
+<h3 id="单Reactor多线程"><a href="#单Reactor多线程" class="headerlink" title="单Reactor多线程"></a>单Reactor多线程</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345609747836.jpg" alt="16345609747836"><br>说明：</p>
+<ol>
 <li>Reactor对象通过select监控客户端请求事件，收到事件后，通过Dispatch进行分发</li>
 <li>如果建立连接请求（accept），则由Accept通过accept处理连接请求，然后创建一个Handler对象处理完成连接后的各种事件</li>
 <li>如果不是连接请求，则由Reactor分发调用连接对应的handler来处理</li>
 <li>handler只负责响应事件，不做具体的业务处理，通过read读取数据后，会分发给后面的worker线程池的某个线程处理业务</li>
 <li>worker线程池会分配独立线程完成真正的业务，并将处理结果返回给handler</li>
-<li>handler收到响应后，通过send方法将结果返回给client<br>优点：可以比较充分利用多核cpu的处理能力<br>缺点： 多线程数据共享和访问比较复杂，Reactor还是单线程的，在高并发下也会出现性能瓶颈<h3 id="主从Reactor多线程"><a href="#主从Reactor多线程" class="headerlink" title="主从Reactor多线程"></a>主从Reactor多线程</h3><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345622839532.jpg" alt="16345622839532"><br>说明：</li>
+<li>handler收到响应后，通过send方法将结果返回给client<br>优点：可以比较充分利用多核cpu的处理能力<br>缺点： 多线程数据共享和访问比较复杂，Reactor还是单线程的，在高并发下也会出现性能瓶颈</li>
+</ol>
+<h3 id="主从Reactor多线程"><a href="#主从Reactor多线程" class="headerlink" title="主从Reactor多线程"></a>主从Reactor多线程</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345622839532.jpg" alt="16345622839532"><br>说明：</p>
+<ol>
 <li>Reactor主线程MainReactor对象通过select监听连接事件，收到事件后，通过Acceptor处理连接事件</li>
 <li>当Acceptor处理连接事件后，MainReactor将连接分配给SubReactor</li>
 <li>SubReactor将连接加入到连接队列，并创建handler进行各种事件的处理</li>
@@ -596,7 +632,12 @@
 <li>handler通过read读取数据，分发给后面的worker线程处理</li>
 <li>worker线程池分配独立的worker线程进行处理，并返回结果</li>
 <li>handler收到响应后，再通过send将结果返回client</li>
-<li>Reactor主线程可以对应多个Reactor子线程，一个MainReactor对应多个SubReactor<br>优点：父线程与子线程的数据交互简单职责明确，父线程只需要接收新连接，子线程完成后续业务处理；父线程与子线程的数据交互简单，Reactor主线程只需要把新连接传给子线程，子线程无需返回数据<br>缺点：编程复杂度较高<br>结合实例：这种模型在许多项目中广泛使用，包括Nginx主从Reactor多线程模型，Memcached主从多线程，Netty主从多线程模型的支持<h3 id="Netty模型"><a href="#Netty模型" class="headerlink" title="Netty模型"></a>Netty模型</h3><h4 id="工作原理示意图1-简单版"><a href="#工作原理示意图1-简单版" class="headerlink" title="工作原理示意图1 - 简单版"></a>工作原理示意图1 - 简单版</h4><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345655214458.jpg" alt="16345655214458"><h4 id="工作原理示意图2-进阶版"><a href="#工作原理示意图2-进阶版" class="headerlink" title="工作原理示意图2 - 进阶版"></a>工作原理示意图2 - 进阶版</h4><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345656941806.jpg" alt="16345656941806"><h4 id="工作原理示意图-详细版"><a href="#工作原理示意图-详细版" class="headerlink" title="工作原理示意图 - 详细版"></a>工作原理示意图 - 详细版</h4><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345658608160.jpg" alt="16345658608160"></li>
+<li>Reactor主线程可以对应多个Reactor子线程，一个MainReactor对应多个SubReactor<br>优点：父线程与子线程的数据交互简单职责明确，父线程只需要接收新连接，子线程完成后续业务处理；父线程与子线程的数据交互简单，Reactor主线程只需要把新连接传给子线程，子线程无需返回数据<br>缺点：编程复杂度较高<br>结合实例：这种模型在许多项目中广泛使用，包括Nginx主从Reactor多线程模型，Memcached主从多线程，Netty主从多线程模型的支持</li>
+</ol>
+<h3 id="Netty模型"><a href="#Netty模型" class="headerlink" title="Netty模型"></a>Netty模型</h3><h4 id="工作原理示意图1-简单版"><a href="#工作原理示意图1-简单版" class="headerlink" title="工作原理示意图1 - 简单版"></a>工作原理示意图1 - 简单版</h4><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345655214458.jpg" alt="16345655214458"></p>
+<h4 id="工作原理示意图2-进阶版"><a href="#工作原理示意图2-进阶版" class="headerlink" title="工作原理示意图2 - 进阶版"></a>工作原理示意图2 - 进阶版</h4><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345656941806.jpg" alt="16345656941806"></p>
+<h4 id="工作原理示意图-详细版"><a href="#工作原理示意图-详细版" class="headerlink" title="工作原理示意图 - 详细版"></a>工作原理示意图 - 详细版</h4><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/18/16345658608160.jpg" alt="16345658608160"></p>
+<ol>
 <li>Netty 抽象出两组线程池：BossGroup 和 WorkerGroup，也可以叫做 BossNioEventLoopGroup 和WorkerNioEventLoopGroup。每个线程池中都有 NioEventLoop 线程。BossGroup 中的线程专门负责和客户端建立连接，WorkerGroup 中的线程专门负责处理连接上的读写。</li>
 <li>BossGroup 和 WorkerGroup 的类型都是 NioEventLoopGroup。</li>
 <li>NioEventLoopGroup 相当于一个事件循环组，这个组中含有多个事件循环，每个事件循环就是一个 NioEventLoop。</li>
@@ -614,27 +655,41 @@
 <li>runAllTasks：再去以此循环处理任务队列中的其他任务</li>
 </ol>
 </li>
-<li>在以上两个processSelectedKeys步骤中，会使用 Pipeline（管道），Pipeline 中引用了 Channel，即通过 Pipeline 可以获取到对应的 Channel，Pipeline 中维护了很多的处理器（拦截处理器、过滤处理器、自定义处理器等）。这里暂时不详细展开讲解 Pipeline。<h4 id="任务队列中Task有3种典型的使用场景"><a href="#任务队列中Task有3种典型的使用场景" class="headerlink" title="任务队列中Task有3种典型的使用场景"></a>任务队列中Task有3种典型的使用场景</h4></li>
+<li>在以上两个processSelectedKeys步骤中，会使用 Pipeline（管道），Pipeline 中引用了 Channel，即通过 Pipeline 可以获取到对应的 Channel，Pipeline 中维护了很多的处理器（拦截处理器、过滤处理器、自定义处理器等）。这里暂时不详细展开讲解 Pipeline。</li>
+</ol>
+<h4 id="任务队列中Task有3种典型的使用场景"><a href="#任务队列中Task有3种典型的使用场景" class="headerlink" title="任务队列中Task有3种典型的使用场景"></a>任务队列中Task有3种典型的使用场景</h4><ol>
 <li>用户自定义的普通任务 -&gt; TaskQueue</li>
 <li>用户自定义定时任务 -&gt; ScheduleTaskQueue</li>
-<li>非当前Reactor线程调用Channel的各种方法<br>例如在推送系统的业务线程里面，根据用户的标识，找到对应的Channel引用，然后调用Write类方法向该用户推送消息，就会进入到这种场景。最终的Write会提交到任务队列中后被异步消费<h4 id="异步模型"><a href="#异步模型" class="headerlink" title="异步模型"></a>异步模型</h4></li>
+<li>非当前Reactor线程调用Channel的各种方法<br>例如在推送系统的业务线程里面，根据用户的标识，找到对应的Channel引用，然后调用Write类方法向该用户推送消息，就会进入到这种场景。最终的Write会提交到任务队列中后被异步消费</li>
+</ol>
+<h4 id="异步模型"><a href="#异步模型" class="headerlink" title="异步模型"></a>异步模型</h4><ol>
 <li>异步的概念和同步相对。当一个异步过程调用发出后，调用者不能立刻得到结果。实际处理这个调用的组件在完成后，通过状态、通知和回调来通知调用者。</li>
 <li>Netty中的IO操作是异步的，包括Bind、Write、Connect等操作会简单返回一个ChannelFuture。</li>
 <li>调用者不能立刻获得结果，而是通过Future-Listener机制，用户可以方便的主动获取或者通过通知机制获取IO结果。</li>
-<li>Netty的异步模型是建立在Future和callback之上的。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/23/16349582177471.jpg" alt="16349582177471"><h3 id="Netty核心模块组件"><a href="#Netty核心模块组件" class="headerlink" title="Netty核心模块组件"></a>Netty核心模块组件</h3><h4 id="BootStrap、ServerBootStrap"><a href="#BootStrap、ServerBootStrap" class="headerlink" title="BootStrap、ServerBootStrap"></a>BootStrap、ServerBootStrap</h4></li>
+<li>Netty的异步模型是建立在Future和callback之上的。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/23/16349582177471.jpg" alt="16349582177471"></li>
+</ol>
+<h3 id="Netty核心模块组件"><a href="#Netty核心模块组件" class="headerlink" title="Netty核心模块组件"></a>Netty核心模块组件</h3><h4 id="BootStrap、ServerBootStrap"><a href="#BootStrap、ServerBootStrap" class="headerlink" title="BootStrap、ServerBootStrap"></a>BootStrap、ServerBootStrap</h4><ol>
 <li>BootStrap意思是引导，一个Netty应用通常由一个BootStrap开始，主要作用是配置整个Netty程序，串联各个组件，Netty中BootStrap类是客户端程序的启动引导类，ServerBootStrap是服务端启动引导类</li>
-<li>常见方法有：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/01/16357740744142.jpg" alt="16357740744142"><h4 id="Future、ChannelFuture"><a href="#Future、ChannelFuture" class="headerlink" title="Future、ChannelFuture"></a>Future、ChannelFuture</h4></li>
+<li>常见方法有：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/01/16357740744142.jpg" alt="16357740744142"></li>
+</ol>
+<h4 id="Future、ChannelFuture"><a href="#Future、ChannelFuture" class="headerlink" title="Future、ChannelFuture"></a>Future、ChannelFuture</h4><ol>
 <li>Netty中所有的IO操作都是异步的，不能立刻得知消息是否被正确处理。通过Future和ChannelFuture，它们可以注册一个监听，当操作执行成功或失败时监听会自动触发注册的监听事件</li>
-<li>常见的方法：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/01/16357744624365.jpg" alt="16357744624365"><h4 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h4></li>
+<li>常见的方法：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/01/16357744624365.jpg" alt="16357744624365"></li>
+</ol>
+<h4 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h4><ol>
 <li>Netty通信的组件，能够用于执行网络IO操作。</li>
 <li>通过Channel可获取当前网络连接的通道的状态。</li>
 <li>通过Channel可获得网络连接的配置参数（例如接收缓冲区大小）</li>
 <li>Channel提供异步的网络IO操作（如建立连接，读写，绑定端口）。异步调用意味着任何IO调用都将立即返回，并且不保证在调用结束时说请求的IO操作完成。</li>
 <li>调用立即返回一个ChannelFuture实例，通过注册监听器到ChannelFuture上，可以IO操作成功、失败或取消时回调通知调用方</li>
 <li>支持关联IO操作与对应的处理程序</li>
-<li>不同协议、不同的阻塞类型都有不同的Channel类型与之对应，常用的Channel类型：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/01/16357750690247.jpg" alt="16357750690247"><h4 id="Selector"><a href="#Selector" class="headerlink" title="Selector"></a>Selector</h4></li>
+<li>不同协议、不同的阻塞类型都有不同的Channel类型与之对应，常用的Channel类型：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/01/16357750690247.jpg" alt="16357750690247"></li>
+</ol>
+<h4 id="Selector"><a href="#Selector" class="headerlink" title="Selector"></a>Selector</h4><ol>
 <li>Netty基于Selector对象实现IO多路复用，通过Selector一个线程可以监听多个连接的Channel事件。</li>
-<li>当向一个Selector中注册Channel后，Selector内部的机制就可以自动不断的查询（select）这些注册的Channel是否有已就绪的IO事件（例如可读，可写，网络连接完成等），这样程序久可以简单的使用一个线程高效的管理多个Channel<h4 id="ChannelHandler及其实现类"><a href="#ChannelHandler及其实现类" class="headerlink" title="ChannelHandler及其实现类"></a>ChannelHandler及其实现类</h4></li>
+<li>当向一个Selector中注册Channel后，Selector内部的机制就可以自动不断的查询（select）这些注册的Channel是否有已就绪的IO事件（例如可读，可写，网络连接完成等），这样程序久可以简单的使用一个线程高效的管理多个Channel</li>
+</ol>
+<h4 id="ChannelHandler及其实现类"><a href="#ChannelHandler及其实现类" class="headerlink" title="ChannelHandler及其实现类"></a>ChannelHandler及其实现类</h4><ol>
 <li>ChannelHandler是一个接口，处理IO事件或拦截IO操作，并将其转发到其ChannelPipeline（业务处理链）中的下一个处理程序。</li>
 <li>ChannelHandler本身没有提供很多方法，因为这个接口有许多的方法需要实现，方便使用期间，可以继承它的子类</li>
 <li>ChannelHandler及其实现类：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/04/16360306395987.jpg" alt="16360306395987"></li>
@@ -642,28 +697,31 @@
 <ul>
 <li>ChannelInboundHandler用于处理入站IO事件。</li>
 <li>ChannelOutboundHandler用于处理出站IO操作。</li>
-<li>ChannelDuplexHandler既可以用于处理入站IO，也可以处理出站IO<h4 id="Pipeline和ChannelPipeline"><a href="#Pipeline和ChannelPipeline" class="headerlink" title="Pipeline和ChannelPipeline"></a>Pipeline和ChannelPipeline</h4></li>
+<li>ChannelDuplexHandler既可以用于处理入站IO，也可以处理出站IO</li>
 </ul>
-<ol>
+<h4 id="Pipeline和ChannelPipeline"><a href="#Pipeline和ChannelPipeline" class="headerlink" title="Pipeline和ChannelPipeline"></a>Pipeline和ChannelPipeline</h4><ol>
 <li>ChannelPipeline是一个Handler的集合，它负责处理和拦截inbound或者outbound的事件和操作，相当于一个贯穿Netty的链。</li>
 <li>ChannelPipeline实现了一种高级形式的拦截过滤器模式，使用户可以完全控制事件的处理方式，以及CHannel中各个的ChannelHandler如何交互</li>
 <li>在Netty中每个Channel都有且仅有一个ChannelPipeline与之对应，它们的组成关系如下<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/10/16365493912838.jpg" alt="16365493912838"></li>
 </ol>
 <ul>
 <li>一个Channel包含了一个ChannelPipeline，而ChannelPipeline中又维护了一个有ChannelHandlerContext组成的双向链表，并且每个ChannelHandlerContext又关联着一个ChannelHandler</li>
-<li>入站事件和出站事件在一个双向链表中，入站事件会从链表head往后传递到最后一个入站的handler，出站事件会从链表的tail往前传递到最前一个出站的handler，两种类型的handler互补干扰<h4 id="ChannelHandlerContext"><a href="#ChannelHandlerContext" class="headerlink" title="ChannelHandlerContext"></a>ChannelHandlerContext</h4></li>
+<li>入站事件和出站事件在一个双向链表中，入站事件会从链表head往后传递到最后一个入站的handler，出站事件会从链表的tail往前传递到最前一个出站的handler，两种类型的handler互补干扰</li>
 </ul>
-<ol>
+<h4 id="ChannelHandlerContext"><a href="#ChannelHandlerContext" class="headerlink" title="ChannelHandlerContext"></a>ChannelHandlerContext</h4><ol>
 <li>保存Channel相关的所有上下文信息，同时关联一个ChannelHandler对象</li>
 <li>即ChannelHandlerContext中包含一个具体的事件处理器ChannelHandler，同时ChannelHandlerContext中也绑定了对应的pipeline和Channel信息，方便对ChannelHandler进行调用。</li>
-<li>常用方法：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ChannelFuture close(); //关闭通道</span><br><span class="line">ChannelOutBoundInvoker flush(); //刷新</span><br><span class="line">ChannelFuture writeAndFlush(Object msg); //将数据写到ChannelPipeline中当前ChannelHandler的next</span><br></pre></td></tr></table></figure>
-<h4 id="ChannelOption"><a href="#ChannelOption" class="headerlink" title="ChannelOption"></a>ChannelOption</h4></li>
+<li>常用方法：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ChannelFuture close(); //关闭通道</span><br><span class="line">ChannelOutBoundInvoker flush(); //刷新</span><br><span class="line">ChannelFuture writeAndFlush(Object msg); //将数据写到ChannelPipeline中当前ChannelHandler的next</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="ChannelOption"><a href="#ChannelOption" class="headerlink" title="ChannelOption"></a>ChannelOption</h4><ol>
 <li>Netty在创建Channel实例后，一般都需要设置ChannelOption参数。</li>
 <li>ChannelOption参数如下：<ul>
 <li>ChannelOption.SO_BACHLOG：对应TCP&#x2F;IP协议listen函数中的backlog参数，用来初始化服务器可连接队列的大小。服务端处理客户端连接请求是顺序处理的，所以同一时间只能处理一个客户端连接。多个客户端来的时候，服务端将不能处理的客户端连接请求放在队列中等待处理，backlog参数指定了队列的大小。</li>
-<li>ChannelOption.SO_KEEPALIVE：一直保持连接活动状态。<h4 id="EventLoopGroup和其实现类NioEventLoopGroup"><a href="#EventLoopGroup和其实现类NioEventLoopGroup" class="headerlink" title="EventLoopGroup和其实现类NioEventLoopGroup"></a>EventLoopGroup和其实现类NioEventLoopGroup</h4></li>
+<li>ChannelOption.SO_KEEPALIVE：一直保持连接活动状态。</li>
 </ul>
 </li>
+</ol>
+<h4 id="EventLoopGroup和其实现类NioEventLoopGroup"><a href="#EventLoopGroup和其实现类NioEventLoopGroup" class="headerlink" title="EventLoopGroup和其实现类NioEventLoopGroup"></a>EventLoopGroup和其实现类NioEventLoopGroup</h4><ol>
 <li>EventLoopGroup是一组EventLoop的抽象，Netty为了更好的利用多核CPU资源，一般会有多个EventLoop同时工作，每个EventLoop维护着一个Selector实例。</li>
 <li>EventLoopGroup提供next接口，可以从组里面按照一定规则获取其中一个EventLoop来处理任务。在Netty服务端编程中，我们一般都需要提供两个EventLoopGroup，例如：bossEventLoopGroup，workerEventLoopGroup<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/12/07/16388835610980.jpg" alt="16388835610980"></li>
 </ol>

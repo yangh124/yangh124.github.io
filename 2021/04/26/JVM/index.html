@@ -47,7 +47,7 @@
 <meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/19.png">
 <meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/20.png">
 <meta property="article:published_time" content="2021-04-25T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-10-02T10:40:34.215Z">
+<meta property="article:modified_time" content="2024-10-02T10:45:59.466Z">
 <meta property="article:author" content="yangh">
 <meta property="article:tag" content="JVM">
 <meta name="twitter:card" content="summary">
@@ -67,7 +67,7 @@
     <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
   
   
-<meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
+<meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
 </head>
 
 
@@ -394,10 +394,10 @@
         <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/04/26/JVM/#comments" class="article-comment-link">评论</a></span>
         
 	
-		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 3.7k(字)</span>
+		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 3.6k(字)</span>
 	
 	
-		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 13(分)</span>
+		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 12(分)</span>
 	
 
       </div>
@@ -421,15 +421,13 @@
 <li>用户自定义类加载器，通过继承 java.lang.ClassLoader类的方式实现。</br><br><strong>什么情况下需要自定义类加载器：</strong></li>
 </ol>
 <ul>
-<li><p>隔离加载类</p>
-</li>
-<li><p>修改类加载方式</p>
-</li>
-<li><p>扩展加载源</p>
-</li>
-<li><p>防止源码泄漏</p>
+<li>隔离加载类</li>
+<li>修改类加载方式</li>
+<li>扩展加载源</li>
+<li>防止源码泄漏</li>
+</ul>
 <h2 id="运行时数据区-Runtime-Data-Area"><a href="#运行时数据区-Runtime-Data-Area" class="headerlink" title="运行时数据区(Runtime Data Area)"></a>运行时数据区(Runtime Data Area)</h2><p> 内存</p>
-</li>
+<ul>
 <li><p>什么是运行时数据区<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/3.png" alt="3"></p>
 </li>
 <li><p>什么是虚拟机栈<br> 栈：数据结构，先进后出，First In Last Out,用来运行java方法的。线程私有。启用一个线程就有一个虚拟机栈。<br> <strong>调用一个方法就压入一帧。</strong><br>栈内存参数<br>-Xss 1m(默认1M)<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/4.png" alt="4"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/5.png" alt="5"></p>
@@ -441,12 +439,12 @@
 <li>定义为一个数字数组，主要用于储存方法参数和定义在方法体内的局部变量。</li>
 <li>不存在数据线程安全问题。</li>
 <li>局部变量表所需容量大小是在编译期确定下来的。</li>
-<li>局部变量表中的变量也是重要的垃圾回收根节点（GCRoots可达性分析算法），只要被局部变量表中直接或间接引用的对象都不会被回收。</br><br>关于Slot的理解：</br><br>&amp;emsp;1.最基本的储存单元Slot(变量槽)。</br><br>&amp;emsp;2.32位以内的类型只占一个Slot(包括returnAddress类型)，64位的类型(long和double)占用两个Slot。</br><br>&amp;emsp;3.构造方法和实例方法（非static方法）的局部变量表0位Slot会存放this。</li>
+<li>局部变量表中的变量也是重要的垃圾回收根节点（GCRoots可达性分析算法），只要被局部变量表中直接或间接引用的对象都不会被回收。</br><br>关于Slot的理解：</br><br>&emsp;1.最基本的储存单元Slot(变量槽)。</br><br>&emsp;2.32位以内的类型只占一个Slot(包括returnAddress类型)，64位的类型(long和double)占用两个Slot。</br><br>&emsp;3.构造方法和实例方法（非static方法）的局部变量表0位Slot会存放this。</li>
 </ol>
 <ul>
-<li><p>操作栈（对局部变量数据进行运算操作）</br><br>&amp;emsp;操作栈：在方法的执行过程中，根据字节码指令，往栈中写入数据或提取数据，即入栈（push）&#x2F;出栈（pop）；主要用于保存计算过程的中间结果，同时作为计算过程中变量临时的存储空间；操作栈是JVM执行引擎的一个工作区； </p>
+<li><p>操作栈（对局部变量数据进行运算操作）</br><br>&emsp;操作栈：在方法的执行过程中，根据字节码指令，往栈中写入数据或提取数据，即入栈（push）&#x2F;出栈（pop）；主要用于保存计算过程的中间结果，同时作为计算过程中变量临时的存储空间；操作栈是JVM执行引擎的一个工作区； </p>
 </li>
-<li><p>动态链接（将常量池中的符号引用在运行期转化为直接引用&#x2F;指向运行时常量池的方法引用）</br><br>&amp;emsp;动态链接的作用就是为了将这些符号引用转换为调用方法的直接引用</br><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/6.png" alt="6"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/7.png" alt="7"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/8.png" alt="8"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/9.png" alt="9"></p>
+<li><p>动态链接（将常量池中的符号引用在运行期转化为直接引用&#x2F;指向运行时常量池的方法引用）</br><br>&emsp;动态链接的作用就是为了将这些符号引用转换为调用方法的直接引用</br><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/6.png" alt="6"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/7.png" alt="7"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/8.png" alt="8"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/9.png" alt="9"></p>
 </li>
 <li><p>返回地址（方法执行完返回地址）</br><br>存放调用该方法的PC寄存器的值。<br>异常退出：异常表</p>
 </li>
@@ -468,7 +466,7 @@
 <li><strong>内存回收时，如果用的是复制算法，从from复制到to，当经过一次或者多次GC之后，存活下来的对象会被移入老年区。</strong></li>
 <li><strong>当JVM内存不够用的时候，会触发FullGC，清理JVM老年代。</strong></li>
 <li><strong>当新生区满了之后会触发YGC，先把存活的对象放到其中一个Survivor区，然后进行垃圾清理。因为如果仅仅清理需要删除的对象，这样会导致内存碎片，因此一般会把Eden进行完全的清理，然后整理内存。那么下次GC 的时候，就会使用下一个Survive，这样循环使用。</strong></li>
-<li><strong>如果有特别大的对象，新生代放不下，就会使用老年代的担保，直接放到老年代里面。因为JVM 认为，一般大对象的存活时间一般比较久远。</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/10.png" alt="10"><br>对象的分配原则：</br><br>1.对象优先分配在Eden区</br><br>2.长期存活的对象进入老年代。空间不足，进行GC。对象年龄+1，年龄&#x3D;15进入老年代</br><br>&amp;emsp;&amp;emsp;动态对象年龄判断：如果survivor区中相同年龄的所有对象大小的总和大于survivor空间的一半，年龄大于或等于该年龄的对象直接进入老年代，无需等到MaxTenuringThreshole（15）中要求的年龄。</br><br>3.大对象直接进入老年代</br><br>&#x3D;&#x3D;TLAB&#x3D;&#x3D;(Thread Local Allocation Buffer)<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/11.png" alt="11"></li>
+<li><strong>如果有特别大的对象，新生代放不下，就会使用老年代的担保，直接放到老年代里面。因为JVM 认为，一般大对象的存活时间一般比较久远。</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/10.png" alt="10"><br>对象的分配原则：</br><br>1.对象优先分配在Eden区</br><br>2.长期存活的对象进入老年代。空间不足，进行GC。对象年龄+1，年龄&#x3D;15进入老年代</br><br>&emsp;&emsp;动态对象年龄判断：如果survivor区中相同年龄的所有对象大小的总和大于survivor空间的一半，年龄大于或等于该年龄的对象直接进入老年代，无需等到MaxTenuringThreshole（15）中要求的年龄。</br><br>3.大对象直接进入老年代</br><br>&#x3D;&#x3D;TLAB&#x3D;&#x3D;(Thread Local Allocation Buffer)<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/11.png" alt="11"></li>
 </ul>
 <p><strong>内存不足、内存溢出、内存泄漏</strong></p>
 <h4 id="Minor-GC、Major-GC、Full-GC"><a href="#Minor-GC、Major-GC、Full-GC" class="headerlink" title="Minor GC、Major GC、Full GC"></a>Minor GC、Major GC、Full GC</h4><ol>
@@ -476,13 +474,13 @@
 </ol>
 <ul>
 <li>新生代收集（MinorGC&#x2F;YoungGC）:只是新生代的垃圾收集</li>
-<li>老年代收集（MajorGC&#x2F;OldGC）：只是老年代的垃圾收集</br><br> &amp;emsp;&amp;emsp;目前，只有CMS GC会有单独收集老年代的行为。</br><br> &amp;emsp;&amp;emsp;&#x3D;&#x3D;注意，很多时候MajorGC会和FullGC混淆使用，需要具体分辨是老年代回收还是整堆回收。&#x3D;&#x3D;</li>
-<li>混合收集（MixedGC）：收集整个新生代以及部分老年代的垃圾收集。</br><br> &amp;emsp;&amp;emsp;目前，只有G1 GC会有这种行为。</li>
+<li>老年代收集（MajorGC&#x2F;OldGC）：只是老年代的垃圾收集</br><br> &emsp;&emsp;目前，只有CMS GC会有单独收集老年代的行为。</br><br> &emsp;&emsp;&#x3D;&#x3D;注意，很多时候MajorGC会和FullGC混淆使用，需要具体分辨是老年代回收还是整堆回收。&#x3D;&#x3D;</li>
+<li>混合收集（MixedGC）：收集整个新生代以及部分老年代的垃圾收集。</br><br> &emsp;&emsp;目前，只有G1 GC会有这种行为。</li>
 </ul>
 <ol start="2">
-<li>整堆收集（Full GC）：收集整个Java堆和方法区的垃圾收集。<h4 id="堆空间常用参数总结"><a href="#堆空间常用参数总结" class="headerlink" title="堆空间常用参数总结"></a>堆空间常用参数总结</h4></li>
+<li>整堆收集（Full GC）：收集整个Java堆和方法区的垃圾收集。</li>
 </ol>
-<figure class="highlight plaintext"><figcaption><span>测试堆空间常用的jvm参数：</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">* -XX:+PrintFlagsInitial : 查看所有的参数的默认初始值</span><br><span class="line">* -XX:+PrintFlagsFinal  ：查看所有的参数的最终值（可能会存在修改，不再是初始值）</span><br><span class="line">*      具体查看某个参数的指令： jps：查看当前运行中的进程</span><br><span class="line">*                             jinfo -flag SurvivorRatio 进程id</span><br><span class="line">*</span><br><span class="line">* -Xms：初始堆空间内存 （默认为物理内存的1/64）</span><br><span class="line">* -Xmx：最大堆空间内存（默认为物理内存的1/4）</span><br><span class="line">* -Xmn：设置新生代的大小。(初始值及最大值)</span><br><span class="line">* -XX:NewRatio：配置新生代与老年代在堆结构的占比</span><br><span class="line">* -XX:SurvivorRatio：设置新生代中Eden和S0/S1空间的比例</span><br><span class="line">* -XX:MaxTenuringThreshold：设置新生代垃圾的最大年龄</span><br><span class="line">* -XX:+PrintGCDetails：输出详细的GC处理日志</span><br><span class="line">* 打印gc简要信息：① -XX:+PrintGC   ② -verbose:gc</span><br><span class="line">* -XX:HandlePromotionFailure：是否设置空间分配担保</span><br></pre></td></tr></table></figure>
+<h4 id="堆空间常用参数总结"><a href="#堆空间常用参数总结" class="headerlink" title="堆空间常用参数总结"></a>堆空间常用参数总结</h4><figure class="highlight plaintext"><figcaption><span>测试堆空间常用的jvm参数：</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">* -XX:+PrintFlagsInitial : 查看所有的参数的默认初始值</span><br><span class="line">* -XX:+PrintFlagsFinal  ：查看所有的参数的最终值（可能会存在修改，不再是初始值）</span><br><span class="line">*      具体查看某个参数的指令： jps：查看当前运行中的进程</span><br><span class="line">*                             jinfo -flag SurvivorRatio 进程id</span><br><span class="line">*</span><br><span class="line">* -Xms：初始堆空间内存 （默认为物理内存的1/64）</span><br><span class="line">* -Xmx：最大堆空间内存（默认为物理内存的1/4）</span><br><span class="line">* -Xmn：设置新生代的大小。(初始值及最大值)</span><br><span class="line">* -XX:NewRatio：配置新生代与老年代在堆结构的占比</span><br><span class="line">* -XX:SurvivorRatio：设置新生代中Eden和S0/S1空间的比例</span><br><span class="line">* -XX:MaxTenuringThreshold：设置新生代垃圾的最大年龄</span><br><span class="line">* -XX:+PrintGCDetails：输出详细的GC处理日志</span><br><span class="line">* 打印gc简要信息：① -XX:+PrintGC   ② -verbose:gc</span><br><span class="line">* -XX:HandlePromotionFailure：是否设置空间分配担保</span><br></pre></td></tr></table></figure>
 
 <h4 id="堆是分配对象存储的唯一选择吗（逃逸分析技术-XX-DoEscapeAnalysis默认开启）"><a href="#堆是分配对象存储的唯一选择吗（逃逸分析技术-XX-DoEscapeAnalysis默认开启）" class="headerlink" title="堆是分配对象存储的唯一选择吗（逃逸分析技术-XX:+DoEscapeAnalysis默认开启）"></a>堆是分配对象存储的唯一选择吗（逃逸分析技术-XX:+DoEscapeAnalysis默认开启）</h4><p>没有发生逃逸的对象，则可以分配到栈上，随着方法执行结束，栈空间就被移除。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/26/12.png" alt="12"></p>
 <h4 id="逃逸分析：代码优化"><a href="#逃逸分析：代码优化" class="headerlink" title="逃逸分析：代码优化"></a>逃逸分析：代码优化</h4><ol>
@@ -524,9 +522,9 @@
 <li>本地方法栈JNI引用的对象<br>当一个对象不可达GC Root时，这个对象并 不会立马被回收，而是出于一个死缓的阶段，若要被真正的回收需要经历两次标记.<br>如果对象在可达性分析中没有与GC Root的引用链，那么此时就会被第一次标记并且进行一次筛选，筛选的条件是是否有必要执行finalize()方法。当对象没有覆盖finalize()方法或者已被虚拟机调用过，那么就认为是没必要的。<br>如果该对象有必要执行finalize()方法，那么这个对象将会放在一个称为F-Queue的对队列中，虚拟机会触发一个Finalize()线程去执行，此线程是低优先级的，并且虚拟机不会承诺一直等待它运行完，这是因为如果finalize()执行缓慢或者发生了死锁，那么就会造成F-Queue队列一直等待，造成了内存回收系统的崩溃。GC对处于F-Queue中的对象进行第二次被标记，这时，该对象将被移除”即将回收”集合，等待回收。</li>
 </ol>
 </li>
-<li><h3 id="SafePoint"><a href="#SafePoint" class="headerlink" title="SafePoint"></a>SafePoint</h3><p><em><strong>必须要等到Java线程都进入到safepoint的时候VMThread才能开始执行GC</strong></em></p>
-</li>
+<li><h3 id="SafePoint"><a href="#SafePoint" class="headerlink" title="SafePoint"></a>SafePoint</h3></li>
 </ul>
+<p><em><strong>必须要等到Java线程都进入到safepoint的时候VMThread才能开始执行GC</strong></em></p>
 <p>safepoint指的特定位置主要有:</p>
 <ol>
 <li>循环的末尾（防止大循环的时候一直不进入safepoint，而其他线程在等它进入safepoint）</li>
