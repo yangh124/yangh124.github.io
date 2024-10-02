@@ -2254,6 +2254,86 @@ rabbitmq-plugins enable rabbitmq_management
       </tags>
   </entry>
   <entry>
+    <title>索引的创建与设计原则</title>
+    <url>/2022/01/15/%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/</url>
+    <content><![CDATA[<h2 id="索引的声明与使用"><a href="#索引的声明与使用" class="headerlink" title="索引的声明与使用"></a>索引的声明与使用</h2><h3 id="索引的分类"><a href="#索引的分类" class="headerlink" title="索引的分类"></a>索引的分类</h3><ul>
+<li>从<strong>功能逻辑</strong>上说，索引主要有四种，分别为普通索引、唯一索引、主键索引、全文索引。</li>
+<li>按照<strong>物理实现方式</strong>，索引可以分为两种：聚簇索引和非聚簇索引。</li>
+<li>按照<strong>作用字段个数</strong>进行划分，分成单列索引和联合索引。<h2 id="MySQL8-0索引新特性"><a href="#MySQL8-0索引新特性" class="headerlink" title="MySQL8.0索引新特性"></a>MySQL8.0索引新特性</h2><h3 id="支持降序索引"><a href="#支持降序索引" class="headerlink" title="支持降序索引"></a>支持降序索引</h3>降序索引以降序存储键值。虽然在语法上，从MySQL4版本开始就支持降序索引语法了。但实际上该DESC定义是被忽略的，直到MySQL8才开始真正支持降序索引（仅限于InnoDB存储引擎）。<br>MySQL在8.0之前创建仍然是升序索引，使用时进行反向扫描，这大大降低了数据库的效率。<br><code> CREATE TABLE ts1(a int,b int,index idx_a_b(a ASC,b DESC))</code><h3 id="隐藏索引"><a href="#隐藏索引" class="headerlink" title="隐藏索引"></a>隐藏索引</h3><code> ALTER TABLE tablename ALTER INDEX index_name INVISIBLE; #隐藏索引</code><br><code> ALTER TABLE tablename ALTER INDEX index_name VISIBLE; #显示索引</code><br><strong>隐藏显示索引可用与查看使用索引的效率提升</strong><h2 id="索引的设计原则"><a href="#索引的设计原则" class="headerlink" title="索引的设计原则"></a>索引的设计原则</h2><h3 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h3>创建表<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 课程表</span><br><span class="line">CREATE TABLE `course` (</span><br><span class="line">  `id` int NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `course_id` int NOT NULL,</span><br><span class="line">  `course_name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</span><br><span class="line"></span><br><span class="line"># 学生表</span><br><span class="line">CREATE TABLE `student_info` (</span><br><span class="line">  `id` int NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `student_id` int NOT NULL,</span><br><span class="line">  `name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,</span><br><span class="line">  `course_id` int NOT NULL,</span><br><span class="line">  `class_id` int DEFAULT NULL,</span><br><span class="line">  `create_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB AUTO_INCREMENT=1000001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</span><br></pre></td></tr></table></figure>
+生成随机数函数<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成随机数函数</span><br><span class="line">CREATE DEFINER=`root`@`%` FUNCTION `rand_num`( from_num INT,to_num INT) RETURNS int</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	SET i = FLOOR(from_num+RAND()*(to_num-from_num +1));</span><br><span class="line">	RETURN i;</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+生成随机字符串函数<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 生成随机字符串</span><br><span class="line">CREATE DEFINER=`root`@`%` FUNCTION `rand_string`(n INT) RETURNS varchar(255) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci</span><br><span class="line">BEGIN</span><br><span class="line">    DECLARE chars_str varchar(100) DEFAULT &#x27;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&#x27;;</span><br><span class="line">    DECLARE return_str varchar(255) DEFAULT &#x27;&#x27;;</span><br><span class="line">    DECLARE i INT DEFAULT 0;</span><br><span class="line">    WHILE i &lt; n DO</span><br><span class="line">        SET return_str = concat(return_str,substring(chars_str , FLOOR(1 + RAND()*62 ),1));</span><br><span class="line">        SET i = i +1;</span><br><span class="line">    END WHILE;</span><br><span class="line">    RETURN return_str;</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+生成课程表数据储存过程<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成课程表数据储存过程</span><br><span class="line">CREATE DEFINER=`root`@`%` PROCEDURE `insert_course`( max_num INT )</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	</span><br><span class="line">	SET autocommit = 0;</span><br><span class="line">	REPEAT</span><br><span class="line">			</span><br><span class="line">			SET i = i + 1;</span><br><span class="line">		INSERT INTO course ( course_id, course_name )</span><br><span class="line">		VALUES</span><br><span class="line">			(</span><br><span class="line">				rand_num ( 10000, 10100 ),</span><br><span class="line">			rand_string ( 6 ));</span><br><span class="line">		UNTIL i = max_num </span><br><span class="line">	END REPEAT;</span><br><span class="line">	COMMIT;</span><br><span class="line">	</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+生成学生表数据存储过程<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成学生表存储过程</span><br><span class="line">CREATE DEFINER=`root`@`%` PROCEDURE `insert_stu`( max_num INT )</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	</span><br><span class="line">	SET autocommit = 0;</span><br><span class="line">	REPEAT</span><br><span class="line">			</span><br><span class="line">			SET i = i + 1;</span><br><span class="line">		INSERT INTO student_info ( course_id, class_id,student_id,name ) VALUES(</span><br><span class="line">		rand_num(10000,10100),rand_num(10000,10200),rand_num(10000,20000),rand_string(6)</span><br><span class="line">		);</span><br><span class="line">		UNTIL i = max_num </span><br><span class="line">	END REPEAT;</span><br><span class="line">	COMMIT;</span><br><span class="line">	</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+调用存储过程<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CALL insert_stu(1000000);</span><br><span class="line">CALL insert_course(100);</span><br></pre></td></tr></table></figure>
+<h3 id="哪些情况适合创建索引"><a href="#哪些情况适合创建索引" class="headerlink" title="哪些情况适合创建索引"></a>哪些情况适合创建索引</h3></li>
+</ul>
+<ol>
+<li>字段的数值有唯一性限制：<blockquote>
+<p>业务上具有唯一特性的字段，即使是组合字段，也必须创建组合索引（来源：Alibaba）</p>
+</blockquote>
+</li>
+<li>频繁作为where查询条件的字段</li>
+<li>经常 group by 和 order by 的字段</li>
+<li>update、delete的where条件</li>
+<li>distinct字段需要创建索引</li>
+<li>多表join连接操作时，创建索引的注意事项<blockquote>
+<p>连接表尽量不超过3张；对where条件创建索引，并且该字段在多张表中的类型必须一致（隐式转换（使用了函数，索引失效））；</p>
+</blockquote>
+</li>
+<li>使用列的类型小的创建索引</li>
+<li>使用字符串前缀创建索引</li>
+<li>区分度高（散列性高）的列适合创建索引</li>
+<li>使用最频繁的列放到联合索引的左侧</li>
+<li>在多个列都要创建索引时，联合索引优于单值索引</li>
+</ol>
+<h3 id="哪些情况不适合创建索引"><a href="#哪些情况不适合创建索引" class="headerlink" title="哪些情况不适合创建索引"></a>哪些情况不适合创建索引</h3><ol>
+<li>在where中使用不到的字段不要创建索引</li>
+<li>数据量小的表最好不要创建索引</li>
+<li>有大量重复数据的列不要建立索引</li>
+<li>避免对经常更新的表创建过多的索引</li>
+<li>不建议用无序的值作为索引</li>
+<li>删除不再使用的或者很少使用的索引</li>
+<li>不要定义冗余或重复的索引<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2>索引是一把双刃剑，可以提高查询效率，但是也会降低插入和更新的速度并占用磁盘空间。</li>
+</ol>
+]]></content>
+      <categories>
+        <category>后端</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>通过企业微信（微信插件）实现每日天气推送</title>
+    <url>/2021/11/06/%E9%80%9A%E8%BF%87%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%EF%BC%88%E5%BE%AE%E4%BF%A1%E6%8F%92%E4%BB%B6%EF%BC%89%E5%AE%9E%E7%8E%B0%E6%AF%8F%E6%97%A5%E5%A4%A9%E6%B0%94%E6%8E%A8%E9%80%81/</url>
+    <content><![CDATA[<h2 id="企业微信配置"><a href="#企业微信配置" class="headerlink" title="企业微信配置"></a>企业微信配置</h2><h3 id="进入企业微信官网，点击立即注册"><a href="#进入企业微信官网，点击立即注册" class="headerlink" title="进入企业微信官网，点击立即注册"></a>进入<a href="https://work.weixin.qq.com/">企业微信官网</a>，点击立即注册</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361632863091.jpg" alt="16361632863091"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361633233327.jpg" alt="16361633233327"></p>
+<h3 id="登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）"><a href="#登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）" class="headerlink" title="登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）"></a>登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361635628391.jpg" alt="16361635628391"></p>
+<h3 id="点击打开创建的应用，获取开发相关的配置信息（AgentId-Secret）"><a href="#点击打开创建的应用，获取开发相关的配置信息（AgentId-Secret）" class="headerlink" title="点击打开创建的应用，获取开发相关的配置信息（AgentId,Secret）"></a>点击打开创建的应用，获取开发相关的配置信息（AgentId,Secret）</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361637536484.jpg" alt="16361637536484"><br> AgentId：这个应用的唯一标识<br> Secret：密钥（需要发送到企业微信app才能查看）</p>
+<h3 id="到此所有企业微信配置结束"><a href="#到此所有企业微信配置结束" class="headerlink" title="到此所有企业微信配置结束"></a>到此所有企业微信配置结束</h3><h2 id="天气开放平台配置"><a href="#天气开放平台配置" class="headerlink" title="天气开放平台配置"></a>天气开放平台配置</h2><h3 id="进入和风天气开放平台，点击注册"><a href="#进入和风天气开放平台，点击注册" class="headerlink" title="进入和风天气开放平台，点击注册"></a>进入<a href="https://dev.qweather.com/">和风天气开放平台</a>，点击注册</h3><p> <em><strong>注册完成后建议申请认证个人开发者</strong></em>（支持更多接口）<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361640883550.jpg" alt="16361640883550"></p>
+<h3 id="登录控制台，点击应用管理，创建应用，获取到应用的KEY"><a href="#登录控制台，点击应用管理，创建应用，获取到应用的KEY" class="headerlink" title="登录控制台，点击应用管理，创建应用，获取到应用的KEY"></a>登录控制台，点击应用管理，创建应用，获取到应用的KEY</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361644923902.jpg" alt="16361644923902"></p>
+<h2 id="项目开发"><a href="#项目开发" class="headerlink" title="项目开发"></a>项目开发</h2><p>前端项目：<a href="https://github.com/yangh124/weather-push-admin">weather-push-admin</a><br>后台项目：<a href="https://github.com/yangh124/weather-push">weather-push</a></p>
+<h2 id="定时任务配置配置"><a href="#定时任务配置配置" class="headerlink" title="定时任务配置配置"></a>定时任务配置配置</h2><h3 id="执行执行初始化sql"><a href="#执行执行初始化sql" class="headerlink" title="执行执行初始化sql"></a>执行执行初始化sql</h3><p>在后台项目resources&#x2F;sql&#x2F;init.sql</p>
+<h3 id="运行前后端项目"><a href="#运行前后端项目" class="headerlink" title="运行前后端项目"></a>运行前后端项目</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561503716829.jpg" alt="16561503716829"></p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561503961795.jpg" alt="16561503961795"></p>
+<h3 id="登录后台"><a href="#登录后台" class="headerlink" title="登录后台"></a>登录后台</h3><p>使用默认账号密码登录：admin 123456<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561505074675.jpg" alt="16561505074675"></p>
+<h3 id="配置地区"><a href="#配置地区" class="headerlink" title="配置地区"></a>配置地区</h3><p>即配置需要发送天气预报的地区<br><strong>注：这里的地区对应企业微信通讯录中的标签</strong></p>
+<blockquote>
+<p>地区管理 -&gt; 添加<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561506595631.jpg" alt="16561506595631"></p>
+</blockquote>
+<h3 id="地区绑定成员"><a href="#地区绑定成员" class="headerlink" title="地区绑定成员"></a>地区绑定成员</h3><blockquote>
+<p>成员管理 -&gt; 选择左边的地区 -&gt; 点击添加成员<br><strong>注：这里的成员对应企业微信通讯录中的成员</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561508273991.jpg" alt="16561508273991"></p>
+</blockquote>
+<h3 id="创建定时任务"><a href="#创建定时任务" class="headerlink" title="创建定时任务"></a>创建定时任务</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561517473902.jpg" alt="16561517473902"></p>
+<h2 id="最终效果"><a href="#最终效果" class="headerlink" title="最终效果"></a>最终效果</h2><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561520350860.jpg" alt="16561520350860"></p>
+]]></content>
+      <categories>
+        <category>项目</category>
+      </categories>
+      <tags>
+        <tag>实战</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>数据结构和算法</title>
     <url>/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/</url>
     <content><![CDATA[<h1 id="线性结构和非线性结构"><a href="#线性结构和非线性结构" class="headerlink" title="线性结构和非线性结构"></a>线性结构和非线性结构</h1><pre><code>数据结构包括：线性结构和非线性结构
@@ -2746,86 +2826,6 @@ rabbitmq-plugins enable rabbitmq_management
       <tags>
         <tag>Java</tag>
         <tag>算法</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>索引的创建与设计原则</title>
-    <url>/2022/01/15/%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/</url>
-    <content><![CDATA[<h2 id="索引的声明与使用"><a href="#索引的声明与使用" class="headerlink" title="索引的声明与使用"></a>索引的声明与使用</h2><h3 id="索引的分类"><a href="#索引的分类" class="headerlink" title="索引的分类"></a>索引的分类</h3><ul>
-<li>从<strong>功能逻辑</strong>上说，索引主要有四种，分别为普通索引、唯一索引、主键索引、全文索引。</li>
-<li>按照<strong>物理实现方式</strong>，索引可以分为两种：聚簇索引和非聚簇索引。</li>
-<li>按照<strong>作用字段个数</strong>进行划分，分成单列索引和联合索引。<h2 id="MySQL8-0索引新特性"><a href="#MySQL8-0索引新特性" class="headerlink" title="MySQL8.0索引新特性"></a>MySQL8.0索引新特性</h2><h3 id="支持降序索引"><a href="#支持降序索引" class="headerlink" title="支持降序索引"></a>支持降序索引</h3>降序索引以降序存储键值。虽然在语法上，从MySQL4版本开始就支持降序索引语法了。但实际上该DESC定义是被忽略的，直到MySQL8才开始真正支持降序索引（仅限于InnoDB存储引擎）。<br>MySQL在8.0之前创建仍然是升序索引，使用时进行反向扫描，这大大降低了数据库的效率。<br><code> CREATE TABLE ts1(a int,b int,index idx_a_b(a ASC,b DESC))</code><h3 id="隐藏索引"><a href="#隐藏索引" class="headerlink" title="隐藏索引"></a>隐藏索引</h3><code> ALTER TABLE tablename ALTER INDEX index_name INVISIBLE; #隐藏索引</code><br><code> ALTER TABLE tablename ALTER INDEX index_name VISIBLE; #显示索引</code><br><strong>隐藏显示索引可用与查看使用索引的效率提升</strong><h2 id="索引的设计原则"><a href="#索引的设计原则" class="headerlink" title="索引的设计原则"></a>索引的设计原则</h2><h3 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h3>创建表<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 课程表</span><br><span class="line">CREATE TABLE `course` (</span><br><span class="line">  `id` int NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `course_id` int NOT NULL,</span><br><span class="line">  `course_name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</span><br><span class="line"></span><br><span class="line"># 学生表</span><br><span class="line">CREATE TABLE `student_info` (</span><br><span class="line">  `id` int NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `student_id` int NOT NULL,</span><br><span class="line">  `name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,</span><br><span class="line">  `course_id` int NOT NULL,</span><br><span class="line">  `class_id` int DEFAULT NULL,</span><br><span class="line">  `create_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB AUTO_INCREMENT=1000001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</span><br></pre></td></tr></table></figure>
-生成随机数函数<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成随机数函数</span><br><span class="line">CREATE DEFINER=`root`@`%` FUNCTION `rand_num`( from_num INT,to_num INT) RETURNS int</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	SET i = FLOOR(from_num+RAND()*(to_num-from_num +1));</span><br><span class="line">	RETURN i;</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
-生成随机字符串函数<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 生成随机字符串</span><br><span class="line">CREATE DEFINER=`root`@`%` FUNCTION `rand_string`(n INT) RETURNS varchar(255) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci</span><br><span class="line">BEGIN</span><br><span class="line">    DECLARE chars_str varchar(100) DEFAULT &#x27;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&#x27;;</span><br><span class="line">    DECLARE return_str varchar(255) DEFAULT &#x27;&#x27;;</span><br><span class="line">    DECLARE i INT DEFAULT 0;</span><br><span class="line">    WHILE i &lt; n DO</span><br><span class="line">        SET return_str = concat(return_str,substring(chars_str , FLOOR(1 + RAND()*62 ),1));</span><br><span class="line">        SET i = i +1;</span><br><span class="line">    END WHILE;</span><br><span class="line">    RETURN return_str;</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
-生成课程表数据储存过程<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成课程表数据储存过程</span><br><span class="line">CREATE DEFINER=`root`@`%` PROCEDURE `insert_course`( max_num INT )</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	</span><br><span class="line">	SET autocommit = 0;</span><br><span class="line">	REPEAT</span><br><span class="line">			</span><br><span class="line">			SET i = i + 1;</span><br><span class="line">		INSERT INTO course ( course_id, course_name )</span><br><span class="line">		VALUES</span><br><span class="line">			(</span><br><span class="line">				rand_num ( 10000, 10100 ),</span><br><span class="line">			rand_string ( 6 ));</span><br><span class="line">		UNTIL i = max_num </span><br><span class="line">	END REPEAT;</span><br><span class="line">	COMMIT;</span><br><span class="line">	</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
-生成学生表数据存储过程<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成学生表存储过程</span><br><span class="line">CREATE DEFINER=`root`@`%` PROCEDURE `insert_stu`( max_num INT )</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	</span><br><span class="line">	SET autocommit = 0;</span><br><span class="line">	REPEAT</span><br><span class="line">			</span><br><span class="line">			SET i = i + 1;</span><br><span class="line">		INSERT INTO student_info ( course_id, class_id,student_id,name ) VALUES(</span><br><span class="line">		rand_num(10000,10100),rand_num(10000,10200),rand_num(10000,20000),rand_string(6)</span><br><span class="line">		);</span><br><span class="line">		UNTIL i = max_num </span><br><span class="line">	END REPEAT;</span><br><span class="line">	COMMIT;</span><br><span class="line">	</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
-调用存储过程<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CALL insert_stu(1000000);</span><br><span class="line">CALL insert_course(100);</span><br></pre></td></tr></table></figure>
-<h3 id="哪些情况适合创建索引"><a href="#哪些情况适合创建索引" class="headerlink" title="哪些情况适合创建索引"></a>哪些情况适合创建索引</h3></li>
-</ul>
-<ol>
-<li>字段的数值有唯一性限制：<blockquote>
-<p>业务上具有唯一特性的字段，即使是组合字段，也必须创建组合索引（来源：Alibaba）</p>
-</blockquote>
-</li>
-<li>频繁作为where查询条件的字段</li>
-<li>经常 group by 和 order by 的字段</li>
-<li>update、delete的where条件</li>
-<li>distinct字段需要创建索引</li>
-<li>多表join连接操作时，创建索引的注意事项<blockquote>
-<p>连接表尽量不超过3张；对where条件创建索引，并且该字段在多张表中的类型必须一致（隐式转换（使用了函数，索引失效））；</p>
-</blockquote>
-</li>
-<li>使用列的类型小的创建索引</li>
-<li>使用字符串前缀创建索引</li>
-<li>区分度高（散列性高）的列适合创建索引</li>
-<li>使用最频繁的列放到联合索引的左侧</li>
-<li>在多个列都要创建索引时，联合索引优于单值索引</li>
-</ol>
-<h3 id="哪些情况不适合创建索引"><a href="#哪些情况不适合创建索引" class="headerlink" title="哪些情况不适合创建索引"></a>哪些情况不适合创建索引</h3><ol>
-<li>在where中使用不到的字段不要创建索引</li>
-<li>数据量小的表最好不要创建索引</li>
-<li>有大量重复数据的列不要建立索引</li>
-<li>避免对经常更新的表创建过多的索引</li>
-<li>不建议用无序的值作为索引</li>
-<li>删除不再使用的或者很少使用的索引</li>
-<li>不要定义冗余或重复的索引<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2>索引是一把双刃剑，可以提高查询效率，但是也会降低插入和更新的速度并占用磁盘空间。</li>
-</ol>
-]]></content>
-      <categories>
-        <category>后端</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>通过企业微信（微信插件）实现每日天气推送</title>
-    <url>/2021/11/06/%E9%80%9A%E8%BF%87%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%EF%BC%88%E5%BE%AE%E4%BF%A1%E6%8F%92%E4%BB%B6%EF%BC%89%E5%AE%9E%E7%8E%B0%E6%AF%8F%E6%97%A5%E5%A4%A9%E6%B0%94%E6%8E%A8%E9%80%81/</url>
-    <content><![CDATA[<h2 id="企业微信配置"><a href="#企业微信配置" class="headerlink" title="企业微信配置"></a>企业微信配置</h2><h3 id="进入企业微信官网，点击立即注册"><a href="#进入企业微信官网，点击立即注册" class="headerlink" title="进入企业微信官网，点击立即注册"></a>进入<a href="https://work.weixin.qq.com/">企业微信官网</a>，点击立即注册</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361632863091.jpg" alt="16361632863091"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361633233327.jpg" alt="16361633233327"></p>
-<h3 id="登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）"><a href="#登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）" class="headerlink" title="登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）"></a>登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361635628391.jpg" alt="16361635628391"></p>
-<h3 id="点击打开创建的应用，获取开发相关的配置信息（AgentId-Secret）"><a href="#点击打开创建的应用，获取开发相关的配置信息（AgentId-Secret）" class="headerlink" title="点击打开创建的应用，获取开发相关的配置信息（AgentId,Secret）"></a>点击打开创建的应用，获取开发相关的配置信息（AgentId,Secret）</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361637536484.jpg" alt="16361637536484"><br> AgentId：这个应用的唯一标识<br> Secret：密钥（需要发送到企业微信app才能查看）</p>
-<h3 id="到此所有企业微信配置结束"><a href="#到此所有企业微信配置结束" class="headerlink" title="到此所有企业微信配置结束"></a>到此所有企业微信配置结束</h3><h2 id="天气开放平台配置"><a href="#天气开放平台配置" class="headerlink" title="天气开放平台配置"></a>天气开放平台配置</h2><h3 id="进入和风天气开放平台，点击注册"><a href="#进入和风天气开放平台，点击注册" class="headerlink" title="进入和风天气开放平台，点击注册"></a>进入<a href="https://dev.qweather.com/">和风天气开放平台</a>，点击注册</h3><p> <em><strong>注册完成后建议申请认证个人开发者</strong></em>（支持更多接口）<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361640883550.jpg" alt="16361640883550"></p>
-<h3 id="登录控制台，点击应用管理，创建应用，获取到应用的KEY"><a href="#登录控制台，点击应用管理，创建应用，获取到应用的KEY" class="headerlink" title="登录控制台，点击应用管理，创建应用，获取到应用的KEY"></a>登录控制台，点击应用管理，创建应用，获取到应用的KEY</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361644923902.jpg" alt="16361644923902"></p>
-<h2 id="项目开发"><a href="#项目开发" class="headerlink" title="项目开发"></a>项目开发</h2><p>前端项目：<a href="https://github.com/yangh124/weather-push-admin">weather-push-admin</a><br>后台项目：<a href="https://github.com/yangh124/weather-push">weather-push</a></p>
-<h2 id="定时任务配置配置"><a href="#定时任务配置配置" class="headerlink" title="定时任务配置配置"></a>定时任务配置配置</h2><h3 id="执行执行初始化sql"><a href="#执行执行初始化sql" class="headerlink" title="执行执行初始化sql"></a>执行执行初始化sql</h3><p>在后台项目resources&#x2F;sql&#x2F;init.sql</p>
-<h3 id="运行前后端项目"><a href="#运行前后端项目" class="headerlink" title="运行前后端项目"></a>运行前后端项目</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561503716829.jpg" alt="16561503716829"></p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561503961795.jpg" alt="16561503961795"></p>
-<h3 id="登录后台"><a href="#登录后台" class="headerlink" title="登录后台"></a>登录后台</h3><p>使用默认账号密码登录：admin 123456<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561505074675.jpg" alt="16561505074675"></p>
-<h3 id="配置地区"><a href="#配置地区" class="headerlink" title="配置地区"></a>配置地区</h3><p>即配置需要发送天气预报的地区<br><strong>注：这里的地区对应企业微信通讯录中的标签</strong></p>
-<blockquote>
-<p>地区管理 -&gt; 添加<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561506595631.jpg" alt="16561506595631"></p>
-</blockquote>
-<h3 id="地区绑定成员"><a href="#地区绑定成员" class="headerlink" title="地区绑定成员"></a>地区绑定成员</h3><blockquote>
-<p>成员管理 -&gt; 选择左边的地区 -&gt; 点击添加成员<br><strong>注：这里的成员对应企业微信通讯录中的成员</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561508273991.jpg" alt="16561508273991"></p>
-</blockquote>
-<h3 id="创建定时任务"><a href="#创建定时任务" class="headerlink" title="创建定时任务"></a>创建定时任务</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561517473902.jpg" alt="16561517473902"></p>
-<h2 id="最终效果"><a href="#最终效果" class="headerlink" title="最终效果"></a>最终效果</h2><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561520350860.jpg" alt="16561520350860"></p>
-]]></content>
-      <categories>
-        <category>项目</category>
-      </categories>
-      <tags>
-        <tag>实战</tag>
       </tags>
   </entry>
 </search>
