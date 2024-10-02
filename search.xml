@@ -337,45 +337,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Docker实战</title>
-    <url>/2022/05/20/Docker%E5%AE%9E%E6%88%98/</url>
-    <content><![CDATA[<h1 id="Docker-部署springboot项目"><a href="#Docker-部署springboot项目" class="headerlink" title="Docker 部署springboot项目"></a>Docker 部署springboot项目</h1><pre><code>使用docker-maven-plugin maven插件
-</code></pre>
-<h2 id="服务器安装docker"><a href="#服务器安装docker" class="headerlink" title="服务器安装docker"></a>服务器安装docker</h2><pre><code>略
-</code></pre>
-<h2 id="Docker开启远程访问"><a href="#Docker开启远程访问" class="headerlink" title="Docker开启远程访问"></a>Docker开启远程访问</h2><ol>
-<li>查看docker服务状态（查看docker.service位置）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pi@raspberrypi:~ $ service docker status</span><br><span class="line">● docker.service - Docker Application Container Engine</span><br><span class="line">     Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)</span><br><span class="line">     Active: active (running) since Sun 2022-04-17 17:28:04 CST; 1 months 2 days ago</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">...</span><br></pre></td></tr></table></figure></li>
-<li>编辑docker.service<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vim /lib/systemd/system/docker.service</span><br></pre></td></tr></table></figure></li>
-<li>修改[Service]下的ExecStart，添加-H tcp:&#x2F;&#x2F;0.0.0.0:2375；对外开放docker服务（建议不要使用默认端口2375）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H fd:// --containerd=/run/containerd/containerd.sock</span><br></pre></td></tr></table></figure></li>
-<li>重新加载Docker配置生效 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl daemon-reload </span><br><span class="line">systemctl restart docker </span><br></pre></td></tr></table></figure></li>
-<li>服务器防火墙开放端口</li>
-<li>浏览器访问<a href="http://ip:2375/version%EF%BC%8C%E6%B5%8B%E8%AF%95%E6%98%AF%E5%90%A6%E6%88%90%E5%8A%9F">http://ip:2375/version，测试是否成功</a></li>
-</ol>
-<h2 id="使用TLS-HTTPS-保证Docker服务安全"><a href="#使用TLS-HTTPS-保证Docker服务安全" class="headerlink" title="使用TLS(HTTPS)保证Docker服务安全"></a>使用TLS(HTTPS)保证Docker服务安全</h2><h3 id="1-服务器端生成CA共钥和私钥"><a href="#1-服务器端生成CA共钥和私钥" class="headerlink" title="1. 服务器端生成CA共钥和私钥"></a>1. 服务器端生成CA共钥和私钥</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建目录存放CA证书</span><br><span class="line">pi@raspberrypi:~ $ mkdir ca</span><br><span class="line"></span><br><span class="line"># 进入目录</span><br><span class="line">pi@raspberrypi:~ $ cd ca</span><br><span class="line"></span><br><span class="line"># 生成私钥（会提示输入密码）</span><br><span class="line">pi@raspberrypi:~/ca $ openssl genrsa -aes256 -out ca-key.pem 4096</span><br><span class="line">Generating RSA private key, 4096 bit long modulus (2 primes)</span><br><span class="line">..........................++++</span><br><span class="line">.......++++</span><br><span class="line">e is 65537 (0x010001)</span><br><span class="line">Enter pass phrase for ca-key.pem:</span><br><span class="line"></span><br><span class="line"># 生成证书信息（需要输入上面的密码以及一些其他信息【注意Common Name填写服务器外网IP】）</span><br><span class="line">pi@raspberrypi:~/ca $ openssl req -new -x509 -days 3650 -key ca-key.pem -sha256 -out ca.pem</span><br><span class="line">Enter pass phrase for ca-key.pem:</span><br><span class="line">You are about to be asked to enter information that will be incorporated</span><br><span class="line">into your certificate request.</span><br><span class="line">What you are about to enter is what is called a Distinguished Name or a DN.</span><br><span class="line">There are quite a few fields but you can leave some blank</span><br><span class="line">For some fields there will be a default value,</span><br><span class="line">If you enter &#x27;.&#x27;, the field will be left blank.</span><br><span class="line">-----</span><br><span class="line">Country Name (2 letter code) [AU]:CN</span><br><span class="line">State or Province Name (full name) [Some-State]:ZheJiang</span><br><span class="line">Locality Name (eg, city) []:HangZhou</span><br><span class="line">Organization Name (eg, company) [Internet Widgits Pty Ltd]:yanghao </span><br><span class="line">Organizational Unit Name (eg, section) []:yanghao</span><br><span class="line">Common Name (e.g. server FQDN or YOUR name) []:192.168.3.3</span><br><span class="line">Email Address []:yh.124@qq.com</span><br></pre></td></tr></table></figure>
-<p><strong>有了CA之后，就可以创建服务器密钥和证书签名请求(CSR)了。确保“Common Name”与你连接Docker时使用的主机名匹配</strong></p>
-<h3 id="2-创建服务器密钥和证书签名请求"><a href="#2-创建服务器密钥和证书签名请求" class="headerlink" title="2. 创建服务器密钥和证书签名请求"></a>2. 创建服务器密钥和证书签名请求</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建服务器密钥</span><br><span class="line">pi@raspberrypi:~/ca $ openssl genrsa -out server-key.pem 4096</span><br><span class="line">Generating RSA private key, 4096 bit long modulus (2 primes)</span><br><span class="line">................................................................++++</span><br><span class="line">.........++++</span><br><span class="line">e is 65537 (0x010001)</span><br><span class="line"></span><br><span class="line"># 证书签名请求（注意修改为你的服务器IP）</span><br><span class="line">openssl req -subj &quot;/CN=192.168.3.3&quot; -sha256 -new -key server-key.pem -out server.csr</span><br></pre></td></tr></table></figure>
-<h3 id="3-配置白名单"><a href="#3-配置白名单" class="headerlink" title="3. 配置白名单"></a>3. 配置白名单</h3><p>配置白名单，允许连接的ip（通过证书）;IP可以配置多个</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo subjectAltName = IP:192.168.3.3,IP::192.168.3.5 &gt;&gt; extfile.cnf</span><br></pre></td></tr></table></figure>
-<h3 id="4-设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证"><a href="#4-设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证" class="headerlink" title="4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证"></a>4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo extendedKeyUsage = serverAuth &gt;&gt; extfile.cnf</span><br></pre></td></tr></table></figure>
-<h3 id="5-生成签名证书（需要输入密码）"><a href="#5-生成签名证书（需要输入密码）" class="headerlink" title="5. 生成签名证书（需要输入密码）"></a>5. 生成签名证书（需要输入密码）</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">openssl x509 -req -days 3650 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \</span><br><span class="line">  -CAcreateserial -out server-cert.pem -extfile extfile.cnf</span><br></pre></td></tr></table></figure>
-<h3 id="6-对于客户端身份验证，创建一个客户端密钥和证书签名请求"><a href="#6-对于客户端身份验证，创建一个客户端密钥和证书签名请求" class="headerlink" title="6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求"></a>6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成 key.pem</span><br><span class="line">openssl genrsa -out key.pem 4096</span><br><span class="line"></span><br><span class="line"># 生成 csr</span><br><span class="line">openssl req -subj &#x27;/CN=client&#x27; -new -key key.pem -out client.csr</span><br><span class="line"></span><br><span class="line"># 创建配置文件</span><br><span class="line">echo extendedKeyUsage = clientAuth &gt; extfile-client.cnf</span><br><span class="line"></span><br><span class="line"># 生成签名证书</span><br><span class="line">openssl x509 -req -days 3650 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \</span><br><span class="line">  -CAcreateserial -out cert.pem -extfile extfile-client.cnf</span><br><span class="line">  </span><br><span class="line"># 将服务器端的ca.pem cert.pem key.pem复制到本地</span><br><span class="line">scp ca.pem cert.pem key.pem yh@192.168.3.5:/Users/yh/ca</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h3 id="7-删除不需要的文件"><a href="#7-删除不需要的文件" class="headerlink" title="7. 删除不需要的文件"></a>7. 删除不需要的文件</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 服务器（服务端）</span><br><span class="line">rm -rf server.csr extfile.cnf client.csr extfile-client.cnf</span><br></pre></td></tr></table></figure>
-<h3 id="8-修改文件权限，防止误删"><a href="#8-修改文件权限，防止误删" class="headerlink" title="8. 修改文件权限，防止误删"></a>8. 修改文件权限，防止误删</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 服务端</span><br><span class="line">chmod -v 0400 ca-key.pem server-key.pem</span><br><span class="line">chmod -v 0444 ca.pem server-cert.pem</span><br><span class="line"># 客户端</span><br><span class="line">chmod -v 0400 key.pem</span><br><span class="line">chmod -v 0444 ca.pem cert.pem</span><br></pre></td></tr></table></figure>
-<h3 id="9-再次修改服务器docker-service"><a href="#9-再次修改服务器docker-service" class="headerlink" title="9. 再次修改服务器docker.service"></a>9. 再次修改服务器docker.service</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vim /lib/systemd/system/docker.service</span><br><span class="line"># 修改ExecStart（添加证书的路径）</span><br><span class="line">ExecStart=/usr/bin/dockerd --tlsverify --tlscacert=/home/pi/ca/ca.pem --tlscert=/home/pi/ca/server-cert.pem --tlskey=/home/pi/ca/server-key.pem -H tcp://0.0.0.0:2376 -H unix:///var/run/docker.sock</span><br></pre></td></tr></table></figure>
-<h3 id="10-重新加载daemon并重启docker"><a href="#10-重新加载daemon并重启docker" class="headerlink" title="10. 重新加载daemon并重启docker"></a>10. 重新加载daemon并重启docker</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl daemon-reload &amp;&amp; systemctl restart docker</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h3 id="11-配置本地环境变量"><a href="#11-配置本地环境变量" class="headerlink" title="11. 配置本地环境变量"></a>11. 配置本地环境变量</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mkdir -pv ~/.docker</span><br><span class="line"># 将证书copy到.docker下</span><br><span class="line">cp -v &#123;ca,cert,key&#125;.pem ~/.docker</span><br><span class="line">chmod -v 0400 key.pem</span><br><span class="line">chmod -v 0444 ca.pem cert.pem</span><br><span class="line"># 配置环境变量</span><br><span class="line">export DOCKER_HOST=tcp://0.0.0.0:2376 DOCKER_TLS_VERIFY=1</span><br></pre></td></tr></table></figure>
-<h3 id="12-客户端测试"><a href="#12-客户端测试" class="headerlink" title="12. 客户端测试"></a>12. 客户端测试</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 配置了环境变量后就可以访问服务器docker服务</span><br><span class="line">docker ps</span><br><span class="line"># 没有配置环境变量</span><br><span class="line">docker --tlsverify --tlscacert=/Users/yh/.docker/ca.pem --tlscert=/Users/yh/.docker/cert.pem --tlskey=/Users/yh/.docker/key.pem -H=tcp://192.168.3.3:2376 version</span><br></pre></td></tr></table></figure>
-<h2 id="项目配置"><a href="#项目配置" class="headerlink" title="项目配置"></a>项目配置</h2><h3 id="配置docker-file-maven-plugin插件"><a href="#配置docker-file-maven-plugin插件" class="headerlink" title="配置docker-file-maven-plugin插件"></a>配置docker-file-maven-plugin插件</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;build&gt;</span><br><span class="line">    &lt;plugins&gt;</span><br><span class="line">        &lt;!-- dockerfile maven --&gt;</span><br><span class="line">        &lt;plugin&gt;</span><br><span class="line">            &lt;groupId&gt;com.spotify&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;dockerfile-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">            &lt;executions&gt;</span><br><span class="line">                &lt;execution&gt;</span><br><span class="line">                    &lt;id&gt;default&lt;/id&gt;</span><br><span class="line">                    &lt;goals&gt;</span><br><span class="line">                        &lt;goal&gt;build&lt;/goal&gt;</span><br><span class="line">                        &lt;goal&gt;push&lt;/goal&gt;</span><br><span class="line">                    &lt;/goals&gt;</span><br><span class="line">                    &lt;configuration&gt;</span><br><span class="line">                    &lt;/configuration&gt;</span><br><span class="line">                &lt;/execution&gt;</span><br><span class="line">            &lt;/executions&gt;</span><br><span class="line">            &lt;!--docker镜像相关的配置信息--&gt;</span><br><span class="line">            &lt;configuration&gt;</span><br><span class="line">                &lt;contextDirectory&gt;$&#123;project.basedir&#125;&lt;/contextDirectory&gt;</span><br><span class="line">                &lt;dockerfile&gt;$&#123;project.basedir&#125;/Dockerfile&lt;/dockerfile&gt;</span><br><span class="line">                &lt;!--使用username和password标签，也可以使用useMavenSettingsForAuth，在settings.xml文件中的配置 servers--&gt;</span><br><span class="line">                &lt;useMavenSettingsForAuth&gt;false&lt;/useMavenSettingsForAuth&gt;</span><br><span class="line">                &lt;username&gt;xxx&lt;/username&gt;</span><br><span class="line">                &lt;password&gt;xxx&lt;/password&gt;</span><br><span class="line">                &lt;!--远程仓库地址--&gt;</span><br><span class="line">                &lt;repository&gt;$&#123;docker.repository.registry&#125;/$&#123;docker.repository.namespace&#125;/$&#123;project.artifactId&#125;&lt;/repository&gt;</span><br><span class="line">                &lt;tag&gt;$&#123;project.version&#125;&lt;/tag&gt;</span><br><span class="line">                &lt;buildArgs&gt;</span><br><span class="line">                    &lt;JAR_FILE&gt;$&#123;project.build.finalName&#125;.jar&lt;/JAR_FILE&gt;</span><br><span class="line">                &lt;/buildArgs&gt;</span><br><span class="line">            &lt;/configuration&gt;</span><br><span class="line">        &lt;/plugin&gt;</span><br><span class="line">    &lt;/plugins&gt;</span><br></pre></td></tr></table></figure>
-<h3 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">FROM houwm/jdk8:arm64</span><br><span class="line"></span><br><span class="line">MAINTAINER yanghao&lt;yh.124@qq.com&gt;</span><br><span class="line"></span><br><span class="line"># 参数</span><br><span class="line">ARG JAR_FILE</span><br><span class="line"></span><br><span class="line"># 环境变量</span><br><span class="line">ENV TZ=Asia/Shanghai LANG=C.UTF-8</span><br><span class="line">ENV PARAMS=&quot;--server.port=8080 --spring.profiles.active=prod -Xms512m -Xmx512m&quot;</span><br><span class="line"></span><br><span class="line"># 设置时区</span><br><span class="line">RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime &amp;&amp; echo $TZ &gt; /etc/timezone</span><br><span class="line"></span><br><span class="line"># 复制jar包</span><br><span class="line">COPY target/$&#123;JAR_FILE&#125; /app.jar</span><br><span class="line"></span><br><span class="line"># 暴露端口</span><br><span class="line">EXPOSE 8080</span><br><span class="line"></span><br><span class="line"># 工作目录</span><br><span class="line">WORKDIR /</span><br><span class="line"></span><br><span class="line"># 执行命令</span><br><span class="line">ENTRYPOINT [&quot;/bin/sh&quot;,&quot;-c&quot;,&quot;java -jar /app.jar $&#123;PARAMS&#125;&quot;]</span><br></pre></td></tr></table></figure>
-<h3 id="部署项目"><a href="#部署项目" class="headerlink" title="部署项目"></a>部署项目</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 会自动在远程服务器构建镜像</span><br><span class="line">mvn package</span><br><span class="line"># 就可以省略这个步骤</span><br><span class="line">mvn dockerfile:build</span><br><span class="line"># 会自动推送镜像到远程仓库</span><br><span class="line">mvn deploy</span><br><span class="line"># 就可以省略这个步骤</span><br><span class="line">mvn dockerfile:push</span><br><span class="line"># 如果要临时跳过所有的Dockerfile相关的目标，执行如下Maven命令</span><br><span class="line">mvn clean install -Ddockerfile.skip</span><br><span class="line"># 想跳过某一个goal</span><br><span class="line">mvn clean package -Ddockerfile.build.skip</span><br><span class="line">mvn clean package -Ddockerfile.tag.skip</span><br><span class="line">mvn clean deploy -Ddockerfile.push.skip</span><br><span class="line"> </span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>运维</category>
-      </categories>
-      <tags>
-        <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Docker常用命令</title>
     <url>/2021/07/31/Docker%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/</url>
     <content><![CDATA[<h1 id="Docker简介"><a href="#Docker简介" class="headerlink" title="Docker简介"></a>Docker简介</h1><pre><code>Docker是一个开源的应用容器引擎，让开发者可以打包应用及依赖包到一个可移植的镜像中，然后发布到任何流行的Linux或Windows机器上。使用Docker可以更方便地打包、测试以及部署应用程序。
@@ -669,6 +630,45 @@ docker exec -it --user root $ContainerName /bin/bash
       </tags>
   </entry>
   <entry>
+    <title>Docker实战</title>
+    <url>/2022/05/20/Docker%E5%AE%9E%E6%88%98/</url>
+    <content><![CDATA[<h1 id="Docker-部署springboot项目"><a href="#Docker-部署springboot项目" class="headerlink" title="Docker 部署springboot项目"></a>Docker 部署springboot项目</h1><pre><code>使用docker-maven-plugin maven插件
+</code></pre>
+<h2 id="服务器安装docker"><a href="#服务器安装docker" class="headerlink" title="服务器安装docker"></a>服务器安装docker</h2><pre><code>略
+</code></pre>
+<h2 id="Docker开启远程访问"><a href="#Docker开启远程访问" class="headerlink" title="Docker开启远程访问"></a>Docker开启远程访问</h2><ol>
+<li>查看docker服务状态（查看docker.service位置）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">pi@raspberrypi:~ $ service docker status</span><br><span class="line">● docker.service - Docker Application Container Engine</span><br><span class="line">     Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)</span><br><span class="line">     Active: active (running) since Sun 2022-04-17 17:28:04 CST; 1 months 2 days ago</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">...</span><br></pre></td></tr></table></figure></li>
+<li>编辑docker.service<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vim /lib/systemd/system/docker.service</span><br></pre></td></tr></table></figure></li>
+<li>修改[Service]下的ExecStart，添加-H tcp:&#x2F;&#x2F;0.0.0.0:2375；对外开放docker服务（建议不要使用默认端口2375）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H fd:// --containerd=/run/containerd/containerd.sock</span><br></pre></td></tr></table></figure></li>
+<li>重新加载Docker配置生效 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl daemon-reload </span><br><span class="line">systemctl restart docker </span><br></pre></td></tr></table></figure></li>
+<li>服务器防火墙开放端口</li>
+<li>浏览器访问<a href="http://ip:2375/version%EF%BC%8C%E6%B5%8B%E8%AF%95%E6%98%AF%E5%90%A6%E6%88%90%E5%8A%9F">http://ip:2375/version，测试是否成功</a></li>
+</ol>
+<h2 id="使用TLS-HTTPS-保证Docker服务安全"><a href="#使用TLS-HTTPS-保证Docker服务安全" class="headerlink" title="使用TLS(HTTPS)保证Docker服务安全"></a>使用TLS(HTTPS)保证Docker服务安全</h2><h3 id="1-服务器端生成CA共钥和私钥"><a href="#1-服务器端生成CA共钥和私钥" class="headerlink" title="1. 服务器端生成CA共钥和私钥"></a>1. 服务器端生成CA共钥和私钥</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建目录存放CA证书</span><br><span class="line">pi@raspberrypi:~ $ mkdir ca</span><br><span class="line"></span><br><span class="line"># 进入目录</span><br><span class="line">pi@raspberrypi:~ $ cd ca</span><br><span class="line"></span><br><span class="line"># 生成私钥（会提示输入密码）</span><br><span class="line">pi@raspberrypi:~/ca $ openssl genrsa -aes256 -out ca-key.pem 4096</span><br><span class="line">Generating RSA private key, 4096 bit long modulus (2 primes)</span><br><span class="line">..........................++++</span><br><span class="line">.......++++</span><br><span class="line">e is 65537 (0x010001)</span><br><span class="line">Enter pass phrase for ca-key.pem:</span><br><span class="line"></span><br><span class="line"># 生成证书信息（需要输入上面的密码以及一些其他信息【注意Common Name填写服务器外网IP】）</span><br><span class="line">pi@raspberrypi:~/ca $ openssl req -new -x509 -days 3650 -key ca-key.pem -sha256 -out ca.pem</span><br><span class="line">Enter pass phrase for ca-key.pem:</span><br><span class="line">You are about to be asked to enter information that will be incorporated</span><br><span class="line">into your certificate request.</span><br><span class="line">What you are about to enter is what is called a Distinguished Name or a DN.</span><br><span class="line">There are quite a few fields but you can leave some blank</span><br><span class="line">For some fields there will be a default value,</span><br><span class="line">If you enter &#x27;.&#x27;, the field will be left blank.</span><br><span class="line">-----</span><br><span class="line">Country Name (2 letter code) [AU]:CN</span><br><span class="line">State or Province Name (full name) [Some-State]:ZheJiang</span><br><span class="line">Locality Name (eg, city) []:HangZhou</span><br><span class="line">Organization Name (eg, company) [Internet Widgits Pty Ltd]:yanghao </span><br><span class="line">Organizational Unit Name (eg, section) []:yanghao</span><br><span class="line">Common Name (e.g. server FQDN or YOUR name) []:192.168.3.3</span><br><span class="line">Email Address []:yh.124@qq.com</span><br></pre></td></tr></table></figure>
+<p><strong>有了CA之后，就可以创建服务器密钥和证书签名请求(CSR)了。确保“Common Name”与你连接Docker时使用的主机名匹配</strong></p>
+<h3 id="2-创建服务器密钥和证书签名请求"><a href="#2-创建服务器密钥和证书签名请求" class="headerlink" title="2. 创建服务器密钥和证书签名请求"></a>2. 创建服务器密钥和证书签名请求</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建服务器密钥</span><br><span class="line">pi@raspberrypi:~/ca $ openssl genrsa -out server-key.pem 4096</span><br><span class="line">Generating RSA private key, 4096 bit long modulus (2 primes)</span><br><span class="line">................................................................++++</span><br><span class="line">.........++++</span><br><span class="line">e is 65537 (0x010001)</span><br><span class="line"></span><br><span class="line"># 证书签名请求（注意修改为你的服务器IP）</span><br><span class="line">openssl req -subj &quot;/CN=192.168.3.3&quot; -sha256 -new -key server-key.pem -out server.csr</span><br></pre></td></tr></table></figure>
+<h3 id="3-配置白名单"><a href="#3-配置白名单" class="headerlink" title="3. 配置白名单"></a>3. 配置白名单</h3><p>配置白名单，允许连接的ip（通过证书）;IP可以配置多个</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo subjectAltName = IP:192.168.3.3,IP::192.168.3.5 &gt;&gt; extfile.cnf</span><br></pre></td></tr></table></figure>
+<h3 id="4-设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证"><a href="#4-设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证" class="headerlink" title="4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证"></a>4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo extendedKeyUsage = serverAuth &gt;&gt; extfile.cnf</span><br></pre></td></tr></table></figure>
+<h3 id="5-生成签名证书（需要输入密码）"><a href="#5-生成签名证书（需要输入密码）" class="headerlink" title="5. 生成签名证书（需要输入密码）"></a>5. 生成签名证书（需要输入密码）</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">openssl x509 -req -days 3650 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \</span><br><span class="line">  -CAcreateserial -out server-cert.pem -extfile extfile.cnf</span><br></pre></td></tr></table></figure>
+<h3 id="6-对于客户端身份验证，创建一个客户端密钥和证书签名请求"><a href="#6-对于客户端身份验证，创建一个客户端密钥和证书签名请求" class="headerlink" title="6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求"></a>6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成 key.pem</span><br><span class="line">openssl genrsa -out key.pem 4096</span><br><span class="line"></span><br><span class="line"># 生成 csr</span><br><span class="line">openssl req -subj &#x27;/CN=client&#x27; -new -key key.pem -out client.csr</span><br><span class="line"></span><br><span class="line"># 创建配置文件</span><br><span class="line">echo extendedKeyUsage = clientAuth &gt; extfile-client.cnf</span><br><span class="line"></span><br><span class="line"># 生成签名证书</span><br><span class="line">openssl x509 -req -days 3650 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \</span><br><span class="line">  -CAcreateserial -out cert.pem -extfile extfile-client.cnf</span><br><span class="line">  </span><br><span class="line"># 将服务器端的ca.pem cert.pem key.pem复制到本地</span><br><span class="line">scp ca.pem cert.pem key.pem yh@192.168.3.5:/Users/yh/ca</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="7-删除不需要的文件"><a href="#7-删除不需要的文件" class="headerlink" title="7. 删除不需要的文件"></a>7. 删除不需要的文件</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 服务器（服务端）</span><br><span class="line">rm -rf server.csr extfile.cnf client.csr extfile-client.cnf</span><br></pre></td></tr></table></figure>
+<h3 id="8-修改文件权限，防止误删"><a href="#8-修改文件权限，防止误删" class="headerlink" title="8. 修改文件权限，防止误删"></a>8. 修改文件权限，防止误删</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 服务端</span><br><span class="line">chmod -v 0400 ca-key.pem server-key.pem</span><br><span class="line">chmod -v 0444 ca.pem server-cert.pem</span><br><span class="line"># 客户端</span><br><span class="line">chmod -v 0400 key.pem</span><br><span class="line">chmod -v 0444 ca.pem cert.pem</span><br></pre></td></tr></table></figure>
+<h3 id="9-再次修改服务器docker-service"><a href="#9-再次修改服务器docker-service" class="headerlink" title="9. 再次修改服务器docker.service"></a>9. 再次修改服务器docker.service</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">vim /lib/systemd/system/docker.service</span><br><span class="line"># 修改ExecStart（添加证书的路径）</span><br><span class="line">ExecStart=/usr/bin/dockerd --tlsverify --tlscacert=/home/pi/ca/ca.pem --tlscert=/home/pi/ca/server-cert.pem --tlskey=/home/pi/ca/server-key.pem -H tcp://0.0.0.0:2376 -H unix:///var/run/docker.sock</span><br></pre></td></tr></table></figure>
+<h3 id="10-重新加载daemon并重启docker"><a href="#10-重新加载daemon并重启docker" class="headerlink" title="10. 重新加载daemon并重启docker"></a>10. 重新加载daemon并重启docker</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">systemctl daemon-reload &amp;&amp; systemctl restart docker</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="11-配置本地环境变量"><a href="#11-配置本地环境变量" class="headerlink" title="11. 配置本地环境变量"></a>11. 配置本地环境变量</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mkdir -pv ~/.docker</span><br><span class="line"># 将证书copy到.docker下</span><br><span class="line">cp -v &#123;ca,cert,key&#125;.pem ~/.docker</span><br><span class="line">chmod -v 0400 key.pem</span><br><span class="line">chmod -v 0444 ca.pem cert.pem</span><br><span class="line"># 配置环境变量</span><br><span class="line">export DOCKER_HOST=tcp://0.0.0.0:2376 DOCKER_TLS_VERIFY=1</span><br></pre></td></tr></table></figure>
+<h3 id="12-客户端测试"><a href="#12-客户端测试" class="headerlink" title="12. 客户端测试"></a>12. 客户端测试</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 配置了环境变量后就可以访问服务器docker服务</span><br><span class="line">docker ps</span><br><span class="line"># 没有配置环境变量</span><br><span class="line">docker --tlsverify --tlscacert=/Users/yh/.docker/ca.pem --tlscert=/Users/yh/.docker/cert.pem --tlskey=/Users/yh/.docker/key.pem -H=tcp://192.168.3.3:2376 version</span><br></pre></td></tr></table></figure>
+<h2 id="项目配置"><a href="#项目配置" class="headerlink" title="项目配置"></a>项目配置</h2><h3 id="配置docker-file-maven-plugin插件"><a href="#配置docker-file-maven-plugin插件" class="headerlink" title="配置docker-file-maven-plugin插件"></a>配置docker-file-maven-plugin插件</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;build&gt;</span><br><span class="line">    &lt;plugins&gt;</span><br><span class="line">        &lt;!-- dockerfile maven --&gt;</span><br><span class="line">        &lt;plugin&gt;</span><br><span class="line">            &lt;groupId&gt;com.spotify&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;dockerfile-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">            &lt;executions&gt;</span><br><span class="line">                &lt;execution&gt;</span><br><span class="line">                    &lt;id&gt;default&lt;/id&gt;</span><br><span class="line">                    &lt;goals&gt;</span><br><span class="line">                        &lt;goal&gt;build&lt;/goal&gt;</span><br><span class="line">                        &lt;goal&gt;push&lt;/goal&gt;</span><br><span class="line">                    &lt;/goals&gt;</span><br><span class="line">                    &lt;configuration&gt;</span><br><span class="line">                    &lt;/configuration&gt;</span><br><span class="line">                &lt;/execution&gt;</span><br><span class="line">            &lt;/executions&gt;</span><br><span class="line">            &lt;!--docker镜像相关的配置信息--&gt;</span><br><span class="line">            &lt;configuration&gt;</span><br><span class="line">                &lt;contextDirectory&gt;$&#123;project.basedir&#125;&lt;/contextDirectory&gt;</span><br><span class="line">                &lt;dockerfile&gt;$&#123;project.basedir&#125;/Dockerfile&lt;/dockerfile&gt;</span><br><span class="line">                &lt;!--使用username和password标签，也可以使用useMavenSettingsForAuth，在settings.xml文件中的配置 servers--&gt;</span><br><span class="line">                &lt;useMavenSettingsForAuth&gt;false&lt;/useMavenSettingsForAuth&gt;</span><br><span class="line">                &lt;username&gt;xxx&lt;/username&gt;</span><br><span class="line">                &lt;password&gt;xxx&lt;/password&gt;</span><br><span class="line">                &lt;!--远程仓库地址--&gt;</span><br><span class="line">                &lt;repository&gt;$&#123;docker.repository.registry&#125;/$&#123;docker.repository.namespace&#125;/$&#123;project.artifactId&#125;&lt;/repository&gt;</span><br><span class="line">                &lt;tag&gt;$&#123;project.version&#125;&lt;/tag&gt;</span><br><span class="line">                &lt;buildArgs&gt;</span><br><span class="line">                    &lt;JAR_FILE&gt;$&#123;project.build.finalName&#125;.jar&lt;/JAR_FILE&gt;</span><br><span class="line">                &lt;/buildArgs&gt;</span><br><span class="line">            &lt;/configuration&gt;</span><br><span class="line">        &lt;/plugin&gt;</span><br><span class="line">    &lt;/plugins&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">FROM houwm/jdk8:arm64</span><br><span class="line"></span><br><span class="line">MAINTAINER yanghao&lt;yh.124@qq.com&gt;</span><br><span class="line"></span><br><span class="line"># 参数</span><br><span class="line">ARG JAR_FILE</span><br><span class="line"></span><br><span class="line"># 环境变量</span><br><span class="line">ENV TZ=Asia/Shanghai LANG=C.UTF-8</span><br><span class="line">ENV PARAMS=&quot;--server.port=8080 --spring.profiles.active=prod -Xms512m -Xmx512m&quot;</span><br><span class="line"></span><br><span class="line"># 设置时区</span><br><span class="line">RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime &amp;&amp; echo $TZ &gt; /etc/timezone</span><br><span class="line"></span><br><span class="line"># 复制jar包</span><br><span class="line">COPY target/$&#123;JAR_FILE&#125; /app.jar</span><br><span class="line"></span><br><span class="line"># 暴露端口</span><br><span class="line">EXPOSE 8080</span><br><span class="line"></span><br><span class="line"># 工作目录</span><br><span class="line">WORKDIR /</span><br><span class="line"></span><br><span class="line"># 执行命令</span><br><span class="line">ENTRYPOINT [&quot;/bin/sh&quot;,&quot;-c&quot;,&quot;java -jar /app.jar $&#123;PARAMS&#125;&quot;]</span><br></pre></td></tr></table></figure>
+<h3 id="部署项目"><a href="#部署项目" class="headerlink" title="部署项目"></a>部署项目</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 会自动在远程服务器构建镜像</span><br><span class="line">mvn package</span><br><span class="line"># 就可以省略这个步骤</span><br><span class="line">mvn dockerfile:build</span><br><span class="line"># 会自动推送镜像到远程仓库</span><br><span class="line">mvn deploy</span><br><span class="line"># 就可以省略这个步骤</span><br><span class="line">mvn dockerfile:push</span><br><span class="line"># 如果要临时跳过所有的Dockerfile相关的目标，执行如下Maven命令</span><br><span class="line">mvn clean install -Ddockerfile.skip</span><br><span class="line"># 想跳过某一个goal</span><br><span class="line">mvn clean package -Ddockerfile.build.skip</span><br><span class="line">mvn clean package -Ddockerfile.tag.skip</span><br><span class="line">mvn clean deploy -Ddockerfile.push.skip</span><br><span class="line"> </span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>运维</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>InnoDB中的索引</title>
     <url>/2022/01/12/InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95/</url>
     <content><![CDATA[<h2 id="InnoDB中的索引设计方案"><a href="#InnoDB中的索引设计方案" class="headerlink" title="InnoDB中的索引设计方案"></a>InnoDB中的索引设计方案</h2><ul>
@@ -711,64 +711,6 @@ docker exec -it --user root $ContainerName /bin/bash
 <li>非叶子节点仅用于索引，不保存数据记录，跟记录相关的信息都存放在叶子节点中。而B树中，非叶子节点即保存索引也保存数据记录。</li>
 <li>所有关键字都在叶子节点出现，叶子节点构成一个有序链表，而且叶子节点本身按照关键字的大小从小到大顺序链接。</li>
 </ol>
-]]></content>
-      <categories>
-        <category>后端</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>InnoDB数据存储结构</title>
-    <url>/2022/01/15/InnoDB%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/</url>
-    <content><![CDATA[<h2 id="数据库的存储结构：页"><a href="#数据库的存储结构：页" class="headerlink" title="数据库的存储结构：页"></a>数据库的存储结构：页</h2><p>MySQL服务器上的存储引擎负责对表中的数据的读取和写入工作，不同存储引擎中存放的格式一般不同。此处只剖析InnoDB存储引擎的数据存储结构。</p>
-<h3 id="磁盘与内存交互的基本单位：页"><a href="#磁盘与内存交互的基本单位：页" class="headerlink" title="磁盘与内存交互的基本单位：页"></a>磁盘与内存交互的基本单位：页</h3><p>InnoDB将数据划分为若干个页，InnoDB中页的大小默认为<strong>16KB</strong>。</p>
-<p><strong>在数据库中，不论读一行，还是读多行，都是将这些行所在的页进行加载，也就是说，数据库管理存储空间的基本单位是页（Page），数据库I&#x2F;O操作的最小单位为页。</strong></p>
-<h3 id="页结构概述"><a href="#页结构概述" class="headerlink" title="页结构概述"></a>页结构概述</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/15/16422446514180.jpg" alt="页结构"><br>页a、页b、页c…页n，这些页可以<strong>不在物理结构上相连</strong>，只要通过<strong>双向链表</strong>相关联即可。每个数据页中的记录会按照主键值从小到大的顺序组成一个<strong>单向链表</strong>，每个数据页都会为存储在它里面的记录生成一个<strong>页目录</strong>，在通过主键查找时就可以在页目录中<strong>使用二分法</strong>快速定位到对应的槽，然后再遍历该槽对应分组中的记录即可快速找到指定记录。</p>
-<h3 id="页的上层结构"><a href="#页的上层结构" class="headerlink" title="页的上层结构"></a>页的上层结构</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/15/16422451759284.jpg" alt="页的上层结构"></p>
-<ul>
-<li>区（Extent）是比页大一级的存储结构，在InnoDB存储引擎中，一个区会分配64个连续的页。因为InnoDB中页的默认大小是16KB，所以一个区的大小是 64 * 16KB &#x3D; 1M。</li>
-<li>段（Segment）由一个或多个区组成，区在文件系统是一个连续分配的空间（在InnoDB中是连续的64个页），不过在段中不要求区与区之间是相邻的。<strong>段是数据库中的分配单位，不同类型的数据库对象以不同的段形式存在</strong>。当我们创建数据表、索引的时候，就会相应创建对应的段，比如创建一张表时会创建一个表段，创建一个索引时会创建一个索引段。</li>
-<li>表空间（TableSpace）是一个逻辑容器，表空间存储的对象是段，在一个表空间中可以有一个或多个段，但是一个段只能属于一个表空间。数据库由一个或多个表空间组成。表空间从管理上可以分为<strong>系统表空间、用户表空间、撤销表空间、临时表空间</strong>等。</li>
-</ul>
-<h2 id="页的内部结构"><a href="#页的内部结构" class="headerlink" title="页的内部结构"></a>页的内部结构</h2><p>页如果按类来划分的话，常见的有数据页（保存B+树节点）、系统页、Undo页和事务数据页等。数据页是我们最常使用的页。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/16/16423369880923.jpg" alt="页的内部结构"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/16/16423371212785.jpg" alt="页的内部结构"></p>
-<h2 id="InnoDB行格式（或记录格式）"><a href="#InnoDB行格式（或记录格式）" class="headerlink" title="InnoDB行格式（或记录格式）"></a>InnoDB行格式（或记录格式）</h2><h3 id="COMPACT行格式"><a href="#COMPACT行格式" class="headerlink" title="COMPACT行格式"></a>COMPACT行格式</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425967631225.jpg" alt="16425967631225"></p>
-<h4 id="变长字段长度列表"><a href="#变长字段长度列表" class="headerlink" title="变长字段长度列表"></a>变长字段长度列表</h4><p>MySQL支持一些变长的数据类型，比如VARCHAR(M)、VARBINARY(M)、TEXT类型，BOLB类型，这些数据类型修饰列称为变长字段。<br><strong>注意：</strong> 这里面存储的变长长度和字段顺序是<strong>反过来</strong>的。比如在表中字段是a(10),b(15)，那么在变长字段列表中存储的长度顺序就是15，10。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425971738917.jpg" alt="16425971738917"></p>
-<h4 id="NULL值列表"><a href="#NULL值列表" class="headerlink" title="NULL值列表"></a>NULL值列表</h4><ol>
-<li>二进制位的值为1时，代表该列的值为NULL。</li>
-<li>二进制位的值为0时，代表该列的值不为NULL。</li>
-<li>NOT NULL的字段没有。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425973039144.jpg" alt="16425973039144"></li>
-</ol>
-<h4 id="记录头信息（5字节）"><a href="#记录头信息（5字节）" class="headerlink" title="记录头信息（5字节）"></a>记录头信息（5字节）</h4><h4 id="记录真实数据"><a href="#记录真实数据" class="headerlink" title="记录真实数据"></a>记录真实数据</h4><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425974458867.jpg" alt="16425974458867"></p>
-<h3 id="Dynamic和Compressed行格式"><a href="#Dynamic和Compressed行格式" class="headerlink" title="Dynamic和Compressed行格式"></a>Dynamic和Compressed行格式</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425990444803.jpg" alt="16425990444803"><br>一个页的大小一般是16KB，也就是16384字节，而VARCHAR(M)最多可储存65533个字节。这样就出现了一个页存放不了一条记录，这种现象称为行溢出。<br>Dynamic和Compressed行格式和Compact行格式挺像，只不过在处理行溢出数据时有分歧：</p>
-<ul>
-<li>Dynamic和Compressed两种行格式对于存放在BLOB中的数据采用了完全的行溢出方式，如图，在数据页中只存放20个字节的指针（溢出页的地址），实际的数据都存放在Off Page（溢出页）中。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/02/10/16445002427093.jpg" alt="16445002427093"></li>
-<li>Compact和Redundant两种格式会在记录的真实数据处存储一部分数据（存放768个前缀字节）。<br><strong>Compressed行记录格式的另一个功能就是，存储在其中的行数据会以zlib的算法进行非常压缩。因此对于BLOL，TEXT，VARCHAR这类大长度类型的数据能够进行非常有效的存储。</strong></li>
-</ul>
-<h3 id="Redundant行格式"><a href="#Redundant行格式" class="headerlink" title="Redundant行格式"></a>Redundant行格式</h3><p>Redundant行格式是MySQL5.0版本及之前InnoDB的行记录存储方式。</p>
-<h2 id="区、段与碎片区"><a href="#区、段与碎片区" class="headerlink" title="区、段与碎片区"></a>区、段与碎片区</h2><h3 id="为什么要有区？"><a href="#为什么要有区？" class="headerlink" title="为什么要有区？"></a>为什么要有区？</h3><p><code>B+</code>树的每一层中的页都会形成一个双向链表如果<strong>以页为单位</strong>来分配存储空间的话，双向链表相邻的两个页之间的<strong>物理位置可能离的非常远</strong>。 扫描页就会是<strong>随机IO</strong>。随机IO是非常慢的，所以我们应该尽量的让链表中页的<strong>物理位置也相邻</strong>，这样进行范围查询的时候时候才可以使用所谓的<strong>顺序IO</strong>。<br>一个区就是在物理位置上连续的<strong>64个页</strong>。因为InnoDB中的页大小。默认是<strong>16kb</strong>，所以一个区的大小是<strong>64*16&#x3D;1M</strong>。在表中数据量大的时候，为某个索引分配空间的时候就不再按照页为单位分配了，而是按照<strong>区为单位分配</strong>，甚至在表中数据特别多的时候，可以一次性分配多个连续的区。虽然可能造成<strong>一点点空间的浪费</strong>（数据不足以填满整个区），但是从性能角度看，可以消除很多随机IO，<strong>利大于弊</strong>。</p>
-<h3 id="为什么要有段？"><a href="#为什么要有段？" class="headerlink" title="为什么要有段？"></a>为什么要有段？</h3><p>对于范围查询，其实是对B+树叶子节点的记录进行顺序扫描，而如果不区分叶子节点和非叶子节点，统统把节点代表的页面放到申请到的区中的话，进行范围扫描的效果就可能会比较差。所以InnoDB对B+树的<strong>叶子节点</strong>和<strong>非叶子节点</strong>进行区别对待，也就是说叶子节点有自己独有的区，非叶子节点也有自己独特的区。存放叶子节点的区的集合就是一个<strong>段（segment）</strong>，存放非叶子节点的区的集合也是一个段。也就是说一个索引会生成2个段，一个<strong>叶子节点段</strong>，一个<strong>非叶子节点段</strong>。</p>
-<p>除了索引的叶子节点段和非叶子节点段之外，InnoDB中还有为储存一些特殊的数据定义的段，比如回滚段。所以常见的段有<strong>数据段</strong>，<strong>索引段</strong>，<strong>回滚段</strong>。数据段即为B+树的叶子节点，索引段即为非叶子节点段。</p>
-<p>段其实不对应表空间中某一个连续的物理区域，而是一个逻辑上的概念，由若干个零散的页面以及一些完整的区组成。</p>
-<h3 id="为什么要有碎片区？"><a href="#为什么要有碎片区？" class="headerlink" title="为什么要有碎片区？"></a>为什么要有碎片区？</h3><p>一个区默认占用1M（64*16K）存储空间，所以默认情况下一个只存了几条记录的小表也需要2M存储空间吗？</p>
-<p>为了考虑以完整的区为单位分配给某个段，对于<strong>数量较小的</strong>表太浪费存储空间的这种情况，InnoDB提出了一个<strong>碎片区（fragment）</strong> 的概念。在一个碎片区中，并不是所有的页都是为了存储同一个段的数据而存在的，而是碎片区中的页可以用于不同的目的，比如有些页用于段A，有些页用于段B，有些页用于段C，有些页甚至哪个段都不属于。<strong>碎片区直属于表空间</strong>，并不属于任何一个段。</p>
-<p>所以此后为某个段分配存储空间的策略是这样的：</p>
-<ul>
-<li>在刚开始向表中插入数据的时候，段是从某个碎片区以单个页面为单位来分配存储空间的。</li>
-<li>当某个段已经占用了<strong>32个碎片</strong>区页面之后，就会申请以完整的区为单位来分配存储空间的。</li>
-</ul>
-<h3 id="区的分类"><a href="#区的分类" class="headerlink" title="区的分类"></a>区的分类</h3><ul>
-<li>空闲的区（free）：现在还没有用到这个区中的任何页面。</li>
-<li>有剩余空间的碎片区（free_frag）：表示碎片区中还有可用页面。</li>
-<li>没有剩余空间的碎片区（full_frag）：表示碎片区的所有页面都被使用，没有空闲的页面。</li>
-<li>附属于某个段的区（fseg）：每一个索引都可以分为叶子节点段和非叶子节点段。<br>处于free、free_frag、full_frag都是碎片区，fseg为属于某个段的区。</li>
-</ul>
-<h2 id="表空间"><a href="#表空间" class="headerlink" title="表空间"></a>表空间</h2><p>表空间可以看作是InnoDB存储引擎逻辑结构的最高层，所有的数据都存放在表空间中。</p>
-<p>表空间是一个<strong>逻辑容器</strong>，表空间存储的对象是段，在一个表空间中可以有一个或多个段，但是一个段只能属于一个表空间。数据库由一个或多个表空间组成，表空间从管理上可以划分为<strong>系统表空间</strong>（system Tablespace），<strong>独立表空间</strong>（File-per-table Tablespace）、<strong>撤销表空间</strong>（Undo-tablesapce）和<strong>临时表空间</strong>（Temporary Tablespace）等。</p>
-<h3 id="独立表空间"><a href="#独立表空间" class="headerlink" title="独立表空间"></a>独立表空间</h3><h4 id="独立表空间结构"><a href="#独立表空间结构" class="headerlink" title="独立表空间结构"></a>独立表空间结构</h4><p>独立表空间由段、区、页组成。</p>
-<h4 id="表空间对应的文件"><a href="#表空间对应的文件" class="headerlink" title="表空间对应的文件"></a>表空间对应的文件</h4><p>一个新建的表对应的 <strong>.idb</strong> 文件文件只占用了<strong>96k</strong>，才6个页面的大小（MySQL5.7），这是因为一开始表中没有数据。随着表中的数据增加，表空间对应的文件也逐渐增大。</p>
-<h3 id="系统表空间"><a href="#系统表空间" class="headerlink" title="系统表空间"></a>系统表空间</h3><p>系统表空间和独立表空间基本类似，只不过MySQL只有一个系统表空间，在系统表空间中会额外记录一些有关整个系统信息的页面，这部分是独立表空间没有的。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/02/13/16447536181188.jpg" alt="16447536181188"></p>
 ]]></content>
       <categories>
         <category>后端</category>
@@ -1503,6 +1445,251 @@ docker exec -it --user root $ContainerName /bin/bash
       </tags>
   </entry>
   <entry>
+    <title>InnoDB数据存储结构</title>
+    <url>/2022/01/15/InnoDB%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/</url>
+    <content><![CDATA[<h2 id="数据库的存储结构：页"><a href="#数据库的存储结构：页" class="headerlink" title="数据库的存储结构：页"></a>数据库的存储结构：页</h2><p>MySQL服务器上的存储引擎负责对表中的数据的读取和写入工作，不同存储引擎中存放的格式一般不同。此处只剖析InnoDB存储引擎的数据存储结构。</p>
+<h3 id="磁盘与内存交互的基本单位：页"><a href="#磁盘与内存交互的基本单位：页" class="headerlink" title="磁盘与内存交互的基本单位：页"></a>磁盘与内存交互的基本单位：页</h3><p>InnoDB将数据划分为若干个页，InnoDB中页的大小默认为<strong>16KB</strong>。</p>
+<p><strong>在数据库中，不论读一行，还是读多行，都是将这些行所在的页进行加载，也就是说，数据库管理存储空间的基本单位是页（Page），数据库I&#x2F;O操作的最小单位为页。</strong></p>
+<h3 id="页结构概述"><a href="#页结构概述" class="headerlink" title="页结构概述"></a>页结构概述</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/15/16422446514180.jpg" alt="页结构"><br>页a、页b、页c…页n，这些页可以<strong>不在物理结构上相连</strong>，只要通过<strong>双向链表</strong>相关联即可。每个数据页中的记录会按照主键值从小到大的顺序组成一个<strong>单向链表</strong>，每个数据页都会为存储在它里面的记录生成一个<strong>页目录</strong>，在通过主键查找时就可以在页目录中<strong>使用二分法</strong>快速定位到对应的槽，然后再遍历该槽对应分组中的记录即可快速找到指定记录。</p>
+<h3 id="页的上层结构"><a href="#页的上层结构" class="headerlink" title="页的上层结构"></a>页的上层结构</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/15/16422451759284.jpg" alt="页的上层结构"></p>
+<ul>
+<li>区（Extent）是比页大一级的存储结构，在InnoDB存储引擎中，一个区会分配64个连续的页。因为InnoDB中页的默认大小是16KB，所以一个区的大小是 64 * 16KB &#x3D; 1M。</li>
+<li>段（Segment）由一个或多个区组成，区在文件系统是一个连续分配的空间（在InnoDB中是连续的64个页），不过在段中不要求区与区之间是相邻的。<strong>段是数据库中的分配单位，不同类型的数据库对象以不同的段形式存在</strong>。当我们创建数据表、索引的时候，就会相应创建对应的段，比如创建一张表时会创建一个表段，创建一个索引时会创建一个索引段。</li>
+<li>表空间（TableSpace）是一个逻辑容器，表空间存储的对象是段，在一个表空间中可以有一个或多个段，但是一个段只能属于一个表空间。数据库由一个或多个表空间组成。表空间从管理上可以分为<strong>系统表空间、用户表空间、撤销表空间、临时表空间</strong>等。</li>
+</ul>
+<h2 id="页的内部结构"><a href="#页的内部结构" class="headerlink" title="页的内部结构"></a>页的内部结构</h2><p>页如果按类来划分的话，常见的有数据页（保存B+树节点）、系统页、Undo页和事务数据页等。数据页是我们最常使用的页。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/16/16423369880923.jpg" alt="页的内部结构"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/16/16423371212785.jpg" alt="页的内部结构"></p>
+<h2 id="InnoDB行格式（或记录格式）"><a href="#InnoDB行格式（或记录格式）" class="headerlink" title="InnoDB行格式（或记录格式）"></a>InnoDB行格式（或记录格式）</h2><h3 id="COMPACT行格式"><a href="#COMPACT行格式" class="headerlink" title="COMPACT行格式"></a>COMPACT行格式</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425967631225.jpg" alt="16425967631225"></p>
+<h4 id="变长字段长度列表"><a href="#变长字段长度列表" class="headerlink" title="变长字段长度列表"></a>变长字段长度列表</h4><p>MySQL支持一些变长的数据类型，比如VARCHAR(M)、VARBINARY(M)、TEXT类型，BOLB类型，这些数据类型修饰列称为变长字段。<br><strong>注意：</strong> 这里面存储的变长长度和字段顺序是<strong>反过来</strong>的。比如在表中字段是a(10),b(15)，那么在变长字段列表中存储的长度顺序就是15，10。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425971738917.jpg" alt="16425971738917"></p>
+<h4 id="NULL值列表"><a href="#NULL值列表" class="headerlink" title="NULL值列表"></a>NULL值列表</h4><ol>
+<li>二进制位的值为1时，代表该列的值为NULL。</li>
+<li>二进制位的值为0时，代表该列的值不为NULL。</li>
+<li>NOT NULL的字段没有。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425973039144.jpg" alt="16425973039144"></li>
+</ol>
+<h4 id="记录头信息（5字节）"><a href="#记录头信息（5字节）" class="headerlink" title="记录头信息（5字节）"></a>记录头信息（5字节）</h4><h4 id="记录真实数据"><a href="#记录真实数据" class="headerlink" title="记录真实数据"></a>记录真实数据</h4><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425974458867.jpg" alt="16425974458867"></p>
+<h3 id="Dynamic和Compressed行格式"><a href="#Dynamic和Compressed行格式" class="headerlink" title="Dynamic和Compressed行格式"></a>Dynamic和Compressed行格式</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/01/19/16425990444803.jpg" alt="16425990444803"><br>一个页的大小一般是16KB，也就是16384字节，而VARCHAR(M)最多可储存65533个字节。这样就出现了一个页存放不了一条记录，这种现象称为行溢出。<br>Dynamic和Compressed行格式和Compact行格式挺像，只不过在处理行溢出数据时有分歧：</p>
+<ul>
+<li>Dynamic和Compressed两种行格式对于存放在BLOB中的数据采用了完全的行溢出方式，如图，在数据页中只存放20个字节的指针（溢出页的地址），实际的数据都存放在Off Page（溢出页）中。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/02/10/16445002427093.jpg" alt="16445002427093"></li>
+<li>Compact和Redundant两种格式会在记录的真实数据处存储一部分数据（存放768个前缀字节）。<br><strong>Compressed行记录格式的另一个功能就是，存储在其中的行数据会以zlib的算法进行非常压缩。因此对于BLOL，TEXT，VARCHAR这类大长度类型的数据能够进行非常有效的存储。</strong></li>
+</ul>
+<h3 id="Redundant行格式"><a href="#Redundant行格式" class="headerlink" title="Redundant行格式"></a>Redundant行格式</h3><p>Redundant行格式是MySQL5.0版本及之前InnoDB的行记录存储方式。</p>
+<h2 id="区、段与碎片区"><a href="#区、段与碎片区" class="headerlink" title="区、段与碎片区"></a>区、段与碎片区</h2><h3 id="为什么要有区？"><a href="#为什么要有区？" class="headerlink" title="为什么要有区？"></a>为什么要有区？</h3><p><code>B+</code>树的每一层中的页都会形成一个双向链表如果<strong>以页为单位</strong>来分配存储空间的话，双向链表相邻的两个页之间的<strong>物理位置可能离的非常远</strong>。 扫描页就会是<strong>随机IO</strong>。随机IO是非常慢的，所以我们应该尽量的让链表中页的<strong>物理位置也相邻</strong>，这样进行范围查询的时候时候才可以使用所谓的<strong>顺序IO</strong>。<br>一个区就是在物理位置上连续的<strong>64个页</strong>。因为InnoDB中的页大小。默认是<strong>16kb</strong>，所以一个区的大小是<strong>64*16&#x3D;1M</strong>。在表中数据量大的时候，为某个索引分配空间的时候就不再按照页为单位分配了，而是按照<strong>区为单位分配</strong>，甚至在表中数据特别多的时候，可以一次性分配多个连续的区。虽然可能造成<strong>一点点空间的浪费</strong>（数据不足以填满整个区），但是从性能角度看，可以消除很多随机IO，<strong>利大于弊</strong>。</p>
+<h3 id="为什么要有段？"><a href="#为什么要有段？" class="headerlink" title="为什么要有段？"></a>为什么要有段？</h3><p>对于范围查询，其实是对B+树叶子节点的记录进行顺序扫描，而如果不区分叶子节点和非叶子节点，统统把节点代表的页面放到申请到的区中的话，进行范围扫描的效果就可能会比较差。所以InnoDB对B+树的<strong>叶子节点</strong>和<strong>非叶子节点</strong>进行区别对待，也就是说叶子节点有自己独有的区，非叶子节点也有自己独特的区。存放叶子节点的区的集合就是一个<strong>段（segment）</strong>，存放非叶子节点的区的集合也是一个段。也就是说一个索引会生成2个段，一个<strong>叶子节点段</strong>，一个<strong>非叶子节点段</strong>。</p>
+<p>除了索引的叶子节点段和非叶子节点段之外，InnoDB中还有为储存一些特殊的数据定义的段，比如回滚段。所以常见的段有<strong>数据段</strong>，<strong>索引段</strong>，<strong>回滚段</strong>。数据段即为B+树的叶子节点，索引段即为非叶子节点段。</p>
+<p>段其实不对应表空间中某一个连续的物理区域，而是一个逻辑上的概念，由若干个零散的页面以及一些完整的区组成。</p>
+<h3 id="为什么要有碎片区？"><a href="#为什么要有碎片区？" class="headerlink" title="为什么要有碎片区？"></a>为什么要有碎片区？</h3><p>一个区默认占用1M（64*16K）存储空间，所以默认情况下一个只存了几条记录的小表也需要2M存储空间吗？</p>
+<p>为了考虑以完整的区为单位分配给某个段，对于<strong>数量较小的</strong>表太浪费存储空间的这种情况，InnoDB提出了一个<strong>碎片区（fragment）</strong> 的概念。在一个碎片区中，并不是所有的页都是为了存储同一个段的数据而存在的，而是碎片区中的页可以用于不同的目的，比如有些页用于段A，有些页用于段B，有些页用于段C，有些页甚至哪个段都不属于。<strong>碎片区直属于表空间</strong>，并不属于任何一个段。</p>
+<p>所以此后为某个段分配存储空间的策略是这样的：</p>
+<ul>
+<li>在刚开始向表中插入数据的时候，段是从某个碎片区以单个页面为单位来分配存储空间的。</li>
+<li>当某个段已经占用了<strong>32个碎片</strong>区页面之后，就会申请以完整的区为单位来分配存储空间的。</li>
+</ul>
+<h3 id="区的分类"><a href="#区的分类" class="headerlink" title="区的分类"></a>区的分类</h3><ul>
+<li>空闲的区（free）：现在还没有用到这个区中的任何页面。</li>
+<li>有剩余空间的碎片区（free_frag）：表示碎片区中还有可用页面。</li>
+<li>没有剩余空间的碎片区（full_frag）：表示碎片区的所有页面都被使用，没有空闲的页面。</li>
+<li>附属于某个段的区（fseg）：每一个索引都可以分为叶子节点段和非叶子节点段。<br>处于free、free_frag、full_frag都是碎片区，fseg为属于某个段的区。</li>
+</ul>
+<h2 id="表空间"><a href="#表空间" class="headerlink" title="表空间"></a>表空间</h2><p>表空间可以看作是InnoDB存储引擎逻辑结构的最高层，所有的数据都存放在表空间中。</p>
+<p>表空间是一个<strong>逻辑容器</strong>，表空间存储的对象是段，在一个表空间中可以有一个或多个段，但是一个段只能属于一个表空间。数据库由一个或多个表空间组成，表空间从管理上可以划分为<strong>系统表空间</strong>（system Tablespace），<strong>独立表空间</strong>（File-per-table Tablespace）、<strong>撤销表空间</strong>（Undo-tablesapce）和<strong>临时表空间</strong>（Temporary Tablespace）等。</p>
+<h3 id="独立表空间"><a href="#独立表空间" class="headerlink" title="独立表空间"></a>独立表空间</h3><h4 id="独立表空间结构"><a href="#独立表空间结构" class="headerlink" title="独立表空间结构"></a>独立表空间结构</h4><p>独立表空间由段、区、页组成。</p>
+<h4 id="表空间对应的文件"><a href="#表空间对应的文件" class="headerlink" title="表空间对应的文件"></a>表空间对应的文件</h4><p>一个新建的表对应的 <strong>.idb</strong> 文件文件只占用了<strong>96k</strong>，才6个页面的大小（MySQL5.7），这是因为一开始表中没有数据。随着表中的数据增加，表空间对应的文件也逐渐增大。</p>
+<h3 id="系统表空间"><a href="#系统表空间" class="headerlink" title="系统表空间"></a>系统表空间</h3><p>系统表空间和独立表空间基本类似，只不过MySQL只有一个系统表空间，在系统表空间中会额外记录一些有关整个系统信息的页面，这部分是独立表空间没有的。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/02/13/16447536181188.jpg" alt="16447536181188"></p>
+]]></content>
+      <categories>
+        <category>后端</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>RabbitMQ</title>
+    <url>/2021/07/31/RabbitMQ/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>RabbitMQ是最受欢迎的开源消息中间件之一，在全球范围内被广泛应用。RabbitMQ是轻量级且易于部署的，能支持多种消息协议。RabbitMQ可以部署在分布式系统中，以满足大规模、高可用的要求。</p>
+<span id="more"></span>
+
+<h1 id="安装及配置"><a href="#安装及配置" class="headerlink" title="安装及配置"></a>安装及配置</h1><h2 id="Linux安装："><a href="#Linux安装：" class="headerlink" title="Linux安装："></a>Linux安装：</h2><p>下载docker镜像</p>
+<pre><code>docker pull rabbitmq:3.7.15
+</code></pre>
+<p>使用docker命令启动服务</p>
+<pre><code>docker run -d -p 5672:5672 -p 15672:15672 --name rabbitmq rabbitmq:3.7.15
+</code></pre>
+<p>进入容器并开启管理功能</p>
+<pre><code>docker exec -it rabbitmq /bin/bash 
+rabbitmq-plugins enable rabbitmq_management
+</code></pre>
+<p>开启防火墙便于外网访问</p>
+<h2 id="访问及配置"><a href="#访问及配置" class="headerlink" title="访问及配置"></a>访问及配置</h2><ol>
+<li>访问RabbitMQ管理页面地址，查看是否安装成功（Linux下使用服务器IP访问即可）：<a href="http://localhost:15672/">http://localhost:15672</a></li>
+<li>输入账号密码并登录，这里使用默认账号密码登录：guest guest</li>
+<li>创建帐号并设置其角色为管理员：yh yh<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291220880322.jpg" alt="16291220880322"></li>
+<li>创建一个新的虚拟host为：&#x2F;yh<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291221215137.jpg" alt="16291221215137"></li>
+<li>点击yh用户，给yh用户配置该虚拟host的权限；<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291221501459.jpg" alt="16291221501459"></li>
+<li>至此，RabbitMQ的配置完成。</li>
+</ol>
+<h1 id="RabbitMQ简介"><a href="#RabbitMQ简介" class="headerlink" title="RabbitMQ简介"></a>RabbitMQ简介</h1><p>RabbitMQ是一个由erlang开发的AMQP(Advanced Message Queue Protocol)的开源实现。</p>
+<h2 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h2><h3 id="Message"><a href="#Message" class="headerlink" title="Message"></a>Message</h3><blockquote>
+<p>消息，消息是不具名的，它由消息头和消息体组成。消息体是不透明的，而消息头则由一系列的可选属性组成，这些属性包括routing-key（路由键）、priority（相对于其他消息的优先权）、delivery-mode（指出该消息可能需要持久性储存）等。</p>
+</blockquote>
+<h3 id="Publish"><a href="#Publish" class="headerlink" title="Publish"></a>Publish</h3><blockquote>
+<p>消息的生产者，也是一个向交换器发布消息的客户端应用程序。</p>
+</blockquote>
+<h3 id="Exchange"><a href="#Exchange" class="headerlink" title="Exchange"></a>Exchange</h3><blockquote>
+<p>交换器，用来接收生产者发送的消息并将这些消息路由给服务器中的队列。Exchange有4种类型：direct（默认），fanout，topic和headers，不同类型的Exchange转发消息的策略有所区别</p>
+</blockquote>
+<h3 id="Queue"><a href="#Queue" class="headerlink" title="Queue"></a>Queue</h3><blockquote>
+<p>消息队列，用来保存消息直到发送给消费者，它是消息的容器，也是消息的终点。一个消息可投入一个或多个队列。消息一直在队列里面，等待消费者连接到这个队列将其取走。</p>
+</blockquote>
+<h3 id="Binding"><a href="#Binding" class="headerlink" title="Binding"></a>Binding</h3><blockquote>
+<p>绑定，用于消息队列和交换器之间的关联。一个绑定就是基于路由键将交换器和消息队列连接起来的路由规则，所以可以将交换器理解为一个由绑定构成的路由表。Exchange和Queue的绑定可以是多对多的关系。</p>
+</blockquote>
+<h3 id="Connection"><a href="#Connection" class="headerlink" title="Connection"></a>Connection</h3><blockquote>
+<p>网络连接，比如一个TCP连接。</p>
+</blockquote>
+<h3 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h3><blockquote>
+<p>信道，多路复用连接中的一条独立的双向数据流通道。信道是建立在真实的TCP连接内的虚拟连接，AMQP命令都是通过信道发出去的，不管是发布消息、订阅队列还是接收消息，这些都是通过信道完成的。因为对于操作系统来说建立和销毁TCP都是非常昂贵的开销，所以引入信道的概念，以复用一条TCP连接。</p>
+</blockquote>
+<h3 id="Consumer"><a href="#Consumer" class="headerlink" title="Consumer"></a>Consumer</h3><blockquote>
+<p>消息的消费者，表示一个从消息队列中取得消息的客户端应用程序。</p>
+</blockquote>
+<h3 id="Virtual-Host"><a href="#Virtual-Host" class="headerlink" title="Virtual Host"></a>Virtual Host</h3><blockquote>
+<p>虚拟主机，表示一批交换器、消息队列和相关对象。虚拟主机是共享相同身份认证和加密环境的独立服务器域。每个vhost本质上就是一个mini版的RabbitMQ服务器，拥有自己的队列、交换器、绑定和权限机制。vhost是AMQP概念的基础，必须在连接时指定，默认的vhost是&#x2F;。</p>
+</blockquote>
+<h3 id="Broker"><a href="#Broker" class="headerlink" title="Broker"></a>Broker</h3><blockquote>
+<p>表示消息队列服务器实体</p>
+</blockquote>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291223199643.jpg" alt="16291223199643"></p>
+<h2 id="5种消息模式"><a href="#5种消息模式" class="headerlink" title="5种消息模式"></a>5种消息模式</h2><h3 id="简单模式"><a href="#简单模式" class="headerlink" title="简单模式"></a>简单模式</h3><blockquote>
+<p>简单模式是最简单的消息模式，它包含一个生产者、一个消费者和一个队列。生产者向队列里发送消息，消费者从队列中获取消息并消费。</p>
+</blockquote>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291223509014.jpg" alt="16291223509014"></p>
+<h3 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h3><blockquote>
+<p>工作模式是指向多个互相竞争的消费者发送消息的模式，它包含一个生产者、两个消费者和一个队列。两个消费者同时绑定到一个队列上去，当消费者获取消息处理耗时任务时，空闲的消费者从队列中获取并消费消息。</p>
+</blockquote>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291223898130.jpg" alt="16291223898130"></p>
+<h3 id="发布-订阅模式（fanout）"><a href="#发布-订阅模式（fanout）" class="headerlink" title="发布&#x2F;订阅模式（fanout）"></a>发布&#x2F;订阅模式（fanout）</h3><blockquote>
+<p>发布&#x2F;订阅模式是指同时向多个消费者发送消息的模式（类似广播的形式），它包含一个生产者、两个消费者、两个队列和一个交换机。两个消费者同时绑定到不同的队列上去，两个队列绑定到交换机上去，生产者通过发送消息到交换机，所有消费者接收并消费消息。</p>
+</blockquote>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291224068875.jpg" alt="16291224068875"></p>
+<h3 id="路由模式（direct）"><a href="#路由模式（direct）" class="headerlink" title="路由模式（direct）"></a>路由模式（direct）</h3><blockquote>
+<p>路由模式是可以根据路由键选择性给多个消费者发送消息的模式，它包含一个生产者、两个消费者、两个队列和一个交换机。两个消费者同时绑定到不同的队列上去，两个队列通过路由键绑定到交换机上去，生产者发送消息到交换机，交换机通过路由键转发到不同队列，队列绑定的消费者接收并消费消息。</p>
+</blockquote>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291224228449.jpg" alt="16291224228449"></p>
+<h3 id="通配符模式（topic）"><a href="#通配符模式（topic）" class="headerlink" title="通配符模式（topic）"></a>通配符模式（topic）</h3><blockquote>
+<p>通配符模式是可以根据路由键匹配规则选择性给多个消费者发送消息的模式，它包含一个生产者、两个消费者、两个队列和一个交换机。两个消费者同时绑定到不同的队列上去，两个队列通过路由键匹配规则绑定到交换机上去，生产者发送消息到交换机，交换机通过路由键匹配规则转发到不同队列，队列绑定的消费者接收并消费消息。</p>
+</blockquote>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291224454336.jpg" alt="16291224454336"></p>
+<h3 id="header模式（header）"><a href="#header模式（header）" class="headerlink" title="header模式（header）"></a>header模式（header）</h3><p>header模式与routing不同的地方在于，header模式取消routingkey，使用header中的<br>key&#x2F;value（键值对）匹配队列。</p>
+<h3 id="RPC模式（direct）"><a href="#RPC模式（direct）" class="headerlink" title="RPC模式（direct）"></a>RPC模式（direct）</h3><blockquote>
+<p>1、客户端即是生产者就是消费者，向RPC请求队列发送RPC调用消息，同时监听RPC响应队列。</p>
+<p>2、服务端监听RPC请求队列的消息，收到消息后执行服务端的方法，得到方法返回的结果。</p>
+<p>3、服务端将RPC方法 的结果发送到RPC响应队列。</p>
+<p>4、客户端（RPC调用方）监听RPC响应队列，接收到RPC调用结果。</p>
+</blockquote>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291225166457.jpg" alt="16291225166457"></p>
+<h1 id="消息确认机制-可靠抵达"><a href="#消息确认机制-可靠抵达" class="headerlink" title="消息确认机制-可靠抵达"></a>消息确认机制-可靠抵达</h1><blockquote>
+<p>保证消息不丢失，可靠抵达，可以使用事务消息，性能下降250倍，为此引入确认机制</p>
+</blockquote>
+<ul>
+<li><p><strong>publish</strong> cornfirmCallback确认模式</p>
+</li>
+<li><p><strong>publish</strong> returnCallback未投递到queue退回模式</p>
+</li>
+<li><p><strong>consumer</strong> ack机制</p>
+</li>
+</ul>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291226024394.jpg" alt="16291226024394"></p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291226225999.jpg" alt="16291226225999"></p>
+<h1 id="如何保证消息可靠性-消息丢失"><a href="#如何保证消息可靠性-消息丢失" class="headerlink" title="如何保证消息可靠性-消息丢失"></a>如何保证消息可靠性-消息丢失</h1><h2 id="1-消息丢失"><a href="#1-消息丢失" class="headerlink" title="1.消息丢失"></a>1.消息丢失</h2><blockquote>
+<p>消息发送出去，由于网络原因未到达服务器</p>
+</blockquote>
+<ul>
+<li><p>做好容错方法，发送消息可能会网络失败，失败后要去重试机制，可记录到数据库，定期重发</p>
+</li>
+<li><p>做好日志记录，每个消息状态是否被服务器收到都应该记录</p>
+</li>
+<li><p>做好定期重发，如果消息发送成功，定期去数据库扫描未成功发送的消息进行重发</p>
+</li>
+</ul>
+<blockquote>
+<p>消息抵达Broker，Broker要将消息持久化才算成功。此时如果宕机，消息持久化未完成</p>
+</blockquote>
+<ul>
+<li>publisher也必须加入确认回调机制，确认成功的消息，修改数据库消息状态</li>
+</ul>
+<blockquote>
+<p>自动ack的状态下。消费者收到消息，但没来得及处理消息，宕机</p>
+</blockquote>
+<ul>
+<li>开启手动ack，消费成功才移除，消费失败就noack并重新入队</li>
+</ul>
+<h2 id="2-消息重复"><a href="#2-消息重复" class="headerlink" title="2.消息重复"></a>2.消息重复</h2><blockquote>
+<p>消息消费成功，但是手动ack时宕机，导致ack失败，消息被发送给其他消费者</p>
+</blockquote>
+<blockquote>
+<p>消息消费失败，由于重试机制，自动又将消息发出去</p>
+</blockquote>
+<ul>
+<li><p>保证消费业务接口幂等性，处理过了就不处理了</p>
+</li>
+<li><p>rabbitmq的每一个消息都有redelivered字段，可以获取是否被重新投递过来的，而不是第一次投递</p>
+</li>
+</ul>
+<h2 id="3-消息积压"><a href="#3-消息积压" class="headerlink" title="3.消息积压"></a>3.消息积压</h2><blockquote>
+<p>消费者宕机</p>
+</blockquote>
+<blockquote>
+<p>消费者消费能力不足</p>
+</blockquote>
+<blockquote>
+<p>发送者发送流量过大</p>
+</blockquote>
+<ul>
+<li><p>上线更多消费者</p>
+</li>
+<li><p>先将消息记录到数据库，再慢慢处理</p>
+</li>
+</ul>
+<h2 id="RabbitMQ延时队列（实现定时任务）"><a href="#RabbitMQ延时队列（实现定时任务）" class="headerlink" title="RabbitMQ延时队列（实现定时任务）"></a>RabbitMQ延时队列（实现定时任务）</h2><blockquote>
+<p>场景：比如未付款订单，超时一定时间后，系统自动取消订单并释放库存。</p>
+</blockquote>
+<h3 id="常用解决方案："><a href="#常用解决方案：" class="headerlink" title="常用解决方案："></a>常用解决方案：</h3><p>spring Schedule定时任务轮询数据库</p>
+<p><strong>缺点：</strong></p>
+<p>消耗系统内存，增加数据库压力，存在时间误差</p>
+<p><strong>解决：RabbitMQ的消息ttl和死信Exchange结合</strong></p>
+<h3 id="消息的TTL（Time-To-Live）"><a href="#消息的TTL（Time-To-Live）" class="headerlink" title="消息的TTL（Time To Live）"></a>消息的TTL（Time To Live）</h3><ul>
+<li><p>消息TTL就是消息的存活时间</p>
+</li>
+<li><p>RabbitMQ可以对队列和消息分别设置TTL</p>
+</li>
+<li><p>对队列设置就是队列没有消费者连着的保留时间，也可以对每个单独的消息做单独的设置。超过这个时间，我们认为消息死了，称之为死信。</p>
+</li>
+<li><p>如果队列设置了。消息也设置了，那么会取小的。所以一个消息如果被路由到不同的队列，这个消息的死亡的时间可能不一样（不同队列设置）。这里单讲单个消息的TTL因为它才是实现延迟任务的关键。可以通过设置消息expiration字段或者x-message-ttl属性来设置时间，两者是一样的效果。</p>
+</li>
+</ul>
+<h3 id="Dead-Letter-Exchanges-DLX"><a href="#Dead-Letter-Exchanges-DLX" class="headerlink" title="Dead Letter Exchanges(DLX)"></a>Dead Letter Exchanges(DLX)</h3><ul>
+<li><p>一个消息在满足如下条件下，会进入死信路由，记住这里是路由不是队列，一个路由可以应对很多队列。（什么是死信）</p>
+</li>
+<li><p>一个消息被消费者拒收了，并且reject方法的参数是requeue是false。也就是说不会被再次放在队列里，被其他消费者使用。（basicNack&#x2F;basicReject）requeue&#x3D;false</p>
+</li>
+<li><p>上面的消息ttl到了，消息过期</p>
+</li>
+<li><p>队列的长度限制满了。排在前面的消息会被丢弃或扔到死信路由</p>
+</li>
+<li><p>Dead Letter Exchange其实就是一个普通的exchange，和创建其他exchange没两样。只是在某一个设置Dead<br>Letter Exchange的队列中有消息过期了，会自动触发消息的转发，发送到Dead Letter Exchange中去。</p>
+</li>
+<li><p>我们既可以控制消息在一段时间后变成死信，又可以控制变成死信的消息被路由到某一个指定的exchange，结合二者，就可以实现一个延迟队列。</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>后端</category>
+      </categories>
+      <tags>
+        <tag>消息队列</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Netty</title>
     <url>/2021/09/14/Netty/</url>
     <content><![CDATA[<h1 id="Netty"><a href="#Netty" class="headerlink" title="Netty"></a>Netty</h1><h2 id="Netty介绍应用场景"><a href="#Netty介绍应用场景" class="headerlink" title="Netty介绍应用场景"></a>Netty介绍应用场景</h2><h3 id="Netty介绍"><a href="#Netty介绍" class="headerlink" title="Netty介绍"></a>Netty介绍</h3><ol>
@@ -1820,193 +2007,6 @@ docker exec -it --user root $ContainerName /bin/bash
       </tags>
   </entry>
   <entry>
-    <title>RabbitMQ</title>
-    <url>/2021/07/31/RabbitMQ/</url>
-    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>RabbitMQ是最受欢迎的开源消息中间件之一，在全球范围内被广泛应用。RabbitMQ是轻量级且易于部署的，能支持多种消息协议。RabbitMQ可以部署在分布式系统中，以满足大规模、高可用的要求。</p>
-<span id="more"></span>
-
-<h1 id="安装及配置"><a href="#安装及配置" class="headerlink" title="安装及配置"></a>安装及配置</h1><h2 id="Linux安装："><a href="#Linux安装：" class="headerlink" title="Linux安装："></a>Linux安装：</h2><p>下载docker镜像</p>
-<pre><code>docker pull rabbitmq:3.7.15
-</code></pre>
-<p>使用docker命令启动服务</p>
-<pre><code>docker run -d -p 5672:5672 -p 15672:15672 --name rabbitmq rabbitmq:3.7.15
-</code></pre>
-<p>进入容器并开启管理功能</p>
-<pre><code>docker exec -it rabbitmq /bin/bash 
-rabbitmq-plugins enable rabbitmq_management
-</code></pre>
-<p>开启防火墙便于外网访问</p>
-<h2 id="访问及配置"><a href="#访问及配置" class="headerlink" title="访问及配置"></a>访问及配置</h2><ol>
-<li>访问RabbitMQ管理页面地址，查看是否安装成功（Linux下使用服务器IP访问即可）：<a href="http://localhost:15672/">http://localhost:15672</a></li>
-<li>输入账号密码并登录，这里使用默认账号密码登录：guest guest</li>
-<li>创建帐号并设置其角色为管理员：yh yh<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291220880322.jpg" alt="16291220880322"></li>
-<li>创建一个新的虚拟host为：&#x2F;yh<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291221215137.jpg" alt="16291221215137"></li>
-<li>点击yh用户，给yh用户配置该虚拟host的权限；<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291221501459.jpg" alt="16291221501459"></li>
-<li>至此，RabbitMQ的配置完成。</li>
-</ol>
-<h1 id="RabbitMQ简介"><a href="#RabbitMQ简介" class="headerlink" title="RabbitMQ简介"></a>RabbitMQ简介</h1><p>RabbitMQ是一个由erlang开发的AMQP(Advanced Message Queue Protocol)的开源实现。</p>
-<h2 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h2><h3 id="Message"><a href="#Message" class="headerlink" title="Message"></a>Message</h3><blockquote>
-<p>消息，消息是不具名的，它由消息头和消息体组成。消息体是不透明的，而消息头则由一系列的可选属性组成，这些属性包括routing-key（路由键）、priority（相对于其他消息的优先权）、delivery-mode（指出该消息可能需要持久性储存）等。</p>
-</blockquote>
-<h3 id="Publish"><a href="#Publish" class="headerlink" title="Publish"></a>Publish</h3><blockquote>
-<p>消息的生产者，也是一个向交换器发布消息的客户端应用程序。</p>
-</blockquote>
-<h3 id="Exchange"><a href="#Exchange" class="headerlink" title="Exchange"></a>Exchange</h3><blockquote>
-<p>交换器，用来接收生产者发送的消息并将这些消息路由给服务器中的队列。Exchange有4种类型：direct（默认），fanout，topic和headers，不同类型的Exchange转发消息的策略有所区别</p>
-</blockquote>
-<h3 id="Queue"><a href="#Queue" class="headerlink" title="Queue"></a>Queue</h3><blockquote>
-<p>消息队列，用来保存消息直到发送给消费者，它是消息的容器，也是消息的终点。一个消息可投入一个或多个队列。消息一直在队列里面，等待消费者连接到这个队列将其取走。</p>
-</blockquote>
-<h3 id="Binding"><a href="#Binding" class="headerlink" title="Binding"></a>Binding</h3><blockquote>
-<p>绑定，用于消息队列和交换器之间的关联。一个绑定就是基于路由键将交换器和消息队列连接起来的路由规则，所以可以将交换器理解为一个由绑定构成的路由表。Exchange和Queue的绑定可以是多对多的关系。</p>
-</blockquote>
-<h3 id="Connection"><a href="#Connection" class="headerlink" title="Connection"></a>Connection</h3><blockquote>
-<p>网络连接，比如一个TCP连接。</p>
-</blockquote>
-<h3 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h3><blockquote>
-<p>信道，多路复用连接中的一条独立的双向数据流通道。信道是建立在真实的TCP连接内的虚拟连接，AMQP命令都是通过信道发出去的，不管是发布消息、订阅队列还是接收消息，这些都是通过信道完成的。因为对于操作系统来说建立和销毁TCP都是非常昂贵的开销，所以引入信道的概念，以复用一条TCP连接。</p>
-</blockquote>
-<h3 id="Consumer"><a href="#Consumer" class="headerlink" title="Consumer"></a>Consumer</h3><blockquote>
-<p>消息的消费者，表示一个从消息队列中取得消息的客户端应用程序。</p>
-</blockquote>
-<h3 id="Virtual-Host"><a href="#Virtual-Host" class="headerlink" title="Virtual Host"></a>Virtual Host</h3><blockquote>
-<p>虚拟主机，表示一批交换器、消息队列和相关对象。虚拟主机是共享相同身份认证和加密环境的独立服务器域。每个vhost本质上就是一个mini版的RabbitMQ服务器，拥有自己的队列、交换器、绑定和权限机制。vhost是AMQP概念的基础，必须在连接时指定，默认的vhost是&#x2F;。</p>
-</blockquote>
-<h3 id="Broker"><a href="#Broker" class="headerlink" title="Broker"></a>Broker</h3><blockquote>
-<p>表示消息队列服务器实体</p>
-</blockquote>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291223199643.jpg" alt="16291223199643"></p>
-<h2 id="5种消息模式"><a href="#5种消息模式" class="headerlink" title="5种消息模式"></a>5种消息模式</h2><h3 id="简单模式"><a href="#简单模式" class="headerlink" title="简单模式"></a>简单模式</h3><blockquote>
-<p>简单模式是最简单的消息模式，它包含一个生产者、一个消费者和一个队列。生产者向队列里发送消息，消费者从队列中获取消息并消费。</p>
-</blockquote>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291223509014.jpg" alt="16291223509014"></p>
-<h3 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h3><blockquote>
-<p>工作模式是指向多个互相竞争的消费者发送消息的模式，它包含一个生产者、两个消费者和一个队列。两个消费者同时绑定到一个队列上去，当消费者获取消息处理耗时任务时，空闲的消费者从队列中获取并消费消息。</p>
-</blockquote>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291223898130.jpg" alt="16291223898130"></p>
-<h3 id="发布-订阅模式（fanout）"><a href="#发布-订阅模式（fanout）" class="headerlink" title="发布&#x2F;订阅模式（fanout）"></a>发布&#x2F;订阅模式（fanout）</h3><blockquote>
-<p>发布&#x2F;订阅模式是指同时向多个消费者发送消息的模式（类似广播的形式），它包含一个生产者、两个消费者、两个队列和一个交换机。两个消费者同时绑定到不同的队列上去，两个队列绑定到交换机上去，生产者通过发送消息到交换机，所有消费者接收并消费消息。</p>
-</blockquote>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291224068875.jpg" alt="16291224068875"></p>
-<h3 id="路由模式（direct）"><a href="#路由模式（direct）" class="headerlink" title="路由模式（direct）"></a>路由模式（direct）</h3><blockquote>
-<p>路由模式是可以根据路由键选择性给多个消费者发送消息的模式，它包含一个生产者、两个消费者、两个队列和一个交换机。两个消费者同时绑定到不同的队列上去，两个队列通过路由键绑定到交换机上去，生产者发送消息到交换机，交换机通过路由键转发到不同队列，队列绑定的消费者接收并消费消息。</p>
-</blockquote>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291224228449.jpg" alt="16291224228449"></p>
-<h3 id="通配符模式（topic）"><a href="#通配符模式（topic）" class="headerlink" title="通配符模式（topic）"></a>通配符模式（topic）</h3><blockquote>
-<p>通配符模式是可以根据路由键匹配规则选择性给多个消费者发送消息的模式，它包含一个生产者、两个消费者、两个队列和一个交换机。两个消费者同时绑定到不同的队列上去，两个队列通过路由键匹配规则绑定到交换机上去，生产者发送消息到交换机，交换机通过路由键匹配规则转发到不同队列，队列绑定的消费者接收并消费消息。</p>
-</blockquote>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291224454336.jpg" alt="16291224454336"></p>
-<h3 id="header模式（header）"><a href="#header模式（header）" class="headerlink" title="header模式（header）"></a>header模式（header）</h3><p>header模式与routing不同的地方在于，header模式取消routingkey，使用header中的<br>key&#x2F;value（键值对）匹配队列。</p>
-<h3 id="RPC模式（direct）"><a href="#RPC模式（direct）" class="headerlink" title="RPC模式（direct）"></a>RPC模式（direct）</h3><blockquote>
-<p>1、客户端即是生产者就是消费者，向RPC请求队列发送RPC调用消息，同时监听RPC响应队列。</p>
-<p>2、服务端监听RPC请求队列的消息，收到消息后执行服务端的方法，得到方法返回的结果。</p>
-<p>3、服务端将RPC方法 的结果发送到RPC响应队列。</p>
-<p>4、客户端（RPC调用方）监听RPC响应队列，接收到RPC调用结果。</p>
-</blockquote>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291225166457.jpg" alt="16291225166457"></p>
-<h1 id="消息确认机制-可靠抵达"><a href="#消息确认机制-可靠抵达" class="headerlink" title="消息确认机制-可靠抵达"></a>消息确认机制-可靠抵达</h1><blockquote>
-<p>保证消息不丢失，可靠抵达，可以使用事务消息，性能下降250倍，为此引入确认机制</p>
-</blockquote>
-<ul>
-<li><p><strong>publish</strong> cornfirmCallback确认模式</p>
-</li>
-<li><p><strong>publish</strong> returnCallback未投递到queue退回模式</p>
-</li>
-<li><p><strong>consumer</strong> ack机制</p>
-</li>
-</ul>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291226024394.jpg" alt="16291226024394"></p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291226225999.jpg" alt="16291226225999"></p>
-<h1 id="如何保证消息可靠性-消息丢失"><a href="#如何保证消息可靠性-消息丢失" class="headerlink" title="如何保证消息可靠性-消息丢失"></a>如何保证消息可靠性-消息丢失</h1><h2 id="1-消息丢失"><a href="#1-消息丢失" class="headerlink" title="1.消息丢失"></a>1.消息丢失</h2><blockquote>
-<p>消息发送出去，由于网络原因未到达服务器</p>
-</blockquote>
-<ul>
-<li><p>做好容错方法，发送消息可能会网络失败，失败后要去重试机制，可记录到数据库，定期重发</p>
-</li>
-<li><p>做好日志记录，每个消息状态是否被服务器收到都应该记录</p>
-</li>
-<li><p>做好定期重发，如果消息发送成功，定期去数据库扫描未成功发送的消息进行重发</p>
-</li>
-</ul>
-<blockquote>
-<p>消息抵达Broker，Broker要将消息持久化才算成功。此时如果宕机，消息持久化未完成</p>
-</blockquote>
-<ul>
-<li>publisher也必须加入确认回调机制，确认成功的消息，修改数据库消息状态</li>
-</ul>
-<blockquote>
-<p>自动ack的状态下。消费者收到消息，但没来得及处理消息，宕机</p>
-</blockquote>
-<ul>
-<li>开启手动ack，消费成功才移除，消费失败就noack并重新入队</li>
-</ul>
-<h2 id="2-消息重复"><a href="#2-消息重复" class="headerlink" title="2.消息重复"></a>2.消息重复</h2><blockquote>
-<p>消息消费成功，但是手动ack时宕机，导致ack失败，消息被发送给其他消费者</p>
-</blockquote>
-<blockquote>
-<p>消息消费失败，由于重试机制，自动又将消息发出去</p>
-</blockquote>
-<ul>
-<li><p>保证消费业务接口幂等性，处理过了就不处理了</p>
-</li>
-<li><p>rabbitmq的每一个消息都有redelivered字段，可以获取是否被重新投递过来的，而不是第一次投递</p>
-</li>
-</ul>
-<h2 id="3-消息积压"><a href="#3-消息积压" class="headerlink" title="3.消息积压"></a>3.消息积压</h2><blockquote>
-<p>消费者宕机</p>
-</blockquote>
-<blockquote>
-<p>消费者消费能力不足</p>
-</blockquote>
-<blockquote>
-<p>发送者发送流量过大</p>
-</blockquote>
-<ul>
-<li><p>上线更多消费者</p>
-</li>
-<li><p>先将消息记录到数据库，再慢慢处理</p>
-</li>
-</ul>
-<h2 id="RabbitMQ延时队列（实现定时任务）"><a href="#RabbitMQ延时队列（实现定时任务）" class="headerlink" title="RabbitMQ延时队列（实现定时任务）"></a>RabbitMQ延时队列（实现定时任务）</h2><blockquote>
-<p>场景：比如未付款订单，超时一定时间后，系统自动取消订单并释放库存。</p>
-</blockquote>
-<h3 id="常用解决方案："><a href="#常用解决方案：" class="headerlink" title="常用解决方案："></a>常用解决方案：</h3><p>spring Schedule定时任务轮询数据库</p>
-<p><strong>缺点：</strong></p>
-<p>消耗系统内存，增加数据库压力，存在时间误差</p>
-<p><strong>解决：RabbitMQ的消息ttl和死信Exchange结合</strong></p>
-<h3 id="消息的TTL（Time-To-Live）"><a href="#消息的TTL（Time-To-Live）" class="headerlink" title="消息的TTL（Time To Live）"></a>消息的TTL（Time To Live）</h3><ul>
-<li><p>消息TTL就是消息的存活时间</p>
-</li>
-<li><p>RabbitMQ可以对队列和消息分别设置TTL</p>
-</li>
-<li><p>对队列设置就是队列没有消费者连着的保留时间，也可以对每个单独的消息做单独的设置。超过这个时间，我们认为消息死了，称之为死信。</p>
-</li>
-<li><p>如果队列设置了。消息也设置了，那么会取小的。所以一个消息如果被路由到不同的队列，这个消息的死亡的时间可能不一样（不同队列设置）。这里单讲单个消息的TTL因为它才是实现延迟任务的关键。可以通过设置消息expiration字段或者x-message-ttl属性来设置时间，两者是一样的效果。</p>
-</li>
-</ul>
-<h3 id="Dead-Letter-Exchanges-DLX"><a href="#Dead-Letter-Exchanges-DLX" class="headerlink" title="Dead Letter Exchanges(DLX)"></a>Dead Letter Exchanges(DLX)</h3><ul>
-<li><p>一个消息在满足如下条件下，会进入死信路由，记住这里是路由不是队列，一个路由可以应对很多队列。（什么是死信）</p>
-</li>
-<li><p>一个消息被消费者拒收了，并且reject方法的参数是requeue是false。也就是说不会被再次放在队列里，被其他消费者使用。（basicNack&#x2F;basicReject）requeue&#x3D;false</p>
-</li>
-<li><p>上面的消息ttl到了，消息过期</p>
-</li>
-<li><p>队列的长度限制满了。排在前面的消息会被丢弃或扔到死信路由</p>
-</li>
-<li><p>Dead Letter Exchange其实就是一个普通的exchange，和创建其他exchange没两样。只是在某一个设置Dead<br>Letter Exchange的队列中有消息过期了，会自动触发消息的转发，发送到Dead Letter Exchange中去。</p>
-</li>
-<li><p>我们既可以控制消息在一段时间后变成死信，又可以控制变成死信的消息被路由到某一个指定的exchange，结合二者，就可以实现一个延迟队列。</p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>后端</category>
-      </categories>
-      <tags>
-        <tag>消息队列</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Redisson分布式锁（使用注解方式）</title>
     <url>/2022/05/30/Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%EF%BC%89/</url>
     <content><![CDATA[<h2 id="引入pom依赖"><a href="#引入pom依赖" class="headerlink" title="引入pom依赖"></a>引入pom依赖</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.redisson&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;redisson-spring-boot-starter&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;3.13.1&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
@@ -2182,6 +2182,49 @@ rabbitmq-plugins enable rabbitmq_management
       </tags>
   </entry>
   <entry>
+    <title>k8s</title>
+    <url>/2024/03/09/k8s/</url>
+    <content><![CDATA[<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>Kubernetes 是一个可移植、可扩展的开源平台，用于管理容器化的工作负载和服务，可促进声明式配置和自动化。 Kubernetes 拥有一个庞大且快速增长的生态，其服务、支持和工具的使用范围相当广泛。</p>
+<p>Kubernetes 这个名字源于希腊语，意为“舵手”或“飞行员”。k8s 这个缩写是因为 k 和 s 之间有八个字符的关系。 Google 在 2014 年开源了 Kubernetes 项目。 Kubernetes 建立在 Google 大规模运行生产工作负载十几年经验的基础上， 结合了社区中最优秀的想法和实践。</p>
+<p><img src="http://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2024/03/09/containerevolution.svg" alt="Container_Evolution"></p>
+<p>Kubernetes提供：</p>
+<ul>
+<li><p>服务发现和负载均衡<br>Kubernetes 可以使用 DNS 名称或自己的 IP 地址来暴露容器。 如果进入容器的流量很大，Kubernetes 可以负载均衡并分配网络流量，从而使部署稳定。</p>
+</li>
+<li><p>存储编排<br>Kubernetes 允许你自动挂载你选择的存储系统，例如本地存储、公共云提供商等。</p>
+</li>
+<li><p>自动部署和回滚<br>你可以使用 Kubernetes 描述已部署容器的所需状态， 它可以以受控的速率将实际状态更改为期望状态。 例如，你可以自动化 Kubernetes 来为你的部署创建新容器， 删除现有容器并将它们的所有资源用于新容器。</p>
+</li>
+<li><p>自动完成装箱计算<br>你为 Kubernetes 提供许多节点组成的集群，在这个集群上运行容器化的任务。 你告诉 Kubernetes 每个容器需要多少 CPU 和内存 (RAM)。 Kubernetes 可以将这些容器按实际情况调度到你的节点上，以最佳方式利用你的资源。</p>
+</li>
+<li><p>自我修复<br>Kubernetes 将重新启动失败的容器、替换容器、杀死不响应用户定义的运行状况检查的容器， 并且在准备好服务之前不将其通告给客户端。</p>
+</li>
+<li><p>密钥与配置管理<br>Kubernetes 允许你存储和管理敏感信息，例如密码、OAuth 令牌和 SSH 密钥。 你可以在不重建容器镜像的情况下部署和更新密钥和应用程序配置，也无需在堆栈配置中暴露密钥。</p>
+</li>
+<li><p>批处理执行<br>除了服务外，Kubernetes 还可以管理你的批处理和 CI（持续集成）工作负载，如有需要，可以替换失败的容器。</p>
+</li>
+<li><p>水平扩缩<br>使用简单的命令、用户界面或根据 CPU 使用率自动对你的应用进行扩缩。</p>
+</li>
+<li><p>IPv4&#x2F;IPv6 双栈<br>为 Pod（容器组）和 Service（服务）分配 IPv4 和 IPv6 地址。</p>
+</li>
+<li><p>为可扩展性设计<br>在不改变上游源代码的情况下为你的 Kubernetes 集群添加功能。</p>
+</li>
+</ul>
+<h1 id="Kubernetes-组件"><a href="#Kubernetes-组件" class="headerlink" title="Kubernetes 组件"></a>Kubernetes 组件</h1><p>当你部署完 Kubernetes，便拥有了一个完整的集群。</p>
+<p>一组工作机器，称为节点， 会运行容器化应用程序。每个集群至少有一个工作节点。</p>
+<p>工作节点会托管 Pod，而 Pod 就是作为应用负载的组件。 控制平面管理集群中的工作节点和 Pod。 在生产环境中，控制平面通常跨多台计算机运行， 一个集群通常运行多个节点，提供容错性和高可用性。</p>
+<p><img src="http://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2024/03/09/componentsofkubernetes.svg" alt="components-of-kubernetes"></p>
+<h2 id="控制平面组件（Control-Plane-Components）"><a href="#控制平面组件（Control-Plane-Components）" class="headerlink" title="控制平面组件（Control Plane Components）"></a>控制平面组件（Control Plane Components）</h2><p>控制平面组件会为集群做出全局决策，比如资源的调度。 以及检测和响应集群事件，例如当不满足部署的 replicas 字段时，要启动新的 Pod）。</p>
+<p>控制平面组件可以在集群中的任何节点上运行。 然而，为了简单起见，设置脚本通常会在同一个计算机上启动所有控制平面组件， 并且不会在此计算机上运行用户容器。 请参阅使用 kubeadm 构建高可用性集群 中关于跨多机器控制平面设置的示例。</p>
+]]></content>
+      <categories>
+        <category>运维</category>
+      </categories>
+      <tags>
+        <tag>k8s</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>k3s实战</title>
     <url>/2023/02/28/k3s%E5%AE%9E%E6%88%98/</url>
     <content><![CDATA[<h2 id="k3s简介"><a href="#k3s简介" class="headerlink" title="k3s简介"></a>k3s简介</h2><p>K3s 是一个轻量级的 Kubernetes 发行版，它针对边缘计算、物联网等场景进行了高度优化。K3s 有以下增强功能：</p>
@@ -2301,46 +2344,92 @@ rabbitmq-plugins enable rabbitmq_management
       </tags>
   </entry>
   <entry>
-    <title>k8s</title>
-    <url>/2024/03/09/k8s/</url>
-    <content><![CDATA[<h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>Kubernetes 是一个可移植、可扩展的开源平台，用于管理容器化的工作负载和服务，可促进声明式配置和自动化。 Kubernetes 拥有一个庞大且快速增长的生态，其服务、支持和工具的使用范围相当广泛。</p>
-<p>Kubernetes 这个名字源于希腊语，意为“舵手”或“飞行员”。k8s 这个缩写是因为 k 和 s 之间有八个字符的关系。 Google 在 2014 年开源了 Kubernetes 项目。 Kubernetes 建立在 Google 大规模运行生产工作负载十几年经验的基础上， 结合了社区中最优秀的想法和实践。</p>
-<p><img src="http://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2024/03/09/containerevolution.svg" alt="Container_Evolution"></p>
-<p>Kubernetes提供：</p>
-<ul>
-<li><p>服务发现和负载均衡<br>Kubernetes 可以使用 DNS 名称或自己的 IP 地址来暴露容器。 如果进入容器的流量很大，Kubernetes 可以负载均衡并分配网络流量，从而使部署稳定。</p>
-</li>
-<li><p>存储编排<br>Kubernetes 允许你自动挂载你选择的存储系统，例如本地存储、公共云提供商等。</p>
-</li>
-<li><p>自动部署和回滚<br>你可以使用 Kubernetes 描述已部署容器的所需状态， 它可以以受控的速率将实际状态更改为期望状态。 例如，你可以自动化 Kubernetes 来为你的部署创建新容器， 删除现有容器并将它们的所有资源用于新容器。</p>
-</li>
-<li><p>自动完成装箱计算<br>你为 Kubernetes 提供许多节点组成的集群，在这个集群上运行容器化的任务。 你告诉 Kubernetes 每个容器需要多少 CPU 和内存 (RAM)。 Kubernetes 可以将这些容器按实际情况调度到你的节点上，以最佳方式利用你的资源。</p>
-</li>
-<li><p>自我修复<br>Kubernetes 将重新启动失败的容器、替换容器、杀死不响应用户定义的运行状况检查的容器， 并且在准备好服务之前不将其通告给客户端。</p>
-</li>
-<li><p>密钥与配置管理<br>Kubernetes 允许你存储和管理敏感信息，例如密码、OAuth 令牌和 SSH 密钥。 你可以在不重建容器镜像的情况下部署和更新密钥和应用程序配置，也无需在堆栈配置中暴露密钥。</p>
-</li>
-<li><p>批处理执行<br>除了服务外，Kubernetes 还可以管理你的批处理和 CI（持续集成）工作负载，如有需要，可以替换失败的容器。</p>
-</li>
-<li><p>水平扩缩<br>使用简单的命令、用户界面或根据 CPU 使用率自动对你的应用进行扩缩。</p>
-</li>
-<li><p>IPv4&#x2F;IPv6 双栈<br>为 Pod（容器组）和 Service（服务）分配 IPv4 和 IPv6 地址。</p>
-</li>
-<li><p>为可扩展性设计<br>在不改变上游源代码的情况下为你的 Kubernetes 集群添加功能。</p>
-</li>
+    <title>索引的创建与设计原则</title>
+    <url>/2022/01/15/%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/</url>
+    <content><![CDATA[<h2 id="索引的声明与使用"><a href="#索引的声明与使用" class="headerlink" title="索引的声明与使用"></a>索引的声明与使用</h2><h3 id="索引的分类"><a href="#索引的分类" class="headerlink" title="索引的分类"></a>索引的分类</h3><ul>
+<li>从<strong>功能逻辑</strong>上说，索引主要有四种，分别为普通索引、唯一索引、主键索引、全文索引。</li>
+<li>按照<strong>物理实现方式</strong>，索引可以分为两种：聚簇索引和非聚簇索引。</li>
+<li>按照<strong>作用字段个数</strong>进行划分，分成单列索引和联合索引。</li>
 </ul>
-<h1 id="Kubernetes-组件"><a href="#Kubernetes-组件" class="headerlink" title="Kubernetes 组件"></a>Kubernetes 组件</h1><p>当你部署完 Kubernetes，便拥有了一个完整的集群。</p>
-<p>一组工作机器，称为节点， 会运行容器化应用程序。每个集群至少有一个工作节点。</p>
-<p>工作节点会托管 Pod，而 Pod 就是作为应用负载的组件。 控制平面管理集群中的工作节点和 Pod。 在生产环境中，控制平面通常跨多台计算机运行， 一个集群通常运行多个节点，提供容错性和高可用性。</p>
-<p><img src="http://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2024/03/09/componentsofkubernetes.svg" alt="components-of-kubernetes"></p>
-<h2 id="控制平面组件（Control-Plane-Components）"><a href="#控制平面组件（Control-Plane-Components）" class="headerlink" title="控制平面组件（Control Plane Components）"></a>控制平面组件（Control Plane Components）</h2><p>控制平面组件会为集群做出全局决策，比如资源的调度。 以及检测和响应集群事件，例如当不满足部署的 replicas 字段时，要启动新的 Pod）。</p>
-<p>控制平面组件可以在集群中的任何节点上运行。 然而，为了简单起见，设置脚本通常会在同一个计算机上启动所有控制平面组件， 并且不会在此计算机上运行用户容器。 请参阅使用 kubeadm 构建高可用性集群 中关于跨多机器控制平面设置的示例。</p>
+<h2 id="MySQL8-0索引新特性"><a href="#MySQL8-0索引新特性" class="headerlink" title="MySQL8.0索引新特性"></a>MySQL8.0索引新特性</h2><h3 id="支持降序索引"><a href="#支持降序索引" class="headerlink" title="支持降序索引"></a>支持降序索引</h3><p>降序索引以降序存储键值。虽然在语法上，从MySQL4版本开始就支持降序索引语法了。但实际上该DESC定义是被忽略的，直到MySQL8才开始真正支持降序索引（仅限于InnoDB存储引擎）。<br>MySQL在8.0之前创建仍然是升序索引，使用时进行反向扫描，这大大降低了数据库的效率。<br><code> CREATE TABLE ts1(a int,b int,index idx_a_b(a ASC,b DESC))</code></p>
+<h3 id="隐藏索引"><a href="#隐藏索引" class="headerlink" title="隐藏索引"></a>隐藏索引</h3><p><code> ALTER TABLE tablename ALTER INDEX index_name INVISIBLE; #隐藏索引</code><br><code> ALTER TABLE tablename ALTER INDEX index_name VISIBLE; #显示索引</code><br><strong>隐藏显示索引可用与查看使用索引的效率提升</strong></p>
+<h2 id="索引的设计原则"><a href="#索引的设计原则" class="headerlink" title="索引的设计原则"></a>索引的设计原则</h2><h3 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h3><p>创建表</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 课程表</span><br><span class="line">CREATE TABLE `course` (</span><br><span class="line">  `id` int NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `course_id` int NOT NULL,</span><br><span class="line">  `course_name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</span><br><span class="line"></span><br><span class="line"># 学生表</span><br><span class="line">CREATE TABLE `student_info` (</span><br><span class="line">  `id` int NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `student_id` int NOT NULL,</span><br><span class="line">  `name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,</span><br><span class="line">  `course_id` int NOT NULL,</span><br><span class="line">  `class_id` int DEFAULT NULL,</span><br><span class="line">  `create_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB AUTO_INCREMENT=1000001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</span><br></pre></td></tr></table></figure>
+<p>生成随机数函数</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成随机数函数</span><br><span class="line">CREATE DEFINER=`root`@`%` FUNCTION `rand_num`( from_num INT,to_num INT) RETURNS int</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	SET i = FLOOR(from_num+RAND()*(to_num-from_num +1));</span><br><span class="line">	RETURN i;</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+<p>生成随机字符串函数</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 生成随机字符串</span><br><span class="line">CREATE DEFINER=`root`@`%` FUNCTION `rand_string`(n INT) RETURNS varchar(255) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci</span><br><span class="line">BEGIN</span><br><span class="line">    DECLARE chars_str varchar(100) DEFAULT &#x27;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&#x27;;</span><br><span class="line">    DECLARE return_str varchar(255) DEFAULT &#x27;&#x27;;</span><br><span class="line">    DECLARE i INT DEFAULT 0;</span><br><span class="line">    WHILE i &lt; n DO</span><br><span class="line">        SET return_str = concat(return_str,substring(chars_str , FLOOR(1 + RAND()*62 ),1));</span><br><span class="line">        SET i = i +1;</span><br><span class="line">    END WHILE;</span><br><span class="line">    RETURN return_str;</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+<p>生成课程表数据储存过程</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成课程表数据储存过程</span><br><span class="line">CREATE DEFINER=`root`@`%` PROCEDURE `insert_course`( max_num INT )</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	</span><br><span class="line">	SET autocommit = 0;</span><br><span class="line">	REPEAT</span><br><span class="line">			</span><br><span class="line">			SET i = i + 1;</span><br><span class="line">		INSERT INTO course ( course_id, course_name )</span><br><span class="line">		VALUES</span><br><span class="line">			(</span><br><span class="line">				rand_num ( 10000, 10100 ),</span><br><span class="line">			rand_string ( 6 ));</span><br><span class="line">		UNTIL i = max_num </span><br><span class="line">	END REPEAT;</span><br><span class="line">	COMMIT;</span><br><span class="line">	</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+<p>生成学生表数据存储过程</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成学生表存储过程</span><br><span class="line">CREATE DEFINER=`root`@`%` PROCEDURE `insert_stu`( max_num INT )</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	</span><br><span class="line">	SET autocommit = 0;</span><br><span class="line">	REPEAT</span><br><span class="line">			</span><br><span class="line">			SET i = i + 1;</span><br><span class="line">		INSERT INTO student_info ( course_id, class_id,student_id,name ) VALUES(</span><br><span class="line">		rand_num(10000,10100),rand_num(10000,10200),rand_num(10000,20000),rand_string(6)</span><br><span class="line">		);</span><br><span class="line">		UNTIL i = max_num </span><br><span class="line">	END REPEAT;</span><br><span class="line">	COMMIT;</span><br><span class="line">	</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+<p>调用存储过程</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CALL insert_stu(1000000);</span><br><span class="line">CALL insert_course(100);</span><br></pre></td></tr></table></figure>
+<h3 id="哪些情况适合创建索引"><a href="#哪些情况适合创建索引" class="headerlink" title="哪些情况适合创建索引"></a>哪些情况适合创建索引</h3><ol>
+<li>字段的数值有唯一性限制：<blockquote>
+<p>业务上具有唯一特性的字段，即使是组合字段，也必须创建组合索引（来源：Alibaba）</p>
+</blockquote>
+</li>
+<li>频繁作为where查询条件的字段</li>
+<li>经常 group by 和 order by 的字段</li>
+<li>update、delete的where条件</li>
+<li>distinct字段需要创建索引</li>
+<li>多表join连接操作时，创建索引的注意事项<blockquote>
+<p>连接表尽量不超过3张；对where条件创建索引，并且该字段在多张表中的类型必须一致（隐式转换（使用了函数，索引失效））；</p>
+</blockquote>
+</li>
+<li>使用列的类型小的创建索引</li>
+<li>使用字符串前缀创建索引</li>
+<li>区分度高（散列性高）的列适合创建索引</li>
+<li>使用最频繁的列放到联合索引的左侧</li>
+<li>在多个列都要创建索引时，联合索引优于单值索引</li>
+</ol>
+<h3 id="哪些情况不适合创建索引"><a href="#哪些情况不适合创建索引" class="headerlink" title="哪些情况不适合创建索引"></a>哪些情况不适合创建索引</h3><ol>
+<li>在where中使用不到的字段不要创建索引</li>
+<li>数据量小的表最好不要创建索引</li>
+<li>有大量重复数据的列不要建立索引</li>
+<li>避免对经常更新的表创建过多的索引</li>
+<li>不建议用无序的值作为索引</li>
+<li>删除不再使用的或者很少使用的索引</li>
+<li>不要定义冗余或重复的索引</li>
+</ol>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>索引是一把双刃剑，可以提高查询效率，但是也会降低插入和更新的速度并占用磁盘空间。</p>
 ]]></content>
       <categories>
-        <category>运维</category>
+        <category>后端</category>
       </categories>
       <tags>
-        <tag>k8s</tag>
+        <tag>MySQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>通过企业微信（微信插件）实现每日天气推送</title>
+    <url>/2021/11/06/%E9%80%9A%E8%BF%87%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%EF%BC%88%E5%BE%AE%E4%BF%A1%E6%8F%92%E4%BB%B6%EF%BC%89%E5%AE%9E%E7%8E%B0%E6%AF%8F%E6%97%A5%E5%A4%A9%E6%B0%94%E6%8E%A8%E9%80%81/</url>
+    <content><![CDATA[<h2 id="企业微信配置"><a href="#企业微信配置" class="headerlink" title="企业微信配置"></a>企业微信配置</h2><h3 id="进入企业微信官网，点击立即注册"><a href="#进入企业微信官网，点击立即注册" class="headerlink" title="进入企业微信官网，点击立即注册"></a>进入<a href="https://work.weixin.qq.com/">企业微信官网</a>，点击立即注册</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361632863091.jpg" alt="16361632863091"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361633233327.jpg" alt="16361633233327"></p>
+<h3 id="登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）"><a href="#登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）" class="headerlink" title="登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）"></a>登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361635628391.jpg" alt="16361635628391"></p>
+<h3 id="点击打开创建的应用，获取开发相关的配置信息（AgentId-Secret）"><a href="#点击打开创建的应用，获取开发相关的配置信息（AgentId-Secret）" class="headerlink" title="点击打开创建的应用，获取开发相关的配置信息（AgentId,Secret）"></a>点击打开创建的应用，获取开发相关的配置信息（AgentId,Secret）</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361637536484.jpg" alt="16361637536484"><br> AgentId：这个应用的唯一标识<br> Secret：密钥（需要发送到企业微信app才能查看）</p>
+<h3 id="到此所有企业微信配置结束"><a href="#到此所有企业微信配置结束" class="headerlink" title="到此所有企业微信配置结束"></a>到此所有企业微信配置结束</h3><h2 id="天气开放平台配置"><a href="#天气开放平台配置" class="headerlink" title="天气开放平台配置"></a>天气开放平台配置</h2><h3 id="进入和风天气开放平台，点击注册"><a href="#进入和风天气开放平台，点击注册" class="headerlink" title="进入和风天气开放平台，点击注册"></a>进入<a href="https://dev.qweather.com/">和风天气开放平台</a>，点击注册</h3><p> <em><strong>注册完成后建议申请认证个人开发者</strong></em>（支持更多接口）<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361640883550.jpg" alt="16361640883550"></p>
+<h3 id="登录控制台，点击应用管理，创建应用，获取到应用的KEY"><a href="#登录控制台，点击应用管理，创建应用，获取到应用的KEY" class="headerlink" title="登录控制台，点击应用管理，创建应用，获取到应用的KEY"></a>登录控制台，点击应用管理，创建应用，获取到应用的KEY</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361644923902.jpg" alt="16361644923902"></p>
+<h2 id="项目开发"><a href="#项目开发" class="headerlink" title="项目开发"></a>项目开发</h2><p>前端项目：<a href="https://github.com/yangh124/weather-push-admin">weather-push-admin</a><br>后台项目：<a href="https://github.com/yangh124/weather-push">weather-push</a></p>
+<h2 id="定时任务配置配置"><a href="#定时任务配置配置" class="headerlink" title="定时任务配置配置"></a>定时任务配置配置</h2><h3 id="执行执行初始化sql"><a href="#执行执行初始化sql" class="headerlink" title="执行执行初始化sql"></a>执行执行初始化sql</h3><p>在后台项目resources&#x2F;sql&#x2F;init.sql</p>
+<h3 id="运行前后端项目"><a href="#运行前后端项目" class="headerlink" title="运行前后端项目"></a>运行前后端项目</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561503716829.jpg" alt="16561503716829"></p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561503961795.jpg" alt="16561503961795"></p>
+<h3 id="登录后台"><a href="#登录后台" class="headerlink" title="登录后台"></a>登录后台</h3><p>使用默认账号密码登录：admin 123456<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561505074675.jpg" alt="16561505074675"></p>
+<h3 id="配置地区"><a href="#配置地区" class="headerlink" title="配置地区"></a>配置地区</h3><p>即配置需要发送天气预报的地区<br><strong>注：这里的地区对应企业微信通讯录中的标签</strong></p>
+<blockquote>
+<p>地区管理 -&gt; 添加<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561506595631.jpg" alt="16561506595631"></p>
+</blockquote>
+<h3 id="地区绑定成员"><a href="#地区绑定成员" class="headerlink" title="地区绑定成员"></a>地区绑定成员</h3><blockquote>
+<p>成员管理 -&gt; 选择左边的地区 -&gt; 点击添加成员<br><strong>注：这里的成员对应企业微信通讯录中的成员</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561508273991.jpg" alt="16561508273991"></p>
+</blockquote>
+<h3 id="创建定时任务"><a href="#创建定时任务" class="headerlink" title="创建定时任务"></a>创建定时任务</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561517473902.jpg" alt="16561517473902"></p>
+<h2 id="最终效果"><a href="#最终效果" class="headerlink" title="最终效果"></a>最终效果</h2><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561520350860.jpg" alt="16561520350860"></p>
+]]></content>
+      <categories>
+        <category>项目</category>
+      </categories>
+      <tags>
+        <tag>实战</tag>
       </tags>
   </entry>
   <entry>
@@ -2836,95 +2925,6 @@ rabbitmq-plugins enable rabbitmq_management
       <tags>
         <tag>Java</tag>
         <tag>算法</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>索引的创建与设计原则</title>
-    <url>/2022/01/15/%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/</url>
-    <content><![CDATA[<h2 id="索引的声明与使用"><a href="#索引的声明与使用" class="headerlink" title="索引的声明与使用"></a>索引的声明与使用</h2><h3 id="索引的分类"><a href="#索引的分类" class="headerlink" title="索引的分类"></a>索引的分类</h3><ul>
-<li>从<strong>功能逻辑</strong>上说，索引主要有四种，分别为普通索引、唯一索引、主键索引、全文索引。</li>
-<li>按照<strong>物理实现方式</strong>，索引可以分为两种：聚簇索引和非聚簇索引。</li>
-<li>按照<strong>作用字段个数</strong>进行划分，分成单列索引和联合索引。</li>
-</ul>
-<h2 id="MySQL8-0索引新特性"><a href="#MySQL8-0索引新特性" class="headerlink" title="MySQL8.0索引新特性"></a>MySQL8.0索引新特性</h2><h3 id="支持降序索引"><a href="#支持降序索引" class="headerlink" title="支持降序索引"></a>支持降序索引</h3><p>降序索引以降序存储键值。虽然在语法上，从MySQL4版本开始就支持降序索引语法了。但实际上该DESC定义是被忽略的，直到MySQL8才开始真正支持降序索引（仅限于InnoDB存储引擎）。<br>MySQL在8.0之前创建仍然是升序索引，使用时进行反向扫描，这大大降低了数据库的效率。<br><code> CREATE TABLE ts1(a int,b int,index idx_a_b(a ASC,b DESC))</code></p>
-<h3 id="隐藏索引"><a href="#隐藏索引" class="headerlink" title="隐藏索引"></a>隐藏索引</h3><p><code> ALTER TABLE tablename ALTER INDEX index_name INVISIBLE; #隐藏索引</code><br><code> ALTER TABLE tablename ALTER INDEX index_name VISIBLE; #显示索引</code><br><strong>隐藏显示索引可用与查看使用索引的效率提升</strong></p>
-<h2 id="索引的设计原则"><a href="#索引的设计原则" class="headerlink" title="索引的设计原则"></a>索引的设计原则</h2><h3 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h3><p>创建表</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 课程表</span><br><span class="line">CREATE TABLE `course` (</span><br><span class="line">  `id` int NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `course_id` int NOT NULL,</span><br><span class="line">  `course_name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</span><br><span class="line"></span><br><span class="line"># 学生表</span><br><span class="line">CREATE TABLE `student_info` (</span><br><span class="line">  `id` int NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `student_id` int NOT NULL,</span><br><span class="line">  `name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,</span><br><span class="line">  `course_id` int NOT NULL,</span><br><span class="line">  `class_id` int DEFAULT NULL,</span><br><span class="line">  `create_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB AUTO_INCREMENT=1000001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</span><br></pre></td></tr></table></figure>
-<p>生成随机数函数</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成随机数函数</span><br><span class="line">CREATE DEFINER=`root`@`%` FUNCTION `rand_num`( from_num INT,to_num INT) RETURNS int</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	SET i = FLOOR(from_num+RAND()*(to_num-from_num +1));</span><br><span class="line">	RETURN i;</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
-<p>生成随机字符串函数</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 生成随机字符串</span><br><span class="line">CREATE DEFINER=`root`@`%` FUNCTION `rand_string`(n INT) RETURNS varchar(255) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci</span><br><span class="line">BEGIN</span><br><span class="line">    DECLARE chars_str varchar(100) DEFAULT &#x27;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&#x27;;</span><br><span class="line">    DECLARE return_str varchar(255) DEFAULT &#x27;&#x27;;</span><br><span class="line">    DECLARE i INT DEFAULT 0;</span><br><span class="line">    WHILE i &lt; n DO</span><br><span class="line">        SET return_str = concat(return_str,substring(chars_str , FLOOR(1 + RAND()*62 ),1));</span><br><span class="line">        SET i = i +1;</span><br><span class="line">    END WHILE;</span><br><span class="line">    RETURN return_str;</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
-<p>生成课程表数据储存过程</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成课程表数据储存过程</span><br><span class="line">CREATE DEFINER=`root`@`%` PROCEDURE `insert_course`( max_num INT )</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	</span><br><span class="line">	SET autocommit = 0;</span><br><span class="line">	REPEAT</span><br><span class="line">			</span><br><span class="line">			SET i = i + 1;</span><br><span class="line">		INSERT INTO course ( course_id, course_name )</span><br><span class="line">		VALUES</span><br><span class="line">			(</span><br><span class="line">				rand_num ( 10000, 10100 ),</span><br><span class="line">			rand_string ( 6 ));</span><br><span class="line">		UNTIL i = max_num </span><br><span class="line">	END REPEAT;</span><br><span class="line">	COMMIT;</span><br><span class="line">	</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
-<p>生成学生表数据存储过程</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成学生表存储过程</span><br><span class="line">CREATE DEFINER=`root`@`%` PROCEDURE `insert_stu`( max_num INT )</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	</span><br><span class="line">	SET autocommit = 0;</span><br><span class="line">	REPEAT</span><br><span class="line">			</span><br><span class="line">			SET i = i + 1;</span><br><span class="line">		INSERT INTO student_info ( course_id, class_id,student_id,name ) VALUES(</span><br><span class="line">		rand_num(10000,10100),rand_num(10000,10200),rand_num(10000,20000),rand_string(6)</span><br><span class="line">		);</span><br><span class="line">		UNTIL i = max_num </span><br><span class="line">	END REPEAT;</span><br><span class="line">	COMMIT;</span><br><span class="line">	</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
-<p>调用存储过程</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CALL insert_stu(1000000);</span><br><span class="line">CALL insert_course(100);</span><br></pre></td></tr></table></figure>
-<h3 id="哪些情况适合创建索引"><a href="#哪些情况适合创建索引" class="headerlink" title="哪些情况适合创建索引"></a>哪些情况适合创建索引</h3><ol>
-<li>字段的数值有唯一性限制：<blockquote>
-<p>业务上具有唯一特性的字段，即使是组合字段，也必须创建组合索引（来源：Alibaba）</p>
-</blockquote>
-</li>
-<li>频繁作为where查询条件的字段</li>
-<li>经常 group by 和 order by 的字段</li>
-<li>update、delete的where条件</li>
-<li>distinct字段需要创建索引</li>
-<li>多表join连接操作时，创建索引的注意事项<blockquote>
-<p>连接表尽量不超过3张；对where条件创建索引，并且该字段在多张表中的类型必须一致（隐式转换（使用了函数，索引失效））；</p>
-</blockquote>
-</li>
-<li>使用列的类型小的创建索引</li>
-<li>使用字符串前缀创建索引</li>
-<li>区分度高（散列性高）的列适合创建索引</li>
-<li>使用最频繁的列放到联合索引的左侧</li>
-<li>在多个列都要创建索引时，联合索引优于单值索引</li>
-</ol>
-<h3 id="哪些情况不适合创建索引"><a href="#哪些情况不适合创建索引" class="headerlink" title="哪些情况不适合创建索引"></a>哪些情况不适合创建索引</h3><ol>
-<li>在where中使用不到的字段不要创建索引</li>
-<li>数据量小的表最好不要创建索引</li>
-<li>有大量重复数据的列不要建立索引</li>
-<li>避免对经常更新的表创建过多的索引</li>
-<li>不建议用无序的值作为索引</li>
-<li>删除不再使用的或者很少使用的索引</li>
-<li>不要定义冗余或重复的索引</li>
-</ol>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>索引是一把双刃剑，可以提高查询效率，但是也会降低插入和更新的速度并占用磁盘空间。</p>
-]]></content>
-      <categories>
-        <category>后端</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>通过企业微信（微信插件）实现每日天气推送</title>
-    <url>/2021/11/06/%E9%80%9A%E8%BF%87%E4%BC%81%E4%B8%9A%E5%BE%AE%E4%BF%A1%EF%BC%88%E5%BE%AE%E4%BF%A1%E6%8F%92%E4%BB%B6%EF%BC%89%E5%AE%9E%E7%8E%B0%E6%AF%8F%E6%97%A5%E5%A4%A9%E6%B0%94%E6%8E%A8%E9%80%81/</url>
-    <content><![CDATA[<h2 id="企业微信配置"><a href="#企业微信配置" class="headerlink" title="企业微信配置"></a>企业微信配置</h2><h3 id="进入企业微信官网，点击立即注册"><a href="#进入企业微信官网，点击立即注册" class="headerlink" title="进入企业微信官网，点击立即注册"></a>进入<a href="https://work.weixin.qq.com/">企业微信官网</a>，点击立即注册</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361632863091.jpg" alt="16361632863091"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361633233327.jpg" alt="16361633233327"></p>
-<h3 id="登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）"><a href="#登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）" class="headerlink" title="登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）"></a>登录企业微信管理后台，找到应用管理，点击创建自建应用（例如这里我创建了一个名称为天气推送的应用）</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361635628391.jpg" alt="16361635628391"></p>
-<h3 id="点击打开创建的应用，获取开发相关的配置信息（AgentId-Secret）"><a href="#点击打开创建的应用，获取开发相关的配置信息（AgentId-Secret）" class="headerlink" title="点击打开创建的应用，获取开发相关的配置信息（AgentId,Secret）"></a>点击打开创建的应用，获取开发相关的配置信息（AgentId,Secret）</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361637536484.jpg" alt="16361637536484"><br> AgentId：这个应用的唯一标识<br> Secret：密钥（需要发送到企业微信app才能查看）</p>
-<h3 id="到此所有企业微信配置结束"><a href="#到此所有企业微信配置结束" class="headerlink" title="到此所有企业微信配置结束"></a>到此所有企业微信配置结束</h3><h2 id="天气开放平台配置"><a href="#天气开放平台配置" class="headerlink" title="天气开放平台配置"></a>天气开放平台配置</h2><h3 id="进入和风天气开放平台，点击注册"><a href="#进入和风天气开放平台，点击注册" class="headerlink" title="进入和风天气开放平台，点击注册"></a>进入<a href="https://dev.qweather.com/">和风天气开放平台</a>，点击注册</h3><p> <em><strong>注册完成后建议申请认证个人开发者</strong></em>（支持更多接口）<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361640883550.jpg" alt="16361640883550"></p>
-<h3 id="登录控制台，点击应用管理，创建应用，获取到应用的KEY"><a href="#登录控制台，点击应用管理，创建应用，获取到应用的KEY" class="headerlink" title="登录控制台，点击应用管理，创建应用，获取到应用的KEY"></a>登录控制台，点击应用管理，创建应用，获取到应用的KEY</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/11/06/16361644923902.jpg" alt="16361644923902"></p>
-<h2 id="项目开发"><a href="#项目开发" class="headerlink" title="项目开发"></a>项目开发</h2><p>前端项目：<a href="https://github.com/yangh124/weather-push-admin">weather-push-admin</a><br>后台项目：<a href="https://github.com/yangh124/weather-push">weather-push</a></p>
-<h2 id="定时任务配置配置"><a href="#定时任务配置配置" class="headerlink" title="定时任务配置配置"></a>定时任务配置配置</h2><h3 id="执行执行初始化sql"><a href="#执行执行初始化sql" class="headerlink" title="执行执行初始化sql"></a>执行执行初始化sql</h3><p>在后台项目resources&#x2F;sql&#x2F;init.sql</p>
-<h3 id="运行前后端项目"><a href="#运行前后端项目" class="headerlink" title="运行前后端项目"></a>运行前后端项目</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561503716829.jpg" alt="16561503716829"></p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561503961795.jpg" alt="16561503961795"></p>
-<h3 id="登录后台"><a href="#登录后台" class="headerlink" title="登录后台"></a>登录后台</h3><p>使用默认账号密码登录：admin 123456<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561505074675.jpg" alt="16561505074675"></p>
-<h3 id="配置地区"><a href="#配置地区" class="headerlink" title="配置地区"></a>配置地区</h3><p>即配置需要发送天气预报的地区<br><strong>注：这里的地区对应企业微信通讯录中的标签</strong></p>
-<blockquote>
-<p>地区管理 -&gt; 添加<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561506595631.jpg" alt="16561506595631"></p>
-</blockquote>
-<h3 id="地区绑定成员"><a href="#地区绑定成员" class="headerlink" title="地区绑定成员"></a>地区绑定成员</h3><blockquote>
-<p>成员管理 -&gt; 选择左边的地区 -&gt; 点击添加成员<br><strong>注：这里的成员对应企业微信通讯录中的成员</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561508273991.jpg" alt="16561508273991"></p>
-</blockquote>
-<h3 id="创建定时任务"><a href="#创建定时任务" class="headerlink" title="创建定时任务"></a>创建定时任务</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561517473902.jpg" alt="16561517473902"></p>
-<h2 id="最终效果"><a href="#最终效果" class="headerlink" title="最终效果"></a>最终效果</h2><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2022/06/25/16561520350860.jpg" alt="16561520350860"></p>
-]]></content>
-      <categories>
-        <category>项目</category>
-      </categories>
-      <tags>
-        <tag>实战</tag>
       </tags>
   </entry>
 </search>
