@@ -44,7 +44,10 @@
     <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
   
   
-  <script src="/live2d-widget/autoload.js"></script>
+  <!-- 随机切换模型材质 -->
+  <script src="https://cdn.jsdelivr.net/gh/nova1751/live2d-api@latest/jsdelivr/random/autoload.min.js"></script>
+  <!-- 看板娘位置靠右 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/nova1751/live2d-api@latest/css/right.min.css" />
 <meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
 </head>
 
@@ -306,7 +309,7 @@
   <article class="article article-repository article-type-list" itemscope="">
   <header class="article-header">
     <h1 itemprop="title">Repositories</h1>
-    <p class="text-muted">I have <span id="repo-count">0</span> projects on Github</p>
+    <p class="text-muted">I have <span id="repo-count">0</span> projects on <span id="repo-platform">Github</span></p>
   </header>
   <div class="article-body">
     <div class="repo-content">
@@ -317,11 +320,12 @@
   </div>
 </article>
 
+
   
 
 
 
-<!--Github项模版-->
+<!--项模版-->
 <script type="text/template" id="list-template">
   <li class="col-sm-6 col-md-6 col-lg-4">
     <div class="repo hover-shadow hover-grow">
@@ -338,6 +342,7 @@
     </div>
   </li>
 </script>
+
 <!--获取失败模版-->
 <script type="text/template" id="error-template">
   <h3>加载失败</h3><p>请刷新或稍后再试...</p>
@@ -392,58 +397,70 @@ window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
 
 
 
-   <script type="text/javascript">
-var open = function() {
-  var baiduTpl = new Object();
-  var handleTpl = function() {
-    baiduTpl.list = baidu.template("list-template");
-    baiduTpl.error = baidu.template("error-template");
-  };
+   
+  
+    
+  <script type="text/javascript">
+    var open = function () {
+      var baiduTpl = new Object();
+      var handleTpl = function () {
+        baiduTpl.list = baidu.template("list-template");
+        baiduTpl.error = baidu.template("error-template");
+      };
 
-  var handleGithub = function() {
-    var repoContainer = $('.repo-content');
-    var errorContainer = repoContainer.find(".blankslate");
-    var countContainer = $("#repo-count");
+      var handleRepo = function () {
+        var repoContainer = $('.repo-content');
+        var errorContainer = repoContainer.find(".blankslate");
+        var countContainer = $("#repo-count");
+        var platformContainer = $("#repo-platform");
 
-    $.get("https://api.github.com/users/yangh124/repos", function(result) {
-      if (result) {
-        errorContainer.remove();
-        countContainer.text(result.length); //设置项目个数
-        var ul = $("<ul class='repo-list row clearfix'></ul>");
-        result.sort(function(a, b) {
-          return new Date(b.updated_at) - new Date(a.updated_at)
-        }).sort(function(a, b) {
-          var a_start = a.stargazers_count;
-          var b_start = b.stargazers_count;
-          if (a.fork) a_start * 0.5;
-          if (b.fork) b_start * 0.5;
-          return b_start - a_start;
-        }).map(function(repo) {
-          if (!repo.description) repo.description = "";
-          repo.updated_at = repo.updated_at.substring(0, repo.updated_at.lastIndexOf("T"));
-          var html = baiduTpl.list(repo);
-          ul.append(html);
-        })
+        platformContainer.text("Github");
 
-        repoContainer.append(ul);
-        $(".geopattern").each(function() {
-          $(this).geopattern($(this).data('pattern-id'));
+        url = "https://api.github.com/users/yangh124/repos";
+
+        $.get(url, function (result) {
+          if (result) {
+            errorContainer.remove();
+            countContainer.text(result.length);
+            var ul = $("<ul class='repo-list row clearfix'></ul>");
+            result.sort(function (a, b) {
+              return new Date(b.updated_at) - new Date(a.updated_at);
+            }).sort(function (a, b) {
+              var a_start = a.stargazers_count;
+              var b_start = b.stargazers_count;
+              if (a.fork) a_start * 0.5;
+              if (b.fork) b_start * 0.5;
+              return b_start - a_start;
+            }).map(function (repo) {
+              if (!repo.description) {
+                repo.description = "";
+              }
+              repo.updated_at = repo.updated_at.substring(0, repo.updated_at.lastIndexOf("T"));
+              var html = baiduTpl.list(repo);
+              ul.append(html);
+            });
+
+            repoContainer.append(ul);
+            $(".geopattern").each(function () {
+              $(this).geopattern($(this).data('pattern-id'));
+            });
+          } else {
+            errorContainer.append(baiduTpl.error());
+          }
         });
-      } else {
-        errorContainer.append(baiduTpl.error());
-      }
-    });
-  };
+      };
 
-  return {
-    init: function() {
-      handleTpl();
-      handleGithub();
-    }
-  }
-};
-$(open().init);
-</script>
+      return {
+        init: function () {
+          handleTpl();
+          handleRepo();
+        }
+      }
+    };
+    $(open().init);
+  </script>
+
+  
 
 
 
