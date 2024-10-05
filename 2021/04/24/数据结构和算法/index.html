@@ -1,24 +1,12 @@
 <!DOCTYPE html>
 <html lang=zh>
 <head>
-  <meta charset="utf-8">
-  
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
-  <meta name="renderer" content="webkit">
-  <meta http-equiv="Cache-Control" content="no-transform" />
-  <meta http-equiv="Cache-Control" content="no-siteapp" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="format-detection" content="telephone=no,email=no,adress=no">
-  <!-- Color theme for statusbar -->
-  <meta name="theme-color" content="#000000" />
-  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
-  <meta http-equiv="window-target" content="_top" />
-  
-  
-  <title>数据结构和算法 | yangh&#39;s Blog</title>
-  <meta name="description" content="线性结构和非线性结构数据结构包括：线性结构和非线性结构">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="线性结构和非线性结构数据结构包括：线性结构和非线性结构">
 <meta property="og:type" content="article">
 <meta property="og:title" content="数据结构和算法">
 <meta property="og:url" content="https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/index.html">
@@ -75,407 +63,167 @@
 <meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/06/10/16233341037899.jpg">
 <meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/06/20/16241642468630.jpg">
 <meta property="article:published_time" content="2021-04-23T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-10-05T07:29:37.515Z">
+<meta property="article:modified_time" content="2024-10-05T15:47:33.619Z">
 <meta property="article:author" content="yangh">
 <meta property="article:tag" content="Java">
 <meta property="article:tag" content="算法">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/1.png">
-  <!-- Canonical links -->
-  <link rel="canonical" href="https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/index.html">
-  
-  
-    <link rel="icon" href="/favicon.png" type="image/x-icon">
-  
-  
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>数据结构和算法</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
 <link rel="stylesheet" href="/css/style.css">
 
-  
-  
-  
-    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
-  
-  
-  <!-- live2d -->
-  
-  <link rel="stylesheet" href="/css/left.css">
-  <script src="/js/autoload.js"></script>
-  
-<meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<!-- hexo injector head_end start --><link rel = "stylesheet" href = "https://unpkg.com/live2dapi-noa@latest/css/left.css"/><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
 </head>
 
-
-<body class="main-center theme-green" itemscope itemtype="http://schema.org/WebPage">
-  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-  <div class="slimContent">
-    <div class="navbar-header">
-      
-      
-      <div class="profile-block text-center">
-        <a id="avatar" href="https://github.com/yangh124" target="_blank">
-          <img class="img-circle img-rotate" src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" width="200" height="200">
-        </a>
-        <h2 id="name" class="hidden-xs hidden-sm">yangh124</h2>
-        <h3 id="title" class="hidden-xs hidden-sm hidden-md"></h3>
-        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> 浙江，杭州</small>
-      </div>
-      
-      <div class="search" id="search-form-wrap">
-
-    <form class="search-form sidebar-form">
-        <div class="input-group">
-            <input type="text" class="search-form-input form-control" placeholder="搜索" />
-            <span class="input-group-btn">
-                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
-            </span>
-        </div>
-    </form>
-    <div class="ins-search">
-  <div class="ins-search-mask"></div>
-  <div class="ins-search-container">
-    <div class="ins-input-wrapper">
-      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
-      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-    </div>
-    <div class="ins-section-wrapper">
-      <div class="ins-section-container"></div>
-    </div>
-  </div>
-</div>
-
-
-</div>
-      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-    </div>
-    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
-      <ul class="nav navbar-nav main-nav menu-highlight">
-        
-        
-        <li class="menu-item menu-item-home">
-          <a href="/.">
-            
-            <i class="icon icon-home-fill"></i>
-            
-            <span class="menu-title">首页</span>
-          </a>
-        </li>
-        
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives">
-            
-            <i class="icon icon-archives-fill"></i>
-            
-            <span class="menu-title">归档</span>
-          </a>
-        </li>
-        
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories">
-            
-            <i class="icon icon-folder"></i>
-            
-            <span class="menu-title">分类</span>
-          </a>
-        </li>
-        
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags">
-            
-            <i class="icon icon-tags"></i>
-            
-            <span class="menu-title">标签</span>
-          </a>
-        </li>
-        
-        
-        <li class="menu-item menu-item-repository">
-          <a href="/repository">
-            
-            <i class="icon icon-project"></i>
-            
-            <span class="menu-title">项目</span>
-          </a>
-        </li>
-        
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about">
-            
-            <i class="icon icon-cup-fill"></i>
-            
-            <span class="menu-title">关于</span>
-          </a>
-        </li>
-        
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yangh124">项目</a></li><!--
+     -->
       </ul>
-      
-    </nav>
-  </div>
-</header>
-
-  
-    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
-  <div class="slimContent">
-    
-      <div class="widget">
-    <h3 class="widget-title">公告</h3>
-    <div class="widget-body">
-        <div id="board">
-            <div class="content">
-                <p>欢迎交流与分享经验!</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-    
-      
-  <div class="widget">
-    <h3 class="widget-title">分类</h3>
-    <div class="widget-body">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E7%A1%80/">基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%84%9A%E6%9C%AC%E8%AF%AD%E8%A8%80/">脚本语言</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a><span class="category-list-count">1</span></li></ul>
-    </div>
-  </div>
-
-
-    
-      
-  <div class="widget">
-    <h3 class="widget-title">标签</h3>
-    <div class="widget-body">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Camunda/" rel="tag">Camunda</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%9E%E6%88%98/" rel="tag">实战</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" rel="tag">网络编程</a><span class="tag-list-count">1</span></li></ul>
-    </div>
-  </div>
-
-
-    
-      
-  <div class="widget">
-    <h3 class="widget-title">归档</h3>
-    <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/10/">十月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">三月 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">五月 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a><span class="archive-list-count">2</span></li></ul>
-    </div>
-  </div>
-
-
-    
-      
-  <div class="widget">
-    <h3 class="widget-title">最新文章</h3>
-    <div class="widget-body">
-      <ul class="recent-post-list list-unstyled ">
-        
-          <li>
-            
-            <div class="item-thumb">
-              <a href="/2024/10/02/Dock%E5%AE%89%E8%A3%85ImmotalWrt/" class="thumb">
-    
-    
-        <span class="thumb-image thumb-none"></span>
-    
-</a>
-
-            </div>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
-              </p>
-              <p class="item-title">
-                <a href="/2024/10/02/Dock%E5%AE%89%E8%A3%85ImmotalWrt/" class="title">Docker安装ImmotalWrt教程</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2024-10-01T16:00:00.000Z" itemprop="datePublished">2024-10-02</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-thumb">
-              <a href="/2024/03/27/Camunda/" class="thumb">
-    
-    
-        <span class="thumb-image thumb-none"></span>
-    
-</a>
-
-            </div>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-              </p>
-              <p class="item-title">
-                <a href="/2024/03/27/Camunda/" class="title">Camunda</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2024-03-26T16:00:00.000Z" itemprop="datePublished">2024-03-27</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-thumb">
-              <a href="/2024/03/09/k8s/" class="thumb">
-    
-    
-        <span class="thumb-image thumb-none"></span>
-    
-</a>
-
-            </div>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-              </p>
-              <p class="item-title">
-                <a href="/2024/03/09/k8s/" class="title">k8s</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2024-03-08T16:00:00.000Z" itemprop="datePublished">2024-03-09</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-thumb">
-              <a href="/2023/02/28/k3s%E5%AE%9E%E6%88%98/" class="thumb">
-    
-    
-        <span class="thumb-image thumb-none"></span>
-    
-</a>
-
-            </div>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-              </p>
-              <p class="item-title">
-                <a href="/2023/02/28/k3s%E5%AE%9E%E6%88%98/" class="title">k3s实战</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2023-02-27T16:00:00.000Z" itemprop="datePublished">2023-02-28</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-thumb">
-              <a href="/2022/06/06/MySQL%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/" class="thumb">
-    
-    
-        <span class="thumb-image thumb-none"></span>
-    
-</a>
-
-            </div>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-              </p>
-              <p class="item-title">
-                <a href="/2022/06/06/MySQL%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/" class="title">MySQL性能分析工具的使用</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2022-06-05T16:00:00.000Z" itemprop="datePublished">2022-06-06</time>
-              </p>
-            </div>
-          </li>
-          
-      </ul>
-    </div>
-  </div>
-  
-
-    
-  </div>
-</aside>
-
-  
-  
-  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
-  <div class="slimContent">
-    <nav id="toc" class="article-toc">
-      <h3 class="toc-title">文章目录</h3>
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E7%BB%93%E6%9E%84%E5%92%8C%E9%9D%9E%E7%BA%BF%E6%80%A7%E7%BB%93%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">线性结构和非线性结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E7%BB%93%E6%9E%84"><span class="toc-number">1.1.</span> <span class="toc-text">线性结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%9E%E7%BA%BF%E6%80%A7%E7%BB%93%E6%9E%84"><span class="toc-number">1.2.</span> <span class="toc-text">非线性结构</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E7%BB%93%E6%9E%84-1"><span class="toc-number">2.</span> <span class="toc-text">线性结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A8%80%E7%96%8F%E6%95%B0%E7%BB%84%E5%92%8C%E9%98%9F%E5%88%97"><span class="toc-number">2.1.</span> <span class="toc-text">稀疏数组和队列</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A8%80%E7%96%8F%E6%95%B0%E7%BB%84"><span class="toc-number">2.1.1.</span> <span class="toc-text">稀疏数组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%98%9F%E5%88%97"><span class="toc-number">2.1.2.</span> <span class="toc-text">队列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%93%BE%E8%A1%A8%EF%BC%88Linked-List%EF%BC%89"><span class="toc-number">2.1.3.</span> <span class="toc-text">链表（Linked  List）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%88%EF%BC%88Stack%EF%BC%89"><span class="toc-number">2.1.4.</span> <span class="toc-text">栈（Stack）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%92%E5%BD%92"><span class="toc-number">2.2.</span> <span class="toc-text">递归</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95"><span class="toc-number">2.3.</span> <span class="toc-text">排序算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%92%E6%B3%A1%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.1.</span> <span class="toc-text">冒泡排序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%89%E6%8B%A9%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.2.</span> <span class="toc-text">选择排序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.3.</span> <span class="toc-text">插入排序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%8C%E5%B0%94%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.4.</span> <span class="toc-text">希尔排序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.5.</span> <span class="toc-text">快速排序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.6.</span> <span class="toc-text">归并排序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%95%B0%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.7.</span> <span class="toc-text">基数排序</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E6%80%BB%E7%BB%93%E4%B8%8E%E5%AF%B9%E6%AF%94"><span class="toc-number">2.3.8.</span> <span class="toc-text">常用排序算法总结与对比</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E6%89%BE%E7%AE%97%E6%B3%95"><span class="toc-number">2.4.</span> <span class="toc-text">查找算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E6%9F%A5%E6%89%BE"><span class="toc-number">2.4.1.</span> <span class="toc-text">线性查找</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE"><span class="toc-number">2.4.2.</span> <span class="toc-text">二分查找</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%92%E5%80%BC%E6%9F%A5%E6%89%BE"><span class="toc-number">2.4.3.</span> <span class="toc-text">插值查找</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91%EF%BC%88%E9%BB%84%E9%87%91%E5%88%86%E5%89%B2%E6%B3%95%EF%BC%89%E6%9F%A5%E6%89%BE%E7%AE%97%E6%B3%95"><span class="toc-number">2.4.4.</span> <span class="toc-text">斐波那契（黄金分割法）查找算法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%93%88%E5%B8%8C%E8%A1%A8"><span class="toc-number">2.5.</span> <span class="toc-text">哈希表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%91%E7%BB%93%E6%9E%84"><span class="toc-number">2.6.</span> <span class="toc-text">树结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="toc-number">2.6.1.</span> <span class="toc-text">二叉树</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="toc-number">2.6.1.1.</span> <span class="toc-text">二叉树的概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E9%81%8D%E5%8E%86"><span class="toc-number">2.6.1.2.</span> <span class="toc-text">二叉树遍历</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E5%88%A0%E9%99%A4%E7%BB%93%E7%82%B9"><span class="toc-number">2.6.1.3.</span> <span class="toc-text">二叉树删除结点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A1%BA%E5%BA%8F%E5%AD%98%E5%82%A8%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="toc-number">2.6.1.4.</span> <span class="toc-text">顺序存储二叉树</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%BF%E7%B4%A2%E5%8C%96%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="toc-number">2.6.1.5.</span> <span class="toc-text">线索化二叉树</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%91%E7%BB%93%E6%9E%84%E7%9A%84%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8"><span class="toc-number">2.6.2.</span> <span class="toc-text">树结构的实际应用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A0%86%E6%8E%92%E5%BA%8F"><span class="toc-number">2.6.2.1.</span> <span class="toc-text">堆排序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B5%AB%E5%A4%AB%E6%9B%BC%E6%A0%91"><span class="toc-number">2.6.2.2.</span> <span class="toc-text">赫夫曼树</span></a></li></ol></li></ol></li></ol></li></ol>
-    </nav>
-  </div>
-</aside>
-
-<main class="main" role="main">
-  <div class="content">
-  <article id="post-数据结构和算法" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
-    
-    <div class="article-header">
-      
-        
-  
-    <h1 class="article-title" itemprop="name">
-      数据结构和算法
-    </h1>
-  
-
-      
-      <div class="article-meta">
-        <span class="article-date">
-    <i class="icon icon-calendar-check"></i>
-	<a href="/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/" class="article-date">
-	  <time datetime="2021-04-23T16:00:00.000Z" itemprop="datePublished">2021-04-24</time>
-	</a>
-</span>
-        
-  <span class="article-category">
-    <i class="icon icon-folder"></i>
-    <a class="article-category-link" href="/categories/%E5%9F%BA%E7%A1%80/">基础</a>
-  </span>
-
-        
-  <span class="article-tag">
-    <i class="icon icon-tags"></i>
-	<a class="article-tag-link-link" href="/tags/Java/" rel="tag">Java</a>, <a class="article-tag-link-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a>
-  </span>
-
-
-        
-
-	<span class="article-read hidden-xs">
-    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
-    	<span id="/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/" class="leancloud_visitors"  data-flag-title="数据结构和算法">0</span>
     </span>
-
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/#comments" class="article-comment-link">评论</a></span>
+    <br/>
+    <span id="actions">
+      <ul>
         
-	
-		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 8.7k(字)</span>
-	
-	
-		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 31(分)</span>
-	
+        <li><a class="icon" aria-label="上一篇" href="/2021/04/26/JVM/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&text=数据结构和算法"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&title=数据结构和算法"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&is_video=false&description=数据结构和算法"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=数据结构和算法&body=Check out this article: https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&title=数据结构和算法"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&title=数据结构和算法"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&title=数据结构和算法"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&title=数据结构和算法"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&name=数据结构和算法&description=&lt;h2 id=&#34;线性结构和非线性结构&#34;&gt;&lt;a href=&#34;#线性结构和非线性结构&#34; class=&#34;headerlink&#34; title=&#34;线性结构和非线性结构&#34;&gt;&lt;/a&gt;线性结构和非线性结构&lt;/h2&gt;&lt;pre&gt;&lt;code&gt;数据结构包括：线性结构和非线性结构
+&lt;/code&gt;&lt;/pre&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&t=数据结构和算法"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
 
-      </div>
     </div>
-    <div class="article-entry marked-body" itemprop="articleBody">
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E7%BB%93%E6%9E%84%E5%92%8C%E9%9D%9E%E7%BA%BF%E6%80%A7%E7%BB%93%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">线性结构和非线性结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E7%BB%93%E6%9E%84"><span class="toc-number">1.1.</span> <span class="toc-text">线性结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%9E%E7%BA%BF%E6%80%A7%E7%BB%93%E6%9E%84"><span class="toc-number">1.2.</span> <span class="toc-text">非线性结构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E7%BB%93%E6%9E%84-1"><span class="toc-number">2.</span> <span class="toc-text">线性结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A8%80%E7%96%8F%E6%95%B0%E7%BB%84%E5%92%8C%E9%98%9F%E5%88%97"><span class="toc-number">2.1.</span> <span class="toc-text">稀疏数组和队列</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A8%80%E7%96%8F%E6%95%B0%E7%BB%84"><span class="toc-number">2.1.1.</span> <span class="toc-text">稀疏数组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%9F%E5%88%97"><span class="toc-number">2.1.2.</span> <span class="toc-text">队列</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%93%BE%E8%A1%A8%EF%BC%88Linked-List%EF%BC%89"><span class="toc-number">2.1.3.</span> <span class="toc-text">链表（Linked  List）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%88%EF%BC%88Stack%EF%BC%89"><span class="toc-number">2.1.4.</span> <span class="toc-text">栈（Stack）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%92%E5%BD%92"><span class="toc-number">2.2.</span> <span class="toc-text">递归</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95"><span class="toc-number">2.3.</span> <span class="toc-text">排序算法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%92%E6%B3%A1%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.1.</span> <span class="toc-text">冒泡排序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%89%E6%8B%A9%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.2.</span> <span class="toc-text">选择排序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.3.</span> <span class="toc-text">插入排序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%8C%E5%B0%94%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.4.</span> <span class="toc-text">希尔排序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.5.</span> <span class="toc-text">快速排序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.6.</span> <span class="toc-text">归并排序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%95%B0%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.7.</span> <span class="toc-text">基数排序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E6%80%BB%E7%BB%93%E4%B8%8E%E5%AF%B9%E6%AF%94"><span class="toc-number">2.3.8.</span> <span class="toc-text">常用排序算法总结与对比</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E6%89%BE%E7%AE%97%E6%B3%95"><span class="toc-number">2.4.</span> <span class="toc-text">查找算法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E6%9F%A5%E6%89%BE"><span class="toc-number">2.4.1.</span> <span class="toc-text">线性查找</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE"><span class="toc-number">2.4.2.</span> <span class="toc-text">二分查找</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8F%92%E5%80%BC%E6%9F%A5%E6%89%BE"><span class="toc-number">2.4.3.</span> <span class="toc-text">插值查找</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91%EF%BC%88%E9%BB%84%E9%87%91%E5%88%86%E5%89%B2%E6%B3%95%EF%BC%89%E6%9F%A5%E6%89%BE%E7%AE%97%E6%B3%95"><span class="toc-number">2.4.4.</span> <span class="toc-text">斐波那契（黄金分割法）查找算法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%93%88%E5%B8%8C%E8%A1%A8"><span class="toc-number">2.5.</span> <span class="toc-text">哈希表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%91%E7%BB%93%E6%9E%84"><span class="toc-number">2.6.</span> <span class="toc-text">树结构</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="toc-number">2.6.1.</span> <span class="toc-text">二叉树</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="toc-number">2.6.2.</span> <span class="toc-text">二叉树的概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E9%81%8D%E5%8E%86"><span class="toc-number">2.6.3.</span> <span class="toc-text">二叉树遍历</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E5%88%A0%E9%99%A4%E7%BB%93%E7%82%B9"><span class="toc-number">2.6.4.</span> <span class="toc-text">二叉树删除结点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A1%BA%E5%BA%8F%E5%AD%98%E5%82%A8%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="toc-number">2.6.5.</span> <span class="toc-text">顺序存储二叉树</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%BF%E7%B4%A2%E5%8C%96%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="toc-number">2.6.6.</span> <span class="toc-text">线索化二叉树</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%91%E7%BB%93%E6%9E%84%E7%9A%84%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8"><span class="toc-number">2.6.7.</span> <span class="toc-text">树结构的实际应用</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A0%86%E6%8E%92%E5%BA%8F"><span class="toc-number">2.6.7.1.</span> <span class="toc-text">堆排序</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%B5%AB%E5%A4%AB%E6%9B%BC%E6%A0%91"><span class="toc-number">2.6.7.2.</span> <span class="toc-text">赫夫曼树</span></a></li></ol></li></ol></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        数据结构和算法
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yangh</span>
+      </span>
       
-        <h1 id="线性结构和非线性结构"><a href="#线性结构和非线性结构" class="headerlink" title="线性结构和非线性结构"></a>线性结构和非线性结构</h1><pre><code>数据结构包括：线性结构和非线性结构
+    <div class="postdate">
+      
+        <time datetime="2021-04-23T16:00:00.000Z" class="dt-published" itemprop="datePublished">2021-04-24</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%9F%BA%E7%A1%80/">基础</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Java/" rel="tag">Java</a>, <a class="p-category" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="线性结构和非线性结构"><a href="#线性结构和非线性结构" class="headerlink" title="线性结构和非线性结构"></a>线性结构和非线性结构</h2><pre><code>数据结构包括：线性结构和非线性结构
 </code></pre>
 <span id="more"></span>
-<h2 id="线性结构"><a href="#线性结构" class="headerlink" title="线性结构"></a>线性结构</h2><ul>
+<h3 id="线性结构"><a href="#线性结构" class="headerlink" title="线性结构"></a>线性结构</h3><ul>
 <li><pre><code>线性结构作为最常用的数据结构，其特点是数据元素之间存在一对一的线性关系
 </code></pre>
 </li>
@@ -492,11 +240,11 @@
 </code></pre>
 </li>
 </ul>
-<h2 id="非线性结构"><a href="#非线性结构" class="headerlink" title="非线性结构"></a>非线性结构</h2><pre><code>非线性结构包括：二维数组，多维数组，广义表，树结构，图结构
+<h3 id="非线性结构"><a href="#非线性结构" class="headerlink" title="非线性结构"></a>非线性结构</h3><pre><code>非线性结构包括：二维数组，多维数组，广义表，树结构，图结构
 </code></pre>
 <hr>
 <p><em>代码实现:  <a target="_blank" rel="noopener" href="https://github.com/yangh124/DataStructures">https://github.com/yangh124/DataStructures</a></em></p>
-<h1 id="线性结构-1"><a href="#线性结构-1" class="headerlink" title="线性结构"></a>线性结构</h1><h2 id="稀疏数组和队列"><a href="#稀疏数组和队列" class="headerlink" title="稀疏数组和队列"></a>稀疏数组和队列</h2><h3 id="稀疏数组"><a href="#稀疏数组" class="headerlink" title="稀疏数组"></a>稀疏数组</h3><pre><code>当一个数组大部分元素为0，或者为同一个值的数值时，可以使用稀疏数组来保存该数组。
+<h2 id="线性结构-1"><a href="#线性结构-1" class="headerlink" title="线性结构"></a>线性结构</h2><h3 id="稀疏数组和队列"><a href="#稀疏数组和队列" class="headerlink" title="稀疏数组和队列"></a>稀疏数组和队列</h3><h4 id="稀疏数组"><a href="#稀疏数组" class="headerlink" title="稀疏数组"></a>稀疏数组</h4><pre><code>当一个数组大部分元素为0，或者为同一个值的数值时，可以使用稀疏数组来保存该数组。
 </code></pre>
 <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/1.png" alt="1"><br><strong>稀疏数组的处理方法是：</strong></p>
 <ol>
@@ -514,7 +262,7 @@
 <li>先读取稀疏数组的第一行，根据第一行的数据，创建原始二维数组，比如上面的 chessArr2 &#x3D; int [11] [11]</li>
 <li>在读取稀疏数组后几行的数据，并赋给原始二维数组即可</li>
 </ol>
-<h3 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h3><ul>
+<h4 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h4><ul>
 <li>队列是一个有序列表，可以用数组或是链表来实现</li>
 <li>遵循<strong>先入先出</strong>的原则，即：先存入队列的数据，要先取出。后存入的队列要后取出</li>
 </ul>
@@ -539,7 +287,7 @@
 </ol>
 </li>
 </ol>
-<h3 id="链表（Linked-List）"><a href="#链表（Linked-List）" class="headerlink" title="链表（Linked  List）"></a>链表（Linked  List）</h3><p><strong>链表是有序的列表</strong></p>
+<h4 id="链表（Linked-List）"><a href="#链表（Linked-List）" class="headerlink" title="链表（Linked  List）"></a>链表（Linked  List）</h4><p><strong>链表是有序的列表</strong></p>
 <ul>
 <li><p>单向链表</p>
 <ol>
@@ -553,7 +301,7 @@
 <li><p>环形链表：约瑟夫环(Josephus)，如图<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/6.png" alt="6"></p>
 </li>
 </ul>
-<h3 id="栈（Stack）"><a href="#栈（Stack）" class="headerlink" title="栈（Stack）"></a>栈（Stack）</h3><ol>
+<h4 id="栈（Stack）"><a href="#栈（Stack）" class="headerlink" title="栈（Stack）"></a>栈（Stack）</h4><ol>
 <li>栈是一种<strong>先入后出</strong>的(FILO)的有序列表</li>
 <li>栈是限制线性表中元素的插入和删除<strong>只能在线性表的同一端</strong>进行的一种特殊线性表。允许插入和删除的一端，为变化的一端，称为<strong>栈顶</strong>，另一端为固定的一端，称为<strong>栈底</strong>。</li>
 <li>根据栈的定义可知，最先放入栈中的元素在栈底，最后放入的元素在栈顶，而删除元素正好相反，最后放入的元素先删除，最先放入的元素最后删除。</li>
@@ -630,7 +378,7 @@
 <li>将s1中剩余的运算符依次弹出并压入s2</li>
 <li>依次弹出s2中的元素并输出，结果的逆序即为中缀表达式的后缀表达式</li>
 </ol>
-<h2 id="递归"><a href="#递归" class="headerlink" title="递归"></a>递归</h2><ul>
+<h3 id="递归"><a href="#递归" class="headerlink" title="递归"></a>递归</h3><ul>
 <li>递归的应用场景<br>看个实际应用场景，迷宫问题（回溯），递归（Recursion）</li>
 </ul>
 <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/11.png" alt="11"></p>
@@ -658,7 +406,7 @@
 <ul>
 <li>递归-八皇后问题<br>  八皇后问题算法思路分析<br>  1. 第一个皇后先放第一行第一列。<br>  2. 第二个皇后放在第二行第一列、然后判断是否ok，如果不ok，继续放在第二列、第三列…，依次把所有列都放完，找到一个合适的位置。<br>  3. 继续第三个皇后，还是第一列、第二列、第三列…，直到第8个皇后也能放在一个不冲突的位置。<br>  4. 当放完所有皇后时，得到一个正确解，在栈回退到上一个栈时，就会开始回溯，即将第一个皇后放到第一行第一列的所有正确解全部得到。<br>  5. 然后把第一个皇后放在第一行第二列，重复1、2、3、4步骤<br>  <strong>说明：</strong><br>  * 理论上应该创建一个二维数组来表示棋盘，但是实际上可以通过算法，用一个一维数组即可解决问题，arr[8] &#x3D; {0,4,7,5,2,6,1,3}。<br>  * 对应arr下标表示第几行和即第几个皇后，arr[i] &#x3D; val，val表示第i+1个皇后，放在第i+1行的第val+1列</li>
 </ul>
-<h2 id="排序算法"><a href="#排序算法" class="headerlink" title="排序算法"></a>排序算法</h2><p><strong>介绍：</strong><br>    排序也称排序算法，排序是将一组数据，按指定的顺序进行排列的过程。</p>
+<h3 id="排序算法"><a href="#排序算法" class="headerlink" title="排序算法"></a>排序算法</h3><p><strong>介绍：</strong><br>    排序也称排序算法，排序是将一组数据，按指定的顺序进行排列的过程。</p>
 <p><strong>排序的分类：</strong></p>
 <ul>
 <li>内部排序：将需要处理的所有数据都加载到内存中进行排序。</li>
@@ -717,7 +465,7 @@
 <li>指数阶O(2^n)<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/17.png" alt="17"></li>
 </ul>
 <p><strong>说明：</strong><br>    常见的算法时间复杂度由小到大依次为：O(1)&lt;O(log n)&lt;O(n)&lt;O(n log n)&lt;O(n²)&lt;O(n³)&lt;O(n^k)&lt;(2^n)，随着问题规模n不断增大，时间复杂度不断增大，算法的执行效率不断降低</p>
-<h3 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h3><p>冒泡排序（Bubble Sorting）的基本思想是：通过对待排序序列从前向后（从下标较小的元素开始），依次比较相邻元素的值，若发现逆序则交换位置，使值较大的元素逐渐从前移向后部，就想水底的气泡一样逐渐上冒。</p>
+<h4 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h4><p>冒泡排序（Bubble Sorting）的基本思想是：通过对待排序序列从前向后（从下标较小的元素开始），依次比较相邻元素的值，若发现逆序则交换位置，使值较大的元素逐渐从前移向后部，就想水底的气泡一样逐渐上冒。</p>
 <p><strong>因为排序的过程中，各元素不断接近自己的位置，如果一趟比较下来没有进行过交换，就说明序列有序，因此要在排序过程中设置一个标志flag判断元素是否进行过交换。从而减少不必要的比较。</strong></p>
 <p>原始数组：[9，3，-1，10，20]<br>第一趟排序</p>
 <ul>
@@ -738,7 +486,7 @@
 <li>每一趟排序的次数在主键减小</li>
 <li>如果发现在某一趟排序中，没有发生一次交换，可以提前结束，排序完成</li>
 </ol>
-<h3 id="选择排序"><a href="#选择排序" class="headerlink" title="选择排序"></a>选择排序</h3><pre><code>选择排序（Select Sorting）的思想：第一次从array[0]~array[n-1]中选取最小值，与array[0]交换，第二次从array[1]~array[n-1]中选取最小值，与array[1]交换，第三次从array[2]~array[n-1]中选取最小值，与array[2]交换，......，第n-1次从array[n-2]~array[n-1]中选取最小值，与array[n-2]交换，总共通过n-1次，最终得到一个有序序列。
+<h4 id="选择排序"><a href="#选择排序" class="headerlink" title="选择排序"></a>选择排序</h4><pre><code>选择排序（Select Sorting）的思想：第一次从array[0]~array[n-1]中选取最小值，与array[0]交换，第二次从array[1]~array[n-1]中选取最小值，与array[1]交换，第三次从array[2]~array[n-1]中选取最小值，与array[2]交换，......，第n-1次从array[n-2]~array[n-1]中选取最小值，与array[n-2]交换，总共通过n-1次，最终得到一个有序序列。
 </code></pre>
 <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/18.png" alt="18"></p>
 <p>原始数组：[101，34，119，1]<br>第一轮排序：<em>1</em>，34，119，101<br>第二轮排序：<em>1</em>，<em>34</em>，119，101<br>第三轮排序：<em>1</em>，<em>34</em>，<em>101</em>，119</p>
@@ -761,16 +509,16 @@
 </code></pre>
 </li>
 </ul>
-<h3 id="插入排序"><a href="#插入排序" class="headerlink" title="插入排序"></a>插入排序</h3><pre><code>插入排序属于内部排序法，是对于欲排序的元素以插入的方式找寻该元素的适当位置，以达到排序的目的。
+<h4 id="插入排序"><a href="#插入排序" class="headerlink" title="插入排序"></a>插入排序</h4><pre><code>插入排序属于内部排序法，是对于欲排序的元素以插入的方式找寻该元素的适当位置，以达到排序的目的。
 插入排序（Insertion Sorting）的基本思想：把n个待排序的元素看成为一个有序表和一个无序表，开始时有序表只包含一个元素，无序表包含n-1个元素，排序过程中每次从无序表中取出第一个元素，把它的排序码依次与有序表元素的排序码进行比较，将它插入到有序表中的适当位置，使之成为新的有序表。
 </code></pre>
 <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/19.png" alt="19"></p>
-<h3 id="希尔排序"><a href="#希尔排序" class="headerlink" title="希尔排序"></a>希尔排序</h3><p>介绍：<br>    希尔排序是希尔（Donald Shell）于1959年提出的一种排序算法。希尔排序也是一种插入排序，它是简单的插入排序经过改进之后的一个更高效的版本，也称为缩小增量排序<br>基本思想：<br>    希尔排序是把记录按下标的一定增量分组，对每组使用直接插入排序算法的排序；随着增量逐渐减少，每组包含的关键词越来越多，当增量减至1时，整个文件恰被分成一组，算法便中止<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/20.png" alt="20"><br>经过上面的”宏观调控“，整个数组已经基本有序。<br>此时，仅仅需要对以上数组简单微调，即可排序完成。</p>
-<h3 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h3><pre><code>快速排序（quick sort）是对冒泡排序的一种改进。
+<h4 id="希尔排序"><a href="#希尔排序" class="headerlink" title="希尔排序"></a>希尔排序</h4><p>介绍：<br>    希尔排序是希尔（Donald Shell）于1959年提出的一种排序算法。希尔排序也是一种插入排序，它是简单的插入排序经过改进之后的一个更高效的版本，也称为缩小增量排序<br>基本思想：<br>    希尔排序是把记录按下标的一定增量分组，对每组使用直接插入排序算法的排序；随着增量逐渐减少，每组包含的关键词越来越多，当增量减至1时，整个文件恰被分成一组，算法便中止<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/20.png" alt="20"><br>经过上面的”宏观调控“，整个数组已经基本有序。<br>此时，仅仅需要对以上数组简单微调，即可排序完成。</p>
+<h4 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h4><pre><code>快速排序（quick sort）是对冒泡排序的一种改进。
 </code></pre>
 <p><strong>基本思想是：</strong><br>    通过一趟排序将要排序的的数据分割成独立的两部分，其中一部分的所有数据都比另外一部分的所有数据都小，然后再按此方法对两部分数据分别进行快速排序，整个排序过程可以递归进行，以此达到整个数据变成有序序列<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/jie-tu.png" alt="21"></p>
-<h3 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h3><p>介绍：<br>    归并排序(merge-sort)是利用<strong>归并</strong>的思想实现的排序方法，该算法采用经典的<strong>分治</strong>(divide-and-conquer)策略(分治法将问题分(divide)成一些小的问题然后递归求解，而治(conquer)的阶段则将分的阶段得到的各答案“修补”在一起，即分而治之)。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/05/06/16203055843782.jpg"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/05/06/16203060638697.jpg"></p>
-<h3 id="基数排序"><a href="#基数排序" class="headerlink" title="基数排序"></a>基数排序</h3><p>基数排序（桶排序）介绍：</p>
+<h4 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h4><p>介绍：<br>    归并排序(merge-sort)是利用<strong>归并</strong>的思想实现的排序方法，该算法采用经典的<strong>分治</strong>(divide-and-conquer)策略(分治法将问题分(divide)成一些小的问题然后递归求解，而治(conquer)的阶段则将分的阶段得到的各答案“修补”在一起，即分而治之)。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/05/06/16203055843782.jpg"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/05/06/16203060638697.jpg"></p>
+<h4 id="基数排序"><a href="#基数排序" class="headerlink" title="基数排序"></a>基数排序</h4><p>基数排序（桶排序）介绍：</p>
 <ol>
 <li>基数排序（radix sort）属于“分配式排序”（distribution sort），又称为“桶子法”（bucket sort）或bin sort，顾名思义，它是通过键值的各个位的值，将要排序的元素分配至某些“桶”中，达到排序的作用。</li>
 <li>基数排序法是属于稳定性的排序，基数排序法是效率高的稳定性排序法。</li>
@@ -786,10 +534,10 @@
 <li>基数排序是经典的空间换时间的方式，占用内存很大，当对海量数据进行排序时，容易造成OOM</li>
 <li>基数排序是稳定的。（注：假定在待排序的记录序列中，存在多个具有相同关键字的记录，若经过排序，这些记录的相对序列保持不变，则称这种排序算法是稳定的，否则称为不稳定）</li>
 </ol>
-<h3 id="常用排序算法总结与对比"><a href="#常用排序算法总结与对比" class="headerlink" title="常用排序算法总结与对比"></a>常用排序算法总结与对比</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/05/12/16208263189347.jpg"></p>
-<h2 id="查找算法"><a href="#查找算法" class="headerlink" title="查找算法"></a>查找算法</h2><p>查找算法介绍：<br>    在Java中，我们常用的查找有四种：<br>    1. 顺序（线性）查找<br>    2. 二分查找&#x2F;折半查找<br>    3. 插值查找<br>    4. 斐波那契查找</p>
-<h3 id="线性查找"><a href="#线性查找" class="headerlink" title="线性查找"></a>线性查找</h3><p>可以是无序数列<br>for循环查找…..</p>
-<h3 id="二分查找"><a href="#二分查找" class="headerlink" title="二分查找"></a>二分查找</h3><p>必须是有序数列  {1,8,89,1000,1234}<br>二分查找的思路分析</p>
+<h4 id="常用排序算法总结与对比"><a href="#常用排序算法总结与对比" class="headerlink" title="常用排序算法总结与对比"></a>常用排序算法总结与对比</h4><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/05/12/16208263189347.jpg"></p>
+<h3 id="查找算法"><a href="#查找算法" class="headerlink" title="查找算法"></a>查找算法</h3><p>查找算法介绍：<br>    在Java中，我们常用的查找有四种：<br>    1. 顺序（线性）查找<br>    2. 二分查找&#x2F;折半查找<br>    3. 插值查找<br>    4. 斐波那契查找</p>
+<h4 id="线性查找"><a href="#线性查找" class="headerlink" title="线性查找"></a>线性查找</h4><p>可以是无序数列<br>for循环查找…..</p>
+<h4 id="二分查找"><a href="#二分查找" class="headerlink" title="二分查找"></a>二分查找</h4><p>必须是有序数列  {1,8,89,1000,1234}<br>二分查找的思路分析</p>
 <ol>
 <li>首先确定该数组的中间下标    mid&#x3D;(left+right)&#x2F;2</li>
 <li>然后让需要查找的数findVal和arr[mid]比较<ol>
@@ -804,7 +552,7 @@
 <li>找到结束递归</li>
 <li>递归完整个数组，仍然没有找到，也需要退出递归，当left&gt;right退出</li>
 </ul>
-<h3 id="插值查找"><a href="#插值查找" class="headerlink" title="插值查找"></a>插值查找</h3><p>介绍：</p>
+<h4 id="插值查找"><a href="#插值查找" class="headerlink" title="插值查找"></a>插值查找</h4><p>介绍：</p>
 <ol>
 <li>插值查找算法类似于二分查找，不同的是插值查找每次从<strong>自适应mid处</strong>开始查找。</li>
 <li>将折半查找中的求mid索引的公式进行修改，low表示左边下标left，high表示右边下标right，a为有序数组，key为要查找的元素。<br> <img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/05/15/16210487159358.jpg"></li>
@@ -815,7 +563,7 @@
 </ul>
 </li>
 </ol>
-<h3 id="斐波那契（黄金分割法）查找算法"><a href="#斐波那契（黄金分割法）查找算法" class="headerlink" title="斐波那契（黄金分割法）查找算法"></a>斐波那契（黄金分割法）查找算法</h3><p>原理：<br>    斐波那契查找原理与前两种相似，仅仅改变了中间结点(mid )的位置，mid不再是中间或者插值得到，而是位于黄金分割点附近，即mid&#x3D;low+F(k-1)-1（F代表斐波那契数列），如下图所示：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/05/15/16210528253673.jpg"><br>对F(k-1)-1的理解</p>
+<h4 id="斐波那契（黄金分割法）查找算法"><a href="#斐波那契（黄金分割法）查找算法" class="headerlink" title="斐波那契（黄金分割法）查找算法"></a>斐波那契（黄金分割法）查找算法</h4><p>原理：<br>    斐波那契查找原理与前两种相似，仅仅改变了中间结点(mid )的位置，mid不再是中间或者插值得到，而是位于黄金分割点附近，即mid&#x3D;low+F(k-1)-1（F代表斐波那契数列），如下图所示：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/05/15/16210528253673.jpg"><br>对F(k-1)-1的理解</p>
 <ol>
 <li>有斐波那契数列F[k]&#x3D;F[k-1]+F[K-2]的性质，可以得到 <strong>F[k]-1&#x3D;(F[k-1]-1)+(F(k-2)-1)+1</strong><br> 该式说明：只要顺序表的长度为<strong>F[k]-1</strong>，则可以将该表分成长度为F[k-1]-1和F[k-2]-1的两段，即如上图所示。从而得出mid&#x3D;low+F(k-1)-1</li>
 <li>类似的，每一个字段也可以用相同的方式分割。</li>
@@ -823,8 +571,8 @@
 </ol>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">while(n &gt; fib(k)-1)</span><br><span class="line">    k++;</span><br></pre></td></tr></table></figure>
 
-<h2 id="哈希表"><a href="#哈希表" class="headerlink" title="哈希表"></a>哈希表</h2><p>介绍：<br>    散列表（Hash table，也叫哈希表），是根据关键码值（key value）而直接进行访问的数据结构。也就是说，它通过把关键码值映射到表中的一个位置来访问记录，以加快查找的速度。这个映射函数叫做散列函数，存放记录的数组叫做散列表。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/05/16/16211523688516.jpg"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/05/16/16211535095885.jpg"></p>
-<h2 id="树结构"><a href="#树结构" class="headerlink" title="树结构"></a>树结构</h2><p>为什么需要树这种数据结构？</p>
+<h3 id="哈希表"><a href="#哈希表" class="headerlink" title="哈希表"></a>哈希表</h3><p>介绍：<br>    散列表（Hash table，也叫哈希表），是根据关键码值（key value）而直接进行访问的数据结构。也就是说，它通过把关键码值映射到表中的一个位置来访问记录，以加快查找的速度。这个映射函数叫做散列函数，存放记录的数组叫做散列表。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/05/16/16211523688516.jpg"><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/05/16/16211535095885.jpg"></p>
+<h3 id="树结构"><a href="#树结构" class="headerlink" title="树结构"></a>树结构</h3><p>为什么需要树这种数据结构？</p>
 <ol>
 <li>数组存储方式分析<ul>
 <li>优点：通过下标方式访问元素，速度快。对于有序数组，还可以使用二分查找提高检索效率。</li>
@@ -838,7 +586,7 @@
 </li>
 <li>树存储方式分析<br> 能够提高数据存储，读取效率，比如利用二叉排序树（binary sort tree），既可以保证数据的检索速度，同时也可以保证数据的插入，删除，修改的数据。</li>
 </ol>
-<h3 id="二叉树"><a href="#二叉树" class="headerlink" title="二叉树"></a>二叉树</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/05/19/16214290521689.jpg"></p>
+<h4 id="二叉树"><a href="#二叉树" class="headerlink" title="二叉树"></a>二叉树</h4><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/05/19/16214290521689.jpg"></p>
 <h4 id="二叉树的概念"><a href="#二叉树的概念" class="headerlink" title="二叉树的概念"></a>二叉树的概念</h4><ol>
 <li>树有很多种，每个结点最多只能有两个子结点的一种形式称为二叉树。</li>
 <li>二叉树的子结点分为左结点和右结点。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/05/19/16214293221251.jpg"></li>
@@ -908,7 +656,7 @@
 4. 一个结点的后一个结点，称为后继结点。
 </code></pre>
 <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/06/01/16225524548765.jpg"><br><strong>说明：当线索化二叉树后，结点的属性left和right，有如下情况：</strong><br>    1. left指向的是左子树，也可能是指向的前驱结点。比如1结点left指向的左子树，而10结点的left指向的是前驱结点。<br>    2. right指向的是右子树，也可能是指向后继结点，比如1结点的right指向的是右子树，而10结点的right指向的是后继结点。</p>
-<h3 id="树结构的实际应用"><a href="#树结构的实际应用" class="headerlink" title="树结构的实际应用"></a>树结构的实际应用</h3><h4 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h4><p>堆排序基本介绍</p>
+<h4 id="树结构的实际应用"><a href="#树结构的实际应用" class="headerlink" title="树结构的实际应用"></a>树结构的实际应用</h4><h5 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h5><p>堆排序基本介绍</p>
 <ol>
 <li>堆排序是利用堆这种数据结构而设计的一种排序算法，堆排序是一种选择排序，它的最好最坏平均时间复杂度都为O(nlogn)，它是不稳定排序。</li>
 <li>堆是具有以下性质的完全二叉树：每个结点的值都大于或等于其左右孩子结点的值，称为大顶堆，注意：没有要求结点的左右孩子结点的值的大小关系。</li>
@@ -943,7 +691,7 @@
 </ol>
 </li>
 </ul>
-<h4 id="赫夫曼树"><a href="#赫夫曼树" class="headerlink" title="赫夫曼树"></a>赫夫曼树</h4><p>基本介绍</p>
+<h5 id="赫夫曼树"><a href="#赫夫曼树" class="headerlink" title="赫夫曼树"></a>赫夫曼树</h5><p>基本介绍</p>
 <ol>
 <li>给定n个权值作为n个叶子结点，构造一棵二叉树，若该树的带权路径长度（WPL）达到最小，称这样的二叉树为最优二叉树，也称为赫夫曼树（Huffman Tree）,还有的书翻译为霍夫曼树。</li>
 <li>赫夫曼树是带权路径长度最短的树，权值较大的结点离根较近。结点</li>
@@ -956,205 +704,154 @@
 <li><strong>WPL最小的就是赫夫曼树。</strong><br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/06/20/16241642468630.jpg"></li>
 </ol>
 
-      
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a href="/categories/">分类</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/yangh124">项目</a></li>
+        
+      </ul>
     </div>
-    <div class="article-footer">
-      <blockquote class="mt-2x">
-  <ul class="post-copyright list-unstyled">
-    
-    <li class="post-copyright-link hidden-xs">
-      <strong>本文链接：</strong>
-      <a href="https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/" title="数据结构和算法" target="_blank" rel="external">https://yangh124.github.io/2021/04/24/数据结构和算法/</a>
-    </li>
-    
-    <li class="post-copyright-license">
-      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
-    </li>
-  </ul>
-</blockquote>
 
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E7%BB%93%E6%9E%84%E5%92%8C%E9%9D%9E%E7%BA%BF%E6%80%A7%E7%BB%93%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">线性结构和非线性结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E7%BB%93%E6%9E%84"><span class="toc-number">1.1.</span> <span class="toc-text">线性结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%9E%E7%BA%BF%E6%80%A7%E7%BB%93%E6%9E%84"><span class="toc-number">1.2.</span> <span class="toc-text">非线性结构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E7%BB%93%E6%9E%84-1"><span class="toc-number">2.</span> <span class="toc-text">线性结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A8%80%E7%96%8F%E6%95%B0%E7%BB%84%E5%92%8C%E9%98%9F%E5%88%97"><span class="toc-number">2.1.</span> <span class="toc-text">稀疏数组和队列</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A8%80%E7%96%8F%E6%95%B0%E7%BB%84"><span class="toc-number">2.1.1.</span> <span class="toc-text">稀疏数组</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%9F%E5%88%97"><span class="toc-number">2.1.2.</span> <span class="toc-text">队列</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%93%BE%E8%A1%A8%EF%BC%88Linked-List%EF%BC%89"><span class="toc-number">2.1.3.</span> <span class="toc-text">链表（Linked  List）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%88%EF%BC%88Stack%EF%BC%89"><span class="toc-number">2.1.4.</span> <span class="toc-text">栈（Stack）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%92%E5%BD%92"><span class="toc-number">2.2.</span> <span class="toc-text">递归</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95"><span class="toc-number">2.3.</span> <span class="toc-text">排序算法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%92%E6%B3%A1%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.1.</span> <span class="toc-text">冒泡排序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%89%E6%8B%A9%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.2.</span> <span class="toc-text">选择排序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.3.</span> <span class="toc-text">插入排序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%8C%E5%B0%94%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.4.</span> <span class="toc-text">希尔排序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.5.</span> <span class="toc-text">快速排序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BD%92%E5%B9%B6%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.6.</span> <span class="toc-text">归并排序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%95%B0%E6%8E%92%E5%BA%8F"><span class="toc-number">2.3.7.</span> <span class="toc-text">基数排序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95%E6%80%BB%E7%BB%93%E4%B8%8E%E5%AF%B9%E6%AF%94"><span class="toc-number">2.3.8.</span> <span class="toc-text">常用排序算法总结与对比</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E6%89%BE%E7%AE%97%E6%B3%95"><span class="toc-number">2.4.</span> <span class="toc-text">查找算法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E6%9F%A5%E6%89%BE"><span class="toc-number">2.4.1.</span> <span class="toc-text">线性查找</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE"><span class="toc-number">2.4.2.</span> <span class="toc-text">二分查找</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8F%92%E5%80%BC%E6%9F%A5%E6%89%BE"><span class="toc-number">2.4.3.</span> <span class="toc-text">插值查找</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91%EF%BC%88%E9%BB%84%E9%87%91%E5%88%86%E5%89%B2%E6%B3%95%EF%BC%89%E6%9F%A5%E6%89%BE%E7%AE%97%E6%B3%95"><span class="toc-number">2.4.4.</span> <span class="toc-text">斐波那契（黄金分割法）查找算法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%93%88%E5%B8%8C%E8%A1%A8"><span class="toc-number">2.5.</span> <span class="toc-text">哈希表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%91%E7%BB%93%E6%9E%84"><span class="toc-number">2.6.</span> <span class="toc-text">树结构</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="toc-number">2.6.1.</span> <span class="toc-text">二叉树</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="toc-number">2.6.2.</span> <span class="toc-text">二叉树的概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E9%81%8D%E5%8E%86"><span class="toc-number">2.6.3.</span> <span class="toc-text">二叉树遍历</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E5%88%A0%E9%99%A4%E7%BB%93%E7%82%B9"><span class="toc-number">2.6.4.</span> <span class="toc-text">二叉树删除结点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A1%BA%E5%BA%8F%E5%AD%98%E5%82%A8%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="toc-number">2.6.5.</span> <span class="toc-text">顺序存储二叉树</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%BF%E7%B4%A2%E5%8C%96%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="toc-number">2.6.6.</span> <span class="toc-text">线索化二叉树</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%91%E7%BB%93%E6%9E%84%E7%9A%84%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8"><span class="toc-number">2.6.7.</span> <span class="toc-text">树结构的实际应用</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A0%86%E6%8E%92%E5%BA%8F"><span class="toc-number">2.6.7.1.</span> <span class="toc-text">堆排序</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%B5%AB%E5%A4%AB%E6%9B%BC%E6%A0%91"><span class="toc-number">2.6.7.2.</span> <span class="toc-text">赫夫曼树</span></a></li></ol></li></ol></li></ol></li></ol>
+      </div>
+    
 
-<div class="panel panel-default panel-badger">
-  <div class="panel-body">
-    <figure class="media">
-      <div class="media-left">
-        <a href="https://github.com/yangh124" target="_blank" class="img-burn thumb-sm visible-lg">
-          <img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" class="img-rounded w-full" alt="">
-        </a>
-      </div>
-      <div class="media-body">
-        <h3 class="media-heading"><a href="https://github.com/yangh124" target="_blank"><span class="text-dark">yangh124</span><small class="ml-1x"></small></a></h3>
-        <div>你还有好多未完成的梦，你有什么道理停下脚步。</div>
-      </div>
-    </figure>
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&text=数据结构和算法"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&title=数据结构和算法"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&is_video=false&description=数据结构和算法"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=数据结构和算法&body=Check out this article: https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&title=数据结构和算法"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&title=数据结构和算法"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&title=数据结构和算法"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&title=数据结构和算法"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&name=数据结构和算法&description=&lt;h2 id=&#34;线性结构和非线性结构&#34;&gt;&lt;a href=&#34;#线性结构和非线性结构&#34; class=&#34;headerlink&#34; title=&#34;线性结构和非线性结构&#34;&gt;&lt;/a&gt;线性结构和非线性结构&lt;/h2&gt;&lt;pre&gt;&lt;code&gt;数据结构包括：线性结构和非线性结构
+&lt;/code&gt;&lt;/pre&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://yangh124.github.io/2021/04/24/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%AE%97%E6%B3%95/&t=数据结构和算法"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
   </div>
 </div>
 
-
-    </div>
-  </article>
-  
-    
-  <section id="comments">
-  	
-      <div id="vcomments"></div>
-    
-  </section>
-
-
-  
-</div>
-
-  <nav class="bar bar-footer clearfix" data-stick-bottom>
-  <div class="bar-inner">
-  
-  <ul class="pager pull-left">
-    
-    <li class="prev">
-      <a href="/2021/04/26/JVM/" title="JVM"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
-    </li>
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
     
     
-    
-    <li class="toggle-toc">
-      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">    <span>[&nbsp;</span><span>文章目录</span>
-        <i class="text-collapsed icon icon-anchor"></i>
-        <i class="text-in icon icon-close"></i>
-        <span>]</span>
-      </a>
-    </li>
-    
-  </ul>
-  
-  
-  
-  <div class="bar-right">
-    
-    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
-    
+    2016-2024
+    yangh
   </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yangh124">项目</a></li><!--
+     -->
+      </ul>
+    </nav>
   </div>
-</nav>
-  
-
-
-</main>
-
-  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
-    
-        <div class="copyright">
-            
-                &copy; 2024
-                    yangh
-                        
-                            <div class="publishby">
-                                Theme by <a href="https://github.com/cofess" target="_blank">
-                                        cofess </a>
-                                    base on <a href="https://github.com/cofess/hexo-theme-pure"
-                                            target="_blank">pure</a>.
-                            </div>
-        </div>
 </footer>
-  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
-<script>
-window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
-</script>
 
-<script src="/js/plugin.min.js"></script>
+    </div>
+    <!-- styles -->
 
 
-<script src="/js/application.js"></script>
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
 
 
-    <script>
-(function (window) {
-    var INSIGHT_CONFIG = {
-        TRANSLATION: {
-            POSTS: '文章',
-            PAGES: '页面',
-            CATEGORIES: '分类',
-            TAGS: '标签',
-            UNTITLED: '(未命名)',
-        },
-        ROOT_URL: '/',
-        CONTENT_URL: '/content.json',
-    };
-    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
-})(window);
-</script>
+    <!-- jquery -->
 
-<script src="/js/insight.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
 
 
 
 
+<!-- clipboard -->
 
-
-   
-
-
-
-
-   
-    
-  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
   <script type="text/javascript">
-  var GUEST = ['nick', 'mail', 'link'];
-  var meta = 'nick,mail,link';
-  meta = meta.split(',').filter(function(item) {
-    return GUEST.indexOf(item) > -1;
-  });
-  new Valine({
-    el: '#vcomments',
-    verify: false,
-    notify: false,
-    appId: 'HXqdy9Gelr3kb7pii3TOj4fl-9Nh9j0Va',
-    appKey: 'CY8JtaywMBlw476SSnU4X9RH',
-    placeholder: 'Just go go',
-    avatar: 'mm',
-    meta: meta,
-    pageSize: '10' || 10,
-    visitor: true
-  });
-  </script>
-
-     
-
-
-
-  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
-  <script>
-  //利用 FancyBox 实现点击图片放大
-  $(document).ready(function() {
-    $('article img').not('[hidden]').not('.panel-body img').each(function() {
-      var $image = $(this);
-      var imageCaption = $image.attr('alt');
-      var $imageWrapLink = $image.parent('a');
-      if ($imageWrapLink.length < 1) {
-        var src = this.getAttribute('src');
-        var idx = src.lastIndexOf('?');
-        if (idx != -1) {
-          src = src.substring(0, idx);
-        }
-        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
-      }
-      $imageWrapLink.attr('data-fancybox', 'images');
-      if (imageCaption) {
-        $imageWrapLink.attr('data-caption', imageCaption);
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
       }
     });
-    $().fancybox({
-      selector: '[data-fancybox="images"]',
-      hash: false,
-      loop: false,
-    });
-  });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
   </script>
 
 
+<script src="/js/main.js"></script>
 
+<!-- search -->
 
+<!-- Baidu Analytics -->
 
-</body>
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+<!-- hexo injector body_end start --><script src="https://unpkg.com/live2dapi-noa@latest/npm/random/autoload.js">
+<script src="/js/jquery.js"></script>
+<!-- hexo injector body_end end --></body>
 </html>

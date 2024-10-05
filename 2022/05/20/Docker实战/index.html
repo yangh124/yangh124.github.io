@@ -1,24 +1,12 @@
 <!DOCTYPE html>
 <html lang=zh>
 <head>
-  <meta charset="utf-8">
-  
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
-  <meta name="renderer" content="webkit">
-  <meta http-equiv="Cache-Control" content="no-transform" />
-  <meta http-equiv="Cache-Control" content="no-siteapp" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="format-detection" content="telephone=no,email=no,adress=no">
-  <!-- Color theme for statusbar -->
-  <meta name="theme-color" content="#000000" />
-  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
-  <meta http-equiv="window-target" content="_top" />
-  
-  
-  <title>Docker实战 | yangh&#39;s Blog</title>
-  <meta name="description" content="Docker 部署springboot项目使用docker-maven-plugin maven插件  服务器安装docker略  Docker开启远程访问 查看docker服务状态（查看docker.service位置）1234567pi@raspberrypi:~ $ service docker status● docker.service - Docker Application Cont">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Docker 部署springboot项目使用docker-maven-plugin maven插件  服务器安装docker略  Docker开启远程访问 查看docker服务状态（查看docker.service位置）1234567pi@raspberrypi:~ $ service docker status● docker.service - Docker Application Cont">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Docker实战">
 <meta property="og:url" content="https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/index.html">
@@ -26,406 +14,167 @@
 <meta property="og:description" content="Docker 部署springboot项目使用docker-maven-plugin maven插件  服务器安装docker略  Docker开启远程访问 查看docker服务状态（查看docker.service位置）1234567pi@raspberrypi:~ $ service docker status● docker.service - Docker Application Cont">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-05-19T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-10-05T07:29:37.505Z">
+<meta property="article:modified_time" content="2024-10-05T15:47:33.609Z">
 <meta property="article:author" content="yangh">
 <meta property="article:tag" content="Docker">
 <meta name="twitter:card" content="summary">
-  <!-- Canonical links -->
-  <link rel="canonical" href="https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/index.html">
-  
-  
-    <link rel="icon" href="/favicon.png" type="image/x-icon">
-  
-  
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Docker实战</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
 <link rel="stylesheet" href="/css/style.css">
 
-  
-  
-  
-    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
-  
-  
-  <!-- live2d -->
-  
-  <link rel="stylesheet" href="/css/left.css">
-  <script src="/js/autoload.js"></script>
-  
-<meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<!-- hexo injector head_end start --><link rel = "stylesheet" href = "https://unpkg.com/live2dapi-noa@latest/css/left.css"/><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
 </head>
 
-
-<body class="main-center theme-green" itemscope itemtype="http://schema.org/WebPage">
-  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-  <div class="slimContent">
-    <div class="navbar-header">
-      
-      
-      <div class="profile-block text-center">
-        <a id="avatar" href="https://github.com/yangh124" target="_blank">
-          <img class="img-circle img-rotate" src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" width="200" height="200">
-        </a>
-        <h2 id="name" class="hidden-xs hidden-sm">yangh124</h2>
-        <h3 id="title" class="hidden-xs hidden-sm hidden-md"></h3>
-        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> 浙江，杭州</small>
-      </div>
-      
-      <div class="search" id="search-form-wrap">
-
-    <form class="search-form sidebar-form">
-        <div class="input-group">
-            <input type="text" class="search-form-input form-control" placeholder="搜索" />
-            <span class="input-group-btn">
-                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
-            </span>
-        </div>
-    </form>
-    <div class="ins-search">
-  <div class="ins-search-mask"></div>
-  <div class="ins-search-container">
-    <div class="ins-input-wrapper">
-      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
-      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-    </div>
-    <div class="ins-section-wrapper">
-      <div class="ins-section-container"></div>
-    </div>
-  </div>
-</div>
-
-
-</div>
-      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-    </div>
-    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
-      <ul class="nav navbar-nav main-nav menu-highlight">
-        
-        
-        <li class="menu-item menu-item-home">
-          <a href="/.">
-            
-            <i class="icon icon-home-fill"></i>
-            
-            <span class="menu-title">首页</span>
-          </a>
-        </li>
-        
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives">
-            
-            <i class="icon icon-archives-fill"></i>
-            
-            <span class="menu-title">归档</span>
-          </a>
-        </li>
-        
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories">
-            
-            <i class="icon icon-folder"></i>
-            
-            <span class="menu-title">分类</span>
-          </a>
-        </li>
-        
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags">
-            
-            <i class="icon icon-tags"></i>
-            
-            <span class="menu-title">标签</span>
-          </a>
-        </li>
-        
-        
-        <li class="menu-item menu-item-repository">
-          <a href="/repository">
-            
-            <i class="icon icon-project"></i>
-            
-            <span class="menu-title">项目</span>
-          </a>
-        </li>
-        
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about">
-            
-            <i class="icon icon-cup-fill"></i>
-            
-            <span class="menu-title">关于</span>
-          </a>
-        </li>
-        
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yangh124">项目</a></li><!--
+     -->
       </ul>
-      
-    </nav>
-  </div>
-</header>
-
-  
-    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
-  <div class="slimContent">
-    
-      <div class="widget">
-    <h3 class="widget-title">公告</h3>
-    <div class="widget-body">
-        <div id="board">
-            <div class="content">
-                <p>欢迎交流与分享经验!</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-    
-      
-  <div class="widget">
-    <h3 class="widget-title">分类</h3>
-    <div class="widget-body">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E7%A1%80/">基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%84%9A%E6%9C%AC%E8%AF%AD%E8%A8%80/">脚本语言</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a><span class="category-list-count">1</span></li></ul>
-    </div>
-  </div>
-
-
-    
-      
-  <div class="widget">
-    <h3 class="widget-title">标签</h3>
-    <div class="widget-body">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Camunda/" rel="tag">Camunda</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%9E%E6%88%98/" rel="tag">实战</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" rel="tag">网络编程</a><span class="tag-list-count">1</span></li></ul>
-    </div>
-  </div>
-
-
-    
-      
-  <div class="widget">
-    <h3 class="widget-title">归档</h3>
-    <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/10/">十月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">三月 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">五月 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a><span class="archive-list-count">2</span></li></ul>
-    </div>
-  </div>
-
-
-    
-      
-  <div class="widget">
-    <h3 class="widget-title">最新文章</h3>
-    <div class="widget-body">
-      <ul class="recent-post-list list-unstyled ">
-        
-          <li>
-            
-            <div class="item-thumb">
-              <a href="/2024/10/02/Dock%E5%AE%89%E8%A3%85ImmotalWrt/" class="thumb">
-    
-    
-        <span class="thumb-image thumb-none"></span>
-    
-</a>
-
-            </div>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
-              </p>
-              <p class="item-title">
-                <a href="/2024/10/02/Dock%E5%AE%89%E8%A3%85ImmotalWrt/" class="title">Docker安装ImmotalWrt教程</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2024-10-01T16:00:00.000Z" itemprop="datePublished">2024-10-02</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-thumb">
-              <a href="/2024/03/27/Camunda/" class="thumb">
-    
-    
-        <span class="thumb-image thumb-none"></span>
-    
-</a>
-
-            </div>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-              </p>
-              <p class="item-title">
-                <a href="/2024/03/27/Camunda/" class="title">Camunda</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2024-03-26T16:00:00.000Z" itemprop="datePublished">2024-03-27</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-thumb">
-              <a href="/2024/03/09/k8s/" class="thumb">
-    
-    
-        <span class="thumb-image thumb-none"></span>
-    
-</a>
-
-            </div>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-              </p>
-              <p class="item-title">
-                <a href="/2024/03/09/k8s/" class="title">k8s</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2024-03-08T16:00:00.000Z" itemprop="datePublished">2024-03-09</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-thumb">
-              <a href="/2023/02/28/k3s%E5%AE%9E%E6%88%98/" class="thumb">
-    
-    
-        <span class="thumb-image thumb-none"></span>
-    
-</a>
-
-            </div>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-              </p>
-              <p class="item-title">
-                <a href="/2023/02/28/k3s%E5%AE%9E%E6%88%98/" class="title">k3s实战</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2023-02-27T16:00:00.000Z" itemprop="datePublished">2023-02-28</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-thumb">
-              <a href="/2022/06/06/MySQL%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/" class="thumb">
-    
-    
-        <span class="thumb-image thumb-none"></span>
-    
-</a>
-
-            </div>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-              </p>
-              <p class="item-title">
-                <a href="/2022/06/06/MySQL%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/" class="title">MySQL性能分析工具的使用</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2022-06-05T16:00:00.000Z" itemprop="datePublished">2022-06-06</time>
-              </p>
-            </div>
-          </li>
-          
-      </ul>
-    </div>
-  </div>
-  
-
-    
-  </div>
-</aside>
-
-  
-  
-  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
-  <div class="slimContent">
-    <nav id="toc" class="article-toc">
-      <h3 class="toc-title">文章目录</h3>
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Docker-%E9%83%A8%E7%BD%B2springboot%E9%A1%B9%E7%9B%AE"><span class="toc-number">1.</span> <span class="toc-text">Docker 部署springboot项目</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%89%E8%A3%85docker"><span class="toc-number">1.1.</span> <span class="toc-text">服务器安装docker</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker%E5%BC%80%E5%90%AF%E8%BF%9C%E7%A8%8B%E8%AE%BF%E9%97%AE"><span class="toc-number">1.2.</span> <span class="toc-text">Docker开启远程访问</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8TLS-HTTPS-%E4%BF%9D%E8%AF%81Docker%E6%9C%8D%E5%8A%A1%E5%AE%89%E5%85%A8"><span class="toc-number">1.3.</span> <span class="toc-text">使用TLS(HTTPS)保证Docker服务安全</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AB%AF%E7%94%9F%E6%88%90CA%E5%85%B1%E9%92%A5%E5%92%8C%E7%A7%81%E9%92%A5"><span class="toc-number">1.3.1.</span> <span class="toc-text">1. 服务器端生成CA共钥和私钥</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BA%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AF%86%E9%92%A5%E5%92%8C%E8%AF%81%E4%B9%A6%E7%AD%BE%E5%90%8D%E8%AF%B7%E6%B1%82"><span class="toc-number">1.3.2.</span> <span class="toc-text">2. 创建服务器密钥和证书签名请求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%85%8D%E7%BD%AE%E7%99%BD%E5%90%8D%E5%8D%95"><span class="toc-number">1.3.3.</span> <span class="toc-text">3. 配置白名单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E8%AE%BE%E7%BD%AEDocker%E5%AE%88%E6%8A%A4%E8%BF%9B%E7%A8%8B%E5%AF%86%E9%92%A5%E7%9A%84%E6%89%A9%E5%B1%95%E4%BD%BF%E7%94%A8%E5%B1%9E%E6%80%A7%EF%BC%8C%E4%BB%85%E7%94%A8%E4%BA%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81"><span class="toc-number">1.3.4.</span> <span class="toc-text">4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E7%94%9F%E6%88%90%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6%EF%BC%88%E9%9C%80%E8%A6%81%E8%BE%93%E5%85%A5%E5%AF%86%E7%A0%81%EF%BC%89"><span class="toc-number">1.3.5.</span> <span class="toc-text">5. 生成签名证书（需要输入密码）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%AF%B9%E4%BA%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%EF%BC%8C%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%AF%86%E9%92%A5%E5%92%8C%E8%AF%81%E4%B9%A6%E7%AD%BE%E5%90%8D%E8%AF%B7%E6%B1%82"><span class="toc-number">1.3.6.</span> <span class="toc-text">6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E5%88%A0%E9%99%A4%E4%B8%8D%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6"><span class="toc-number">1.3.7.</span> <span class="toc-text">7. 删除不需要的文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90%EF%BC%8C%E9%98%B2%E6%AD%A2%E8%AF%AF%E5%88%A0"><span class="toc-number">1.3.8.</span> <span class="toc-text">8. 修改文件权限，防止误删</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-%E5%86%8D%E6%AC%A1%E4%BF%AE%E6%94%B9%E6%9C%8D%E5%8A%A1%E5%99%A8docker-service"><span class="toc-number">1.3.9.</span> <span class="toc-text">9. 再次修改服务器docker.service</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-%E9%87%8D%E6%96%B0%E5%8A%A0%E8%BD%BDdaemon%E5%B9%B6%E9%87%8D%E5%90%AFdocker"><span class="toc-number">1.3.10.</span> <span class="toc-text">10. 重新加载daemon并重启docker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11-%E9%85%8D%E7%BD%AE%E6%9C%AC%E5%9C%B0%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">1.3.11.</span> <span class="toc-text">11. 配置本地环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%8B%E8%AF%95"><span class="toc-number">1.3.12.</span> <span class="toc-text">12. 客户端测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E9%85%8D%E7%BD%AE"><span class="toc-number">1.4.</span> <span class="toc-text">项目配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEdocker-file-maven-plugin%E6%8F%92%E4%BB%B6"><span class="toc-number">1.4.1.</span> <span class="toc-text">配置docker-file-maven-plugin插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Dockerfile"><span class="toc-number">1.4.2.</span> <span class="toc-text">Dockerfile</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E9%A1%B9%E7%9B%AE"><span class="toc-number">1.4.3.</span> <span class="toc-text">部署项目</span></a></li></ol></li></ol></li></ol>
-    </nav>
-  </div>
-</aside>
-
-<main class="main" role="main">
-  <div class="content">
-  <article id="post-Docker实战" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
-    
-    <div class="article-header">
-      
-        
-  
-    <h1 class="article-title" itemprop="name">
-      Docker实战
-    </h1>
-  
-
-      
-      <div class="article-meta">
-        <span class="article-date">
-    <i class="icon icon-calendar-check"></i>
-	<a href="/2022/05/20/Docker%E5%AE%9E%E6%88%98/" class="article-date">
-	  <time datetime="2022-05-19T16:00:00.000Z" itemprop="datePublished">2022-05-20</time>
-	</a>
-</span>
-        
-  <span class="article-category">
-    <i class="icon icon-folder"></i>
-    <a class="article-category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-  </span>
-
-        
-  <span class="article-tag">
-    <i class="icon icon-tags"></i>
-	<a class="article-tag-link-link" href="/tags/Docker/" rel="tag">Docker</a>
-  </span>
-
-
-        
-
-	<span class="article-read hidden-xs">
-    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
-    	<span id="/2022/05/20/Docker%E5%AE%9E%E6%88%98/" class="leancloud_visitors"  data-flag-title="Docker实战">0</span>
     </span>
-
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2022/05/20/Docker%E5%AE%9E%E6%88%98/#comments" class="article-comment-link">评论</a></span>
+    <br/>
+    <span id="actions">
+      <ul>
         
-	
-		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 1.5k(字)</span>
-	
-	
-		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 7(分)</span>
-	
+        <li><a class="icon" aria-label="上一篇" href="/2022/05/30/Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%EF%BC%89/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/01/15/InnoDB%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&text=Docker实战"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&title=Docker实战"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&is_video=false&description=Docker实战"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Docker实战&body=Check out this article: https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&title=Docker实战"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&title=Docker实战"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&title=Docker实战"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&title=Docker实战"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&name=Docker实战&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&t=Docker实战"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
 
-      </div>
     </div>
-    <div class="article-entry marked-body" itemprop="articleBody">
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker-%E9%83%A8%E7%BD%B2springboot%E9%A1%B9%E7%9B%AE"><span class="toc-number">1.</span> <span class="toc-text">Docker 部署springboot项目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%89%E8%A3%85docker"><span class="toc-number">1.1.</span> <span class="toc-text">服务器安装docker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Docker%E5%BC%80%E5%90%AF%E8%BF%9C%E7%A8%8B%E8%AE%BF%E9%97%AE"><span class="toc-number">1.2.</span> <span class="toc-text">Docker开启远程访问</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8TLS-HTTPS-%E4%BF%9D%E8%AF%81Docker%E6%9C%8D%E5%8A%A1%E5%AE%89%E5%85%A8"><span class="toc-number">1.3.</span> <span class="toc-text">使用TLS(HTTPS)保证Docker服务安全</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AB%AF%E7%94%9F%E6%88%90CA%E5%85%B1%E9%92%A5%E5%92%8C%E7%A7%81%E9%92%A5"><span class="toc-number">1.3.1.</span> <span class="toc-text">1. 服务器端生成CA共钥和私钥</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BA%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AF%86%E9%92%A5%E5%92%8C%E8%AF%81%E4%B9%A6%E7%AD%BE%E5%90%8D%E8%AF%B7%E6%B1%82"><span class="toc-number">1.3.2.</span> <span class="toc-text">2. 创建服务器密钥和证书签名请求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E9%85%8D%E7%BD%AE%E7%99%BD%E5%90%8D%E5%8D%95"><span class="toc-number">1.3.3.</span> <span class="toc-text">3. 配置白名单</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E8%AE%BE%E7%BD%AEDocker%E5%AE%88%E6%8A%A4%E8%BF%9B%E7%A8%8B%E5%AF%86%E9%92%A5%E7%9A%84%E6%89%A9%E5%B1%95%E4%BD%BF%E7%94%A8%E5%B1%9E%E6%80%A7%EF%BC%8C%E4%BB%85%E7%94%A8%E4%BA%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81"><span class="toc-number">1.3.4.</span> <span class="toc-text">4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E7%94%9F%E6%88%90%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6%EF%BC%88%E9%9C%80%E8%A6%81%E8%BE%93%E5%85%A5%E5%AF%86%E7%A0%81%EF%BC%89"><span class="toc-number">1.3.5.</span> <span class="toc-text">5. 生成签名证书（需要输入密码）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-%E5%AF%B9%E4%BA%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%EF%BC%8C%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%AF%86%E9%92%A5%E5%92%8C%E8%AF%81%E4%B9%A6%E7%AD%BE%E5%90%8D%E8%AF%B7%E6%B1%82"><span class="toc-number">1.3.6.</span> <span class="toc-text">6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-%E5%88%A0%E9%99%A4%E4%B8%8D%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6"><span class="toc-number">1.3.7.</span> <span class="toc-text">7. 删除不需要的文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90%EF%BC%8C%E9%98%B2%E6%AD%A2%E8%AF%AF%E5%88%A0"><span class="toc-number">1.3.8.</span> <span class="toc-text">8. 修改文件权限，防止误删</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#9-%E5%86%8D%E6%AC%A1%E4%BF%AE%E6%94%B9%E6%9C%8D%E5%8A%A1%E5%99%A8docker-service"><span class="toc-number">1.3.9.</span> <span class="toc-text">9. 再次修改服务器docker.service</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#10-%E9%87%8D%E6%96%B0%E5%8A%A0%E8%BD%BDdaemon%E5%B9%B6%E9%87%8D%E5%90%AFdocker"><span class="toc-number">1.3.10.</span> <span class="toc-text">10. 重新加载daemon并重启docker</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#11-%E9%85%8D%E7%BD%AE%E6%9C%AC%E5%9C%B0%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">1.3.11.</span> <span class="toc-text">11. 配置本地环境变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#12-%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%8B%E8%AF%95"><span class="toc-number">1.3.12.</span> <span class="toc-text">12. 客户端测试</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E9%85%8D%E7%BD%AE"><span class="toc-number">1.4.</span> <span class="toc-text">项目配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEdocker-file-maven-plugin%E6%8F%92%E4%BB%B6"><span class="toc-number">1.4.1.</span> <span class="toc-text">配置docker-file-maven-plugin插件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Dockerfile"><span class="toc-number">1.4.2.</span> <span class="toc-text">Dockerfile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E9%A1%B9%E7%9B%AE"><span class="toc-number">1.4.3.</span> <span class="toc-text">部署项目</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Docker实战
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yangh</span>
+      </span>
       
-        <h1 id="Docker-部署springboot项目"><a href="#Docker-部署springboot项目" class="headerlink" title="Docker 部署springboot项目"></a>Docker 部署springboot项目</h1><pre><code>使用docker-maven-plugin maven插件
+    <div class="postdate">
+      
+        <time datetime="2022-05-19T16:00:00.000Z" class="dt-published" itemprop="datePublished">2022-05-20</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Docker/" rel="tag">Docker</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="Docker-部署springboot项目"><a href="#Docker-部署springboot项目" class="headerlink" title="Docker 部署springboot项目"></a>Docker 部署springboot项目</h2><pre><code>使用docker-maven-plugin maven插件
 </code></pre>
-<h2 id="服务器安装docker"><a href="#服务器安装docker" class="headerlink" title="服务器安装docker"></a>服务器安装docker</h2><pre><code>略
+<h3 id="服务器安装docker"><a href="#服务器安装docker" class="headerlink" title="服务器安装docker"></a>服务器安装docker</h3><pre><code>略
 </code></pre>
-<h2 id="Docker开启远程访问"><a href="#Docker开启远程访问" class="headerlink" title="Docker开启远程访问"></a>Docker开启远程访问</h2><ol>
+<h3 id="Docker开启远程访问"><a href="#Docker开启远程访问" class="headerlink" title="Docker开启远程访问"></a>Docker开启远程访问</h3><ol>
 <li>查看docker服务状态（查看docker.service位置）<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pi@raspberrypi:~ $ service docker status</span><br><span class="line">● docker.service - Docker Application Container Engine</span><br><span class="line">     Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)</span><br><span class="line">     Active: active (running) since Sun 2022-04-17 17:28:04 CST; 1 months 2 days ago</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">...</span><br></pre></td></tr></table></figure></li>
 <li>编辑docker.service<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /lib/systemd/system/docker.service</span><br></pre></td></tr></table></figure></li>
 <li>修改[Service]下的ExecStart，添加-H tcp:&#x2F;&#x2F;0.0.0.0:2375；对外开放docker服务（建议不要使用默认端口2375）<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H fd:// --containerd=/run/containerd/containerd.sock</span><br></pre></td></tr></table></figure></li>
@@ -433,226 +182,170 @@
 <li>服务器防火墙开放端口</li>
 <li>浏览器访问<a target="_blank" rel="noopener" href="http://ip:2375/version%EF%BC%8C%E6%B5%8B%E8%AF%95%E6%98%AF%E5%90%A6%E6%88%90%E5%8A%9F">http://ip:2375/version，测试是否成功</a></li>
 </ol>
-<h2 id="使用TLS-HTTPS-保证Docker服务安全"><a href="#使用TLS-HTTPS-保证Docker服务安全" class="headerlink" title="使用TLS(HTTPS)保证Docker服务安全"></a>使用TLS(HTTPS)保证Docker服务安全</h2><h3 id="1-服务器端生成CA共钥和私钥"><a href="#1-服务器端生成CA共钥和私钥" class="headerlink" title="1. 服务器端生成CA共钥和私钥"></a>1. 服务器端生成CA共钥和私钥</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"># 创建目录存放CA证书</span><br><span class="line">pi@raspberrypi:~ $ mkdir ca</span><br><span class="line"></span><br><span class="line"># 进入目录</span><br><span class="line">pi@raspberrypi:~ $ cd ca</span><br><span class="line"></span><br><span class="line"># 生成私钥（会提示输入密码）</span><br><span class="line">pi@raspberrypi:~/ca $ openssl genrsa -aes256 -out ca-key.pem 4096</span><br><span class="line">Generating RSA private key, 4096 bit long modulus (2 primes)</span><br><span class="line">..........................++++</span><br><span class="line">.......++++</span><br><span class="line">e is 65537 (0x010001)</span><br><span class="line">Enter pass phrase for ca-key.pem:</span><br><span class="line"></span><br><span class="line"># 生成证书信息（需要输入上面的密码以及一些其他信息【注意Common Name填写服务器外网IP】）</span><br><span class="line">pi@raspberrypi:~/ca $ openssl req -new -x509 -days 3650 -key ca-key.pem -sha256 -out ca.pem</span><br><span class="line">Enter pass phrase for ca-key.pem:</span><br><span class="line">You are about to be asked to enter information that will be incorporated</span><br><span class="line">into your certificate request.</span><br><span class="line">What you are about to enter is what is called a Distinguished Name or a DN.</span><br><span class="line">There are quite a few fields but you can leave some blank</span><br><span class="line">For some fields there will be a default value,</span><br><span class="line">If you enter &#x27;.&#x27;, the field will be left blank.</span><br><span class="line">-----</span><br><span class="line">Country Name (2 letter code) [AU]:CN</span><br><span class="line">State or Province Name (full name) [Some-State]:ZheJiang</span><br><span class="line">Locality Name (eg, city) []:HangZhou</span><br><span class="line">Organization Name (eg, company) [Internet Widgits Pty Ltd]:yanghao </span><br><span class="line">Organizational Unit Name (eg, section) []:yanghao</span><br><span class="line">Common Name (e.g. server FQDN or YOUR name) []:192.168.3.3</span><br><span class="line">Email Address []:yh.124@qq.com</span><br></pre></td></tr></table></figure>
+<h3 id="使用TLS-HTTPS-保证Docker服务安全"><a href="#使用TLS-HTTPS-保证Docker服务安全" class="headerlink" title="使用TLS(HTTPS)保证Docker服务安全"></a>使用TLS(HTTPS)保证Docker服务安全</h3><h4 id="1-服务器端生成CA共钥和私钥"><a href="#1-服务器端生成CA共钥和私钥" class="headerlink" title="1. 服务器端生成CA共钥和私钥"></a>1. 服务器端生成CA共钥和私钥</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"># 创建目录存放CA证书</span><br><span class="line">pi@raspberrypi:~ $ mkdir ca</span><br><span class="line"></span><br><span class="line"># 进入目录</span><br><span class="line">pi@raspberrypi:~ $ cd ca</span><br><span class="line"></span><br><span class="line"># 生成私钥（会提示输入密码）</span><br><span class="line">pi@raspberrypi:~/ca $ openssl genrsa -aes256 -out ca-key.pem 4096</span><br><span class="line">Generating RSA private key, 4096 bit long modulus (2 primes)</span><br><span class="line">..........................++++</span><br><span class="line">.......++++</span><br><span class="line">e is 65537 (0x010001)</span><br><span class="line">Enter pass phrase for ca-key.pem:</span><br><span class="line"></span><br><span class="line"># 生成证书信息（需要输入上面的密码以及一些其他信息【注意Common Name填写服务器外网IP】）</span><br><span class="line">pi@raspberrypi:~/ca $ openssl req -new -x509 -days 3650 -key ca-key.pem -sha256 -out ca.pem</span><br><span class="line">Enter pass phrase for ca-key.pem:</span><br><span class="line">You are about to be asked to enter information that will be incorporated</span><br><span class="line">into your certificate request.</span><br><span class="line">What you are about to enter is what is called a Distinguished Name or a DN.</span><br><span class="line">There are quite a few fields but you can leave some blank</span><br><span class="line">For some fields there will be a default value,</span><br><span class="line">If you enter &#x27;.&#x27;, the field will be left blank.</span><br><span class="line">-----</span><br><span class="line">Country Name (2 letter code) [AU]:CN</span><br><span class="line">State or Province Name (full name) [Some-State]:ZheJiang</span><br><span class="line">Locality Name (eg, city) []:HangZhou</span><br><span class="line">Organization Name (eg, company) [Internet Widgits Pty Ltd]:yanghao </span><br><span class="line">Organizational Unit Name (eg, section) []:yanghao</span><br><span class="line">Common Name (e.g. server FQDN or YOUR name) []:192.168.3.3</span><br><span class="line">Email Address []:yh.124@qq.com</span><br></pre></td></tr></table></figure>
 <p><strong>有了CA之后，就可以创建服务器密钥和证书签名请求(CSR)了。确保“Common Name”与你连接Docker时使用的主机名匹配</strong></p>
-<h3 id="2-创建服务器密钥和证书签名请求"><a href="#2-创建服务器密钥和证书签名请求" class="headerlink" title="2. 创建服务器密钥和证书签名请求"></a>2. 创建服务器密钥和证书签名请求</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># 创建服务器密钥</span><br><span class="line">pi@raspberrypi:~/ca $ openssl genrsa -out server-key.pem 4096</span><br><span class="line">Generating RSA private key, 4096 bit long modulus (2 primes)</span><br><span class="line">................................................................++++</span><br><span class="line">.........++++</span><br><span class="line">e is 65537 (0x010001)</span><br><span class="line"></span><br><span class="line"># 证书签名请求（注意修改为你的服务器IP）</span><br><span class="line">openssl req -subj &quot;/CN=192.168.3.3&quot; -sha256 -new -key server-key.pem -out server.csr</span><br></pre></td></tr></table></figure>
-<h3 id="3-配置白名单"><a href="#3-配置白名单" class="headerlink" title="3. 配置白名单"></a>3. 配置白名单</h3><p>配置白名单，允许连接的ip（通过证书）;IP可以配置多个</p>
+<h4 id="2-创建服务器密钥和证书签名请求"><a href="#2-创建服务器密钥和证书签名请求" class="headerlink" title="2. 创建服务器密钥和证书签名请求"></a>2. 创建服务器密钥和证书签名请求</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># 创建服务器密钥</span><br><span class="line">pi@raspberrypi:~/ca $ openssl genrsa -out server-key.pem 4096</span><br><span class="line">Generating RSA private key, 4096 bit long modulus (2 primes)</span><br><span class="line">................................................................++++</span><br><span class="line">.........++++</span><br><span class="line">e is 65537 (0x010001)</span><br><span class="line"></span><br><span class="line"># 证书签名请求（注意修改为你的服务器IP）</span><br><span class="line">openssl req -subj &quot;/CN=192.168.3.3&quot; -sha256 -new -key server-key.pem -out server.csr</span><br></pre></td></tr></table></figure>
+<h4 id="3-配置白名单"><a href="#3-配置白名单" class="headerlink" title="3. 配置白名单"></a>3. 配置白名单</h4><p>配置白名单，允许连接的ip（通过证书）;IP可以配置多个</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo subjectAltName = IP:192.168.3.3,IP::192.168.3.5 &gt;&gt; extfile.cnf</span><br></pre></td></tr></table></figure>
-<h3 id="4-设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证"><a href="#4-设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证" class="headerlink" title="4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证"></a>4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo extendedKeyUsage = serverAuth &gt;&gt; extfile.cnf</span><br></pre></td></tr></table></figure>
-<h3 id="5-生成签名证书（需要输入密码）"><a href="#5-生成签名证书（需要输入密码）" class="headerlink" title="5. 生成签名证书（需要输入密码）"></a>5. 生成签名证书（需要输入密码）</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl x509 -req -days 3650 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \</span><br><span class="line">  -CAcreateserial -out server-cert.pem -extfile extfile.cnf</span><br></pre></td></tr></table></figure>
-<h3 id="6-对于客户端身份验证，创建一个客户端密钥和证书签名请求"><a href="#6-对于客户端身份验证，创建一个客户端密钥和证书签名请求" class="headerlink" title="6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求"></a>6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"># 生成 key.pem</span><br><span class="line">openssl genrsa -out key.pem 4096</span><br><span class="line"></span><br><span class="line"># 生成 csr</span><br><span class="line">openssl req -subj &#x27;/CN=client&#x27; -new -key key.pem -out client.csr</span><br><span class="line"></span><br><span class="line"># 创建配置文件</span><br><span class="line">echo extendedKeyUsage = clientAuth &gt; extfile-client.cnf</span><br><span class="line"></span><br><span class="line"># 生成签名证书</span><br><span class="line">openssl x509 -req -days 3650 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \</span><br><span class="line">  -CAcreateserial -out cert.pem -extfile extfile-client.cnf</span><br><span class="line">  </span><br><span class="line"># 将服务器端的ca.pem cert.pem key.pem复制到本地</span><br><span class="line">scp ca.pem cert.pem key.pem yh@192.168.3.5:/Users/yh/ca</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h3 id="7-删除不需要的文件"><a href="#7-删除不需要的文件" class="headerlink" title="7. 删除不需要的文件"></a>7. 删除不需要的文件</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 服务器（服务端）</span><br><span class="line">rm -rf server.csr extfile.cnf client.csr extfile-client.cnf</span><br></pre></td></tr></table></figure>
-<h3 id="8-修改文件权限，防止误删"><a href="#8-修改文件权限，防止误删" class="headerlink" title="8. 修改文件权限，防止误删"></a>8. 修改文件权限，防止误删</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 服务端</span><br><span class="line">chmod -v 0400 ca-key.pem server-key.pem</span><br><span class="line">chmod -v 0444 ca.pem server-cert.pem</span><br><span class="line"># 客户端</span><br><span class="line">chmod -v 0400 key.pem</span><br><span class="line">chmod -v 0444 ca.pem cert.pem</span><br></pre></td></tr></table></figure>
-<h3 id="9-再次修改服务器docker-service"><a href="#9-再次修改服务器docker-service" class="headerlink" title="9. 再次修改服务器docker.service"></a>9. 再次修改服务器docker.service</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vim /lib/systemd/system/docker.service</span><br><span class="line"># 修改ExecStart（添加证书的路径）</span><br><span class="line">ExecStart=/usr/bin/dockerd --tlsverify --tlscacert=/home/pi/ca/ca.pem --tlscert=/home/pi/ca/server-cert.pem --tlskey=/home/pi/ca/server-key.pem -H tcp://0.0.0.0:2376 -H unix:///var/run/docker.sock</span><br></pre></td></tr></table></figure>
-<h3 id="10-重新加载daemon并重启docker"><a href="#10-重新加载daemon并重启docker" class="headerlink" title="10. 重新加载daemon并重启docker"></a>10. 重新加载daemon并重启docker</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl daemon-reload &amp;&amp; systemctl restart docker</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h3 id="11-配置本地环境变量"><a href="#11-配置本地环境变量" class="headerlink" title="11. 配置本地环境变量"></a>11. 配置本地环境变量</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mkdir -pv ~/.docker</span><br><span class="line"># 将证书copy到.docker下</span><br><span class="line">cp -v &#123;ca,cert,key&#125;.pem ~/.docker</span><br><span class="line">chmod -v 0400 key.pem</span><br><span class="line">chmod -v 0444 ca.pem cert.pem</span><br><span class="line"># 配置环境变量</span><br><span class="line">export DOCKER_HOST=tcp://0.0.0.0:2376 DOCKER_TLS_VERIFY=1</span><br></pre></td></tr></table></figure>
-<h3 id="12-客户端测试"><a href="#12-客户端测试" class="headerlink" title="12. 客户端测试"></a>12. 客户端测试</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 配置了环境变量后就可以访问服务器docker服务</span><br><span class="line">docker ps</span><br><span class="line"># 没有配置环境变量</span><br><span class="line">docker --tlsverify --tlscacert=/Users/yh/.docker/ca.pem --tlscert=/Users/yh/.docker/cert.pem --tlskey=/Users/yh/.docker/key.pem -H=tcp://192.168.3.3:2376 version</span><br></pre></td></tr></table></figure>
-<h2 id="项目配置"><a href="#项目配置" class="headerlink" title="项目配置"></a>项目配置</h2><h3 id="配置docker-file-maven-plugin插件"><a href="#配置docker-file-maven-plugin插件" class="headerlink" title="配置docker-file-maven-plugin插件"></a>配置docker-file-maven-plugin插件</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">&lt;build&gt;</span><br><span class="line">    &lt;plugins&gt;</span><br><span class="line">        &lt;!-- dockerfile maven --&gt;</span><br><span class="line">        &lt;plugin&gt;</span><br><span class="line">            &lt;groupId&gt;com.spotify&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;dockerfile-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">            &lt;executions&gt;</span><br><span class="line">                &lt;execution&gt;</span><br><span class="line">                    &lt;id&gt;default&lt;/id&gt;</span><br><span class="line">                    &lt;goals&gt;</span><br><span class="line">                        &lt;goal&gt;build&lt;/goal&gt;</span><br><span class="line">                        &lt;goal&gt;push&lt;/goal&gt;</span><br><span class="line">                    &lt;/goals&gt;</span><br><span class="line">                    &lt;configuration&gt;</span><br><span class="line">                    &lt;/configuration&gt;</span><br><span class="line">                &lt;/execution&gt;</span><br><span class="line">            &lt;/executions&gt;</span><br><span class="line">            &lt;!--docker镜像相关的配置信息--&gt;</span><br><span class="line">            &lt;configuration&gt;</span><br><span class="line">                &lt;contextDirectory&gt;$&#123;project.basedir&#125;&lt;/contextDirectory&gt;</span><br><span class="line">                &lt;dockerfile&gt;$&#123;project.basedir&#125;/Dockerfile&lt;/dockerfile&gt;</span><br><span class="line">                &lt;!--使用username和password标签，也可以使用useMavenSettingsForAuth，在settings.xml文件中的配置 servers--&gt;</span><br><span class="line">                &lt;useMavenSettingsForAuth&gt;false&lt;/useMavenSettingsForAuth&gt;</span><br><span class="line">                &lt;username&gt;xxx&lt;/username&gt;</span><br><span class="line">                &lt;password&gt;xxx&lt;/password&gt;</span><br><span class="line">                &lt;!--远程仓库地址--&gt;</span><br><span class="line">                &lt;repository&gt;$&#123;docker.repository.registry&#125;/$&#123;docker.repository.namespace&#125;/$&#123;project.artifactId&#125;&lt;/repository&gt;</span><br><span class="line">                &lt;tag&gt;$&#123;project.version&#125;&lt;/tag&gt;</span><br><span class="line">                &lt;buildArgs&gt;</span><br><span class="line">                    &lt;JAR_FILE&gt;$&#123;project.build.finalName&#125;.jar&lt;/JAR_FILE&gt;</span><br><span class="line">                &lt;/buildArgs&gt;</span><br><span class="line">            &lt;/configuration&gt;</span><br><span class="line">        &lt;/plugin&gt;</span><br><span class="line">    &lt;/plugins&gt;</span><br></pre></td></tr></table></figure>
-<h3 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">FROM houwm/jdk8:arm64</span><br><span class="line"></span><br><span class="line">MAINTAINER yanghao&lt;yh.124@qq.com&gt;</span><br><span class="line"></span><br><span class="line"># 参数</span><br><span class="line">ARG JAR_FILE</span><br><span class="line"></span><br><span class="line"># 环境变量</span><br><span class="line">ENV TZ=Asia/Shanghai LANG=C.UTF-8</span><br><span class="line">ENV PARAMS=&quot;--server.port=8080 --spring.profiles.active=prod -Xms512m -Xmx512m&quot;</span><br><span class="line"></span><br><span class="line"># 设置时区</span><br><span class="line">RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime &amp;&amp; echo $TZ &gt; /etc/timezone</span><br><span class="line"></span><br><span class="line"># 复制jar包</span><br><span class="line">COPY target/$&#123;JAR_FILE&#125; /app.jar</span><br><span class="line"></span><br><span class="line"># 暴露端口</span><br><span class="line">EXPOSE 8080</span><br><span class="line"></span><br><span class="line"># 工作目录</span><br><span class="line">WORKDIR /</span><br><span class="line"></span><br><span class="line"># 执行命令</span><br><span class="line">ENTRYPOINT [&quot;/bin/sh&quot;,&quot;-c&quot;,&quot;java -jar /app.jar $&#123;PARAMS&#125;&quot;]</span><br></pre></td></tr></table></figure>
-<h3 id="部署项目"><a href="#部署项目" class="headerlink" title="部署项目"></a>部署项目</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># 会自动在远程服务器构建镜像</span><br><span class="line">mvn package</span><br><span class="line"># 就可以省略这个步骤</span><br><span class="line">mvn dockerfile:build</span><br><span class="line"># 会自动推送镜像到远程仓库</span><br><span class="line">mvn deploy</span><br><span class="line"># 就可以省略这个步骤</span><br><span class="line">mvn dockerfile:push</span><br><span class="line"># 如果要临时跳过所有的Dockerfile相关的目标，执行如下Maven命令</span><br><span class="line">mvn clean install -Ddockerfile.skip</span><br><span class="line"># 想跳过某一个goal</span><br><span class="line">mvn clean package -Ddockerfile.build.skip</span><br><span class="line">mvn clean package -Ddockerfile.tag.skip</span><br><span class="line">mvn clean deploy -Ddockerfile.push.skip</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
-      
+<h4 id="4-设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证"><a href="#4-设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证" class="headerlink" title="4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证"></a>4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo extendedKeyUsage = serverAuth &gt;&gt; extfile.cnf</span><br></pre></td></tr></table></figure>
+<h4 id="5-生成签名证书（需要输入密码）"><a href="#5-生成签名证书（需要输入密码）" class="headerlink" title="5. 生成签名证书（需要输入密码）"></a>5. 生成签名证书（需要输入密码）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">openssl x509 -req -days 3650 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \</span><br><span class="line">  -CAcreateserial -out server-cert.pem -extfile extfile.cnf</span><br></pre></td></tr></table></figure>
+<h4 id="6-对于客户端身份验证，创建一个客户端密钥和证书签名请求"><a href="#6-对于客户端身份验证，创建一个客户端密钥和证书签名请求" class="headerlink" title="6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求"></a>6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"># 生成 key.pem</span><br><span class="line">openssl genrsa -out key.pem 4096</span><br><span class="line"></span><br><span class="line"># 生成 csr</span><br><span class="line">openssl req -subj &#x27;/CN=client&#x27; -new -key key.pem -out client.csr</span><br><span class="line"></span><br><span class="line"># 创建配置文件</span><br><span class="line">echo extendedKeyUsage = clientAuth &gt; extfile-client.cnf</span><br><span class="line"></span><br><span class="line"># 生成签名证书</span><br><span class="line">openssl x509 -req -days 3650 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \</span><br><span class="line">  -CAcreateserial -out cert.pem -extfile extfile-client.cnf</span><br><span class="line">  </span><br><span class="line"># 将服务器端的ca.pem cert.pem key.pem复制到本地</span><br><span class="line">scp ca.pem cert.pem key.pem yh@192.168.3.5:/Users/yh/ca</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="7-删除不需要的文件"><a href="#7-删除不需要的文件" class="headerlink" title="7. 删除不需要的文件"></a>7. 删除不需要的文件</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 服务器（服务端）</span><br><span class="line">rm -rf server.csr extfile.cnf client.csr extfile-client.cnf</span><br></pre></td></tr></table></figure>
+<h4 id="8-修改文件权限，防止误删"><a href="#8-修改文件权限，防止误删" class="headerlink" title="8. 修改文件权限，防止误删"></a>8. 修改文件权限，防止误删</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 服务端</span><br><span class="line">chmod -v 0400 ca-key.pem server-key.pem</span><br><span class="line">chmod -v 0444 ca.pem server-cert.pem</span><br><span class="line"># 客户端</span><br><span class="line">chmod -v 0400 key.pem</span><br><span class="line">chmod -v 0444 ca.pem cert.pem</span><br></pre></td></tr></table></figure>
+<h4 id="9-再次修改服务器docker-service"><a href="#9-再次修改服务器docker-service" class="headerlink" title="9. 再次修改服务器docker.service"></a>9. 再次修改服务器docker.service</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vim /lib/systemd/system/docker.service</span><br><span class="line"># 修改ExecStart（添加证书的路径）</span><br><span class="line">ExecStart=/usr/bin/dockerd --tlsverify --tlscacert=/home/pi/ca/ca.pem --tlscert=/home/pi/ca/server-cert.pem --tlskey=/home/pi/ca/server-key.pem -H tcp://0.0.0.0:2376 -H unix:///var/run/docker.sock</span><br></pre></td></tr></table></figure>
+<h4 id="10-重新加载daemon并重启docker"><a href="#10-重新加载daemon并重启docker" class="headerlink" title="10. 重新加载daemon并重启docker"></a>10. 重新加载daemon并重启docker</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl daemon-reload &amp;&amp; systemctl restart docker</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="11-配置本地环境变量"><a href="#11-配置本地环境变量" class="headerlink" title="11. 配置本地环境变量"></a>11. 配置本地环境变量</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mkdir -pv ~/.docker</span><br><span class="line"># 将证书copy到.docker下</span><br><span class="line">cp -v &#123;ca,cert,key&#125;.pem ~/.docker</span><br><span class="line">chmod -v 0400 key.pem</span><br><span class="line">chmod -v 0444 ca.pem cert.pem</span><br><span class="line"># 配置环境变量</span><br><span class="line">export DOCKER_HOST=tcp://0.0.0.0:2376 DOCKER_TLS_VERIFY=1</span><br></pre></td></tr></table></figure>
+<h4 id="12-客户端测试"><a href="#12-客户端测试" class="headerlink" title="12. 客户端测试"></a>12. 客户端测试</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 配置了环境变量后就可以访问服务器docker服务</span><br><span class="line">docker ps</span><br><span class="line"># 没有配置环境变量</span><br><span class="line">docker --tlsverify --tlscacert=/Users/yh/.docker/ca.pem --tlscert=/Users/yh/.docker/cert.pem --tlskey=/Users/yh/.docker/key.pem -H=tcp://192.168.3.3:2376 version</span><br></pre></td></tr></table></figure>
+<h3 id="项目配置"><a href="#项目配置" class="headerlink" title="项目配置"></a>项目配置</h3><h4 id="配置docker-file-maven-plugin插件"><a href="#配置docker-file-maven-plugin插件" class="headerlink" title="配置docker-file-maven-plugin插件"></a>配置docker-file-maven-plugin插件</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">&lt;build&gt;</span><br><span class="line">    &lt;plugins&gt;</span><br><span class="line">        &lt;!-- dockerfile maven --&gt;</span><br><span class="line">        &lt;plugin&gt;</span><br><span class="line">            &lt;groupId&gt;com.spotify&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;dockerfile-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">            &lt;executions&gt;</span><br><span class="line">                &lt;execution&gt;</span><br><span class="line">                    &lt;id&gt;default&lt;/id&gt;</span><br><span class="line">                    &lt;goals&gt;</span><br><span class="line">                        &lt;goal&gt;build&lt;/goal&gt;</span><br><span class="line">                        &lt;goal&gt;push&lt;/goal&gt;</span><br><span class="line">                    &lt;/goals&gt;</span><br><span class="line">                    &lt;configuration&gt;</span><br><span class="line">                    &lt;/configuration&gt;</span><br><span class="line">                &lt;/execution&gt;</span><br><span class="line">            &lt;/executions&gt;</span><br><span class="line">            &lt;!--docker镜像相关的配置信息--&gt;</span><br><span class="line">            &lt;configuration&gt;</span><br><span class="line">                &lt;contextDirectory&gt;$&#123;project.basedir&#125;&lt;/contextDirectory&gt;</span><br><span class="line">                &lt;dockerfile&gt;$&#123;project.basedir&#125;/Dockerfile&lt;/dockerfile&gt;</span><br><span class="line">                &lt;!--使用username和password标签，也可以使用useMavenSettingsForAuth，在settings.xml文件中的配置 servers--&gt;</span><br><span class="line">                &lt;useMavenSettingsForAuth&gt;false&lt;/useMavenSettingsForAuth&gt;</span><br><span class="line">                &lt;username&gt;xxx&lt;/username&gt;</span><br><span class="line">                &lt;password&gt;xxx&lt;/password&gt;</span><br><span class="line">                &lt;!--远程仓库地址--&gt;</span><br><span class="line">                &lt;repository&gt;$&#123;docker.repository.registry&#125;/$&#123;docker.repository.namespace&#125;/$&#123;project.artifactId&#125;&lt;/repository&gt;</span><br><span class="line">                &lt;tag&gt;$&#123;project.version&#125;&lt;/tag&gt;</span><br><span class="line">                &lt;buildArgs&gt;</span><br><span class="line">                    &lt;JAR_FILE&gt;$&#123;project.build.finalName&#125;.jar&lt;/JAR_FILE&gt;</span><br><span class="line">                &lt;/buildArgs&gt;</span><br><span class="line">            &lt;/configuration&gt;</span><br><span class="line">        &lt;/plugin&gt;</span><br><span class="line">    &lt;/plugins&gt;</span><br></pre></td></tr></table></figure>
+<h4 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">FROM houwm/jdk8:arm64</span><br><span class="line"></span><br><span class="line">MAINTAINER yanghao&lt;yh.124@qq.com&gt;</span><br><span class="line"></span><br><span class="line"># 参数</span><br><span class="line">ARG JAR_FILE</span><br><span class="line"></span><br><span class="line"># 环境变量</span><br><span class="line">ENV TZ=Asia/Shanghai LANG=C.UTF-8</span><br><span class="line">ENV PARAMS=&quot;--server.port=8080 --spring.profiles.active=prod -Xms512m -Xmx512m&quot;</span><br><span class="line"></span><br><span class="line"># 设置时区</span><br><span class="line">RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime &amp;&amp; echo $TZ &gt; /etc/timezone</span><br><span class="line"></span><br><span class="line"># 复制jar包</span><br><span class="line">COPY target/$&#123;JAR_FILE&#125; /app.jar</span><br><span class="line"></span><br><span class="line"># 暴露端口</span><br><span class="line">EXPOSE 8080</span><br><span class="line"></span><br><span class="line"># 工作目录</span><br><span class="line">WORKDIR /</span><br><span class="line"></span><br><span class="line"># 执行命令</span><br><span class="line">ENTRYPOINT [&quot;/bin/sh&quot;,&quot;-c&quot;,&quot;java -jar /app.jar $&#123;PARAMS&#125;&quot;]</span><br></pre></td></tr></table></figure>
+<h4 id="部署项目"><a href="#部署项目" class="headerlink" title="部署项目"></a>部署项目</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># 会自动在远程服务器构建镜像</span><br><span class="line">mvn package</span><br><span class="line"># 就可以省略这个步骤</span><br><span class="line">mvn dockerfile:build</span><br><span class="line"># 会自动推送镜像到远程仓库</span><br><span class="line">mvn deploy</span><br><span class="line"># 就可以省略这个步骤</span><br><span class="line">mvn dockerfile:push</span><br><span class="line"># 如果要临时跳过所有的Dockerfile相关的目标，执行如下Maven命令</span><br><span class="line">mvn clean install -Ddockerfile.skip</span><br><span class="line"># 想跳过某一个goal</span><br><span class="line">mvn clean package -Ddockerfile.build.skip</span><br><span class="line">mvn clean package -Ddockerfile.tag.skip</span><br><span class="line">mvn clean deploy -Ddockerfile.push.skip</span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a href="/categories/">分类</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/yangh124">项目</a></li>
+        
+      </ul>
     </div>
-    <div class="article-footer">
-      <blockquote class="mt-2x">
-  <ul class="post-copyright list-unstyled">
-    
-    <li class="post-copyright-link hidden-xs">
-      <strong>本文链接：</strong>
-      <a href="https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/" title="Docker实战" target="_blank" rel="external">https://yangh124.github.io/2022/05/20/Docker实战/</a>
-    </li>
-    
-    <li class="post-copyright-license">
-      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
-    </li>
-  </ul>
-</blockquote>
 
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Docker-%E9%83%A8%E7%BD%B2springboot%E9%A1%B9%E7%9B%AE"><span class="toc-number">1.</span> <span class="toc-text">Docker 部署springboot项目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AE%89%E8%A3%85docker"><span class="toc-number">1.1.</span> <span class="toc-text">服务器安装docker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Docker%E5%BC%80%E5%90%AF%E8%BF%9C%E7%A8%8B%E8%AE%BF%E9%97%AE"><span class="toc-number">1.2.</span> <span class="toc-text">Docker开启远程访问</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8TLS-HTTPS-%E4%BF%9D%E8%AF%81Docker%E6%9C%8D%E5%8A%A1%E5%AE%89%E5%85%A8"><span class="toc-number">1.3.</span> <span class="toc-text">使用TLS(HTTPS)保证Docker服务安全</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AB%AF%E7%94%9F%E6%88%90CA%E5%85%B1%E9%92%A5%E5%92%8C%E7%A7%81%E9%92%A5"><span class="toc-number">1.3.1.</span> <span class="toc-text">1. 服务器端生成CA共钥和私钥</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%88%9B%E5%BB%BA%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%AF%86%E9%92%A5%E5%92%8C%E8%AF%81%E4%B9%A6%E7%AD%BE%E5%90%8D%E8%AF%B7%E6%B1%82"><span class="toc-number">1.3.2.</span> <span class="toc-text">2. 创建服务器密钥和证书签名请求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E9%85%8D%E7%BD%AE%E7%99%BD%E5%90%8D%E5%8D%95"><span class="toc-number">1.3.3.</span> <span class="toc-text">3. 配置白名单</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E8%AE%BE%E7%BD%AEDocker%E5%AE%88%E6%8A%A4%E8%BF%9B%E7%A8%8B%E5%AF%86%E9%92%A5%E7%9A%84%E6%89%A9%E5%B1%95%E4%BD%BF%E7%94%A8%E5%B1%9E%E6%80%A7%EF%BC%8C%E4%BB%85%E7%94%A8%E4%BA%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81"><span class="toc-number">1.3.4.</span> <span class="toc-text">4. 设置Docker守护进程密钥的扩展使用属性，仅用于服务器身份验证</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E7%94%9F%E6%88%90%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6%EF%BC%88%E9%9C%80%E8%A6%81%E8%BE%93%E5%85%A5%E5%AF%86%E7%A0%81%EF%BC%89"><span class="toc-number">1.3.5.</span> <span class="toc-text">5. 生成签名证书（需要输入密码）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-%E5%AF%B9%E4%BA%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%EF%BC%8C%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%AF%86%E9%92%A5%E5%92%8C%E8%AF%81%E4%B9%A6%E7%AD%BE%E5%90%8D%E8%AF%B7%E6%B1%82"><span class="toc-number">1.3.6.</span> <span class="toc-text">6. 对于客户端身份验证，创建一个客户端密钥和证书签名请求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-%E5%88%A0%E9%99%A4%E4%B8%8D%E9%9C%80%E8%A6%81%E7%9A%84%E6%96%87%E4%BB%B6"><span class="toc-number">1.3.7.</span> <span class="toc-text">7. 删除不需要的文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90%EF%BC%8C%E9%98%B2%E6%AD%A2%E8%AF%AF%E5%88%A0"><span class="toc-number">1.3.8.</span> <span class="toc-text">8. 修改文件权限，防止误删</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#9-%E5%86%8D%E6%AC%A1%E4%BF%AE%E6%94%B9%E6%9C%8D%E5%8A%A1%E5%99%A8docker-service"><span class="toc-number">1.3.9.</span> <span class="toc-text">9. 再次修改服务器docker.service</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#10-%E9%87%8D%E6%96%B0%E5%8A%A0%E8%BD%BDdaemon%E5%B9%B6%E9%87%8D%E5%90%AFdocker"><span class="toc-number">1.3.10.</span> <span class="toc-text">10. 重新加载daemon并重启docker</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#11-%E9%85%8D%E7%BD%AE%E6%9C%AC%E5%9C%B0%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">1.3.11.</span> <span class="toc-text">11. 配置本地环境变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#12-%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%8B%E8%AF%95"><span class="toc-number">1.3.12.</span> <span class="toc-text">12. 客户端测试</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E9%85%8D%E7%BD%AE"><span class="toc-number">1.4.</span> <span class="toc-text">项目配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEdocker-file-maven-plugin%E6%8F%92%E4%BB%B6"><span class="toc-number">1.4.1.</span> <span class="toc-text">配置docker-file-maven-plugin插件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Dockerfile"><span class="toc-number">1.4.2.</span> <span class="toc-text">Dockerfile</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E9%A1%B9%E7%9B%AE"><span class="toc-number">1.4.3.</span> <span class="toc-text">部署项目</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
 
-<div class="panel panel-default panel-badger">
-  <div class="panel-body">
-    <figure class="media">
-      <div class="media-left">
-        <a href="https://github.com/yangh124" target="_blank" class="img-burn thumb-sm visible-lg">
-          <img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" class="img-rounded w-full" alt="">
-        </a>
-      </div>
-      <div class="media-body">
-        <h3 class="media-heading"><a href="https://github.com/yangh124" target="_blank"><span class="text-dark">yangh124</span><small class="ml-1x"></small></a></h3>
-        <div>你还有好多未完成的梦，你有什么道理停下脚步。</div>
-      </div>
-    </figure>
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&text=Docker实战"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&title=Docker实战"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&is_video=false&description=Docker实战"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Docker实战&body=Check out this article: https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&title=Docker实战"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&title=Docker实战"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&title=Docker实战"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&title=Docker实战"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&name=Docker实战&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://yangh124.github.io/2022/05/20/Docker%E5%AE%9E%E6%88%98/&t=Docker实战"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
   </div>
 </div>
 
-
-    </div>
-  </article>
-  
-    
-  <section id="comments">
-  	
-      <div id="vcomments"></div>
-    
-  </section>
-
-
-  
-</div>
-
-  <nav class="bar bar-footer clearfix" data-stick-bottom>
-  <div class="bar-inner">
-  
-  <ul class="pager pull-left">
-    
-    <li class="prev">
-      <a href="/2022/05/30/Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%EF%BC%89/" title="Redisson分布式锁（使用注解方式）"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
-    </li>
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
     
     
-    <li class="next">
-      <a href="/2022/01/15/InnoDB%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/" title="InnoDB数据存储结构"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
-    </li>
-    
-    
-    <li class="toggle-toc">
-      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">    <span>[&nbsp;</span><span>文章目录</span>
-        <i class="text-collapsed icon icon-anchor"></i>
-        <i class="text-in icon icon-close"></i>
-        <span>]</span>
-      </a>
-    </li>
-    
-  </ul>
-  
-  
-  
-  <div class="bar-right">
-    
-    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
-    
+    2016-2024
+    yangh
   </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yangh124">项目</a></li><!--
+     -->
+      </ul>
+    </nav>
   </div>
-</nav>
-  
-
-
-</main>
-
-  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
-    
-        <div class="copyright">
-            
-                &copy; 2024
-                    yangh
-                        
-                            <div class="publishby">
-                                Theme by <a href="https://github.com/cofess" target="_blank">
-                                        cofess </a>
-                                    base on <a href="https://github.com/cofess/hexo-theme-pure"
-                                            target="_blank">pure</a>.
-                            </div>
-        </div>
 </footer>
-  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
-<script>
-window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
-</script>
 
-<script src="/js/plugin.min.js"></script>
+    </div>
+    <!-- styles -->
 
 
-<script src="/js/application.js"></script>
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
 
 
-    <script>
-(function (window) {
-    var INSIGHT_CONFIG = {
-        TRANSLATION: {
-            POSTS: '文章',
-            PAGES: '页面',
-            CATEGORIES: '分类',
-            TAGS: '标签',
-            UNTITLED: '(未命名)',
-        },
-        ROOT_URL: '/',
-        CONTENT_URL: '/content.json',
-    };
-    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
-})(window);
-</script>
+    <!-- jquery -->
 
-<script src="/js/insight.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
 
 
 
 
+<!-- clipboard -->
 
-
-   
-
-
-
-
-   
-    
-  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
   <script type="text/javascript">
-  var GUEST = ['nick', 'mail', 'link'];
-  var meta = 'nick,mail,link';
-  meta = meta.split(',').filter(function(item) {
-    return GUEST.indexOf(item) > -1;
-  });
-  new Valine({
-    el: '#vcomments',
-    verify: false,
-    notify: false,
-    appId: 'HXqdy9Gelr3kb7pii3TOj4fl-9Nh9j0Va',
-    appKey: 'CY8JtaywMBlw476SSnU4X9RH',
-    placeholder: 'Just go go',
-    avatar: 'mm',
-    meta: meta,
-    pageSize: '10' || 10,
-    visitor: true
-  });
-  </script>
-
-     
-
-
-
-  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
-  <script>
-  //利用 FancyBox 实现点击图片放大
-  $(document).ready(function() {
-    $('article img').not('[hidden]').not('.panel-body img').each(function() {
-      var $image = $(this);
-      var imageCaption = $image.attr('alt');
-      var $imageWrapLink = $image.parent('a');
-      if ($imageWrapLink.length < 1) {
-        var src = this.getAttribute('src');
-        var idx = src.lastIndexOf('?');
-        if (idx != -1) {
-          src = src.substring(0, idx);
-        }
-        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
-      }
-      $imageWrapLink.attr('data-fancybox', 'images');
-      if (imageCaption) {
-        $imageWrapLink.attr('data-caption', imageCaption);
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
       }
     });
-    $().fancybox({
-      selector: '[data-fancybox="images"]',
-      hash: false,
-      loop: false,
-    });
-  });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
   </script>
 
 
+<script src="/js/main.js"></script>
 
+<!-- search -->
 
+<!-- Baidu Analytics -->
 
-</body>
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+<!-- hexo injector body_end start --><script src="https://unpkg.com/live2dapi-noa@latest/npm/random/autoload.js">
+<script src="/js/jquery.js"></script>
+<!-- hexo injector body_end end --></body>
 </html>

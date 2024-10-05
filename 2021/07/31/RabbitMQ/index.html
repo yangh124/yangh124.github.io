@@ -1,24 +1,12 @@
 <!DOCTYPE html>
 <html lang=zh>
 <head>
-  <meta charset="utf-8">
-  
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
-  <meta name="renderer" content="webkit">
-  <meta http-equiv="Cache-Control" content="no-transform" />
-  <meta http-equiv="Cache-Control" content="no-siteapp" />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="format-detection" content="telephone=no,email=no,adress=no">
-  <!-- Color theme for statusbar -->
-  <meta name="theme-color" content="#000000" />
-  <!-- 强制页面在当前窗口以独立页面显示,防止别人在框架里调用页面 -->
-  <meta http-equiv="window-target" content="_top" />
-  
-  
-  <title>RabbitMQ | yangh&#39;s Blog</title>
-  <meta name="description" content="简介RabbitMQ是最受欢迎的开源消息中间件之一，在全球范围内被广泛应用。RabbitMQ是轻量级且易于部署的，能支持多种消息协议。RabbitMQ可以部署在分布式系统中，以满足大规模、高可用的要求。">
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="简介RabbitMQ是最受欢迎的开源消息中间件之一，在全球范围内被广泛应用。RabbitMQ是轻量级且易于部署的，能支持多种消息协议。RabbitMQ可以部署在分布式系统中，以满足大规模、高可用的要求。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RabbitMQ">
 <meta property="og:url" content="https://yangh124.github.io/2021/07/31/RabbitMQ/index.html">
@@ -38,406 +26,167 @@
 <meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291226024394.jpg">
 <meta property="og:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291226225999.jpg">
 <meta property="article:published_time" content="2021-07-30T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-10-05T07:29:37.511Z">
+<meta property="article:modified_time" content="2024-10-05T15:47:33.616Z">
 <meta property="article:author" content="yangh">
 <meta property="article:tag" content="消息队列">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291220880322.jpg">
-  <!-- Canonical links -->
-  <link rel="canonical" href="https://yangh124.github.io/2021/07/31/RabbitMQ/index.html">
-  
-  
-    <link rel="icon" href="/favicon.png" type="image/x-icon">
-  
-  
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>RabbitMQ</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
 <link rel="stylesheet" href="/css/style.css">
 
-  
-  
-  
-    <link href="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.css" rel="stylesheet">
-  
-  
-  <!-- live2d -->
-  
-  <link rel="stylesheet" href="/css/left.css">
-  <script src="/js/autoload.js"></script>
-  
-<meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<!-- hexo injector head_end start --><link rel = "stylesheet" href = "https://unpkg.com/live2dapi-noa@latest/css/left.css"/><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="yangh's Blog" type="application/atom+xml">
 </head>
 
-
-<body class="main-center theme-green" itemscope itemtype="http://schema.org/WebPage">
-  <header class="header" itemscope itemtype="http://schema.org/WPHeader">
-  <div class="slimContent">
-    <div class="navbar-header">
-      
-      
-      <div class="profile-block text-center">
-        <a id="avatar" href="https://github.com/yangh124" target="_blank">
-          <img class="img-circle img-rotate" src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" width="200" height="200">
-        </a>
-        <h2 id="name" class="hidden-xs hidden-sm">yangh124</h2>
-        <h3 id="title" class="hidden-xs hidden-sm hidden-md"></h3>
-        <small id="location" class="text-muted hidden-xs hidden-sm"><i class="icon icon-map-marker"></i> 浙江，杭州</small>
-      </div>
-      
-      <div class="search" id="search-form-wrap">
-
-    <form class="search-form sidebar-form">
-        <div class="input-group">
-            <input type="text" class="search-form-input form-control" placeholder="搜索" />
-            <span class="input-group-btn">
-                <button type="submit" class="search-form-submit btn btn-flat" onclick="return false;"><i class="icon icon-search"></i></button>
-            </span>
-        </div>
-    </form>
-    <div class="ins-search">
-  <div class="ins-search-mask"></div>
-  <div class="ins-search-container">
-    <div class="ins-input-wrapper">
-      <input type="text" class="ins-search-input" placeholder="想要查找什么..." x-webkit-speech />
-      <button type="button" class="close ins-close ins-selectable" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
-    </div>
-    <div class="ins-section-wrapper">
-      <div class="ins-section-container"></div>
-    </div>
-  </div>
-</div>
-
-
-</div>
-      <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#main-navbar" aria-controls="main-navbar" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-    </div>
-    <nav id="main-navbar" class="collapse navbar-collapse" itemscope itemtype="http://schema.org/SiteNavigationElement" role="navigation">
-      <ul class="nav navbar-nav main-nav menu-highlight">
-        
-        
-        <li class="menu-item menu-item-home">
-          <a href="/.">
-            
-            <i class="icon icon-home-fill"></i>
-            
-            <span class="menu-title">首页</span>
-          </a>
-        </li>
-        
-        
-        <li class="menu-item menu-item-archives">
-          <a href="/archives">
-            
-            <i class="icon icon-archives-fill"></i>
-            
-            <span class="menu-title">归档</span>
-          </a>
-        </li>
-        
-        
-        <li class="menu-item menu-item-categories">
-          <a href="/categories">
-            
-            <i class="icon icon-folder"></i>
-            
-            <span class="menu-title">分类</span>
-          </a>
-        </li>
-        
-        
-        <li class="menu-item menu-item-tags">
-          <a href="/tags">
-            
-            <i class="icon icon-tags"></i>
-            
-            <span class="menu-title">标签</span>
-          </a>
-        </li>
-        
-        
-        <li class="menu-item menu-item-repository">
-          <a href="/repository">
-            
-            <i class="icon icon-project"></i>
-            
-            <span class="menu-title">项目</span>
-          </a>
-        </li>
-        
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about">
-            
-            <i class="icon icon-cup-fill"></i>
-            
-            <span class="menu-title">关于</span>
-          </a>
-        </li>
-        
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yangh124">项目</a></li><!--
+     -->
       </ul>
-      
-    </nav>
-  </div>
-</header>
-
-  
-    <aside class="sidebar" itemscope itemtype="http://schema.org/WPSideBar">
-  <div class="slimContent">
-    
-      <div class="widget">
-    <h3 class="widget-title">公告</h3>
-    <div class="widget-body">
-        <div id="board">
-            <div class="content">
-                <p>欢迎交流与分享经验!</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-    
-      
-  <div class="widget">
-    <h3 class="widget-title">分类</h3>
-    <div class="widget-body">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a><span class="category-list-count">14</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%9F%BA%E7%A1%80/">基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%84%9A%E6%9C%AC%E8%AF%AD%E8%A8%80/">脚本语言</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%A1%B9%E7%9B%AE/">项目</a><span class="category-list-count">1</span></li></ul>
-    </div>
-  </div>
-
-
-    
-      
-  <div class="widget">
-    <h3 class="widget-title">标签</h3>
-    <div class="widget-body">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Camunda/" rel="tag">Camunda</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Docker/" rel="tag">Docker</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elastic-search/" rel="tag">elastic search</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/k8s/" rel="tag">k8s</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AE%9E%E6%88%98/" rel="tag">实战</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag">微服务</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" rel="tag">网络编程</a><span class="tag-list-count">1</span></li></ul>
-    </div>
-  </div>
-
-
-    
-      
-  <div class="widget">
-    <h3 class="widget-title">归档</h3>
-    <div class="widget-body">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/10/">十月 2024</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">三月 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/02/">二月 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/06/">六月 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/05/">五月 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">一月 2022</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/12/">十二月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/11/">十一月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">十月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">九月 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/08/">八月 2021</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/07/">七月 2021</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">四月 2021</a><span class="archive-list-count">2</span></li></ul>
-    </div>
-  </div>
-
-
-    
-      
-  <div class="widget">
-    <h3 class="widget-title">最新文章</h3>
-    <div class="widget-body">
-      <ul class="recent-post-list list-unstyled ">
-        
-          <li>
-            
-            <div class="item-thumb">
-              <a href="/2024/10/02/Dock%E5%AE%89%E8%A3%85ImmotalWrt/" class="thumb">
-    
-    
-        <span class="thumb-image thumb-none"></span>
-    
-</a>
-
-            </div>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/%E5%85%B6%E4%BB%96/">其他</a>
-              </p>
-              <p class="item-title">
-                <a href="/2024/10/02/Dock%E5%AE%89%E8%A3%85ImmotalWrt/" class="title">Docker安装ImmotalWrt教程</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2024-10-01T16:00:00.000Z" itemprop="datePublished">2024-10-02</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-thumb">
-              <a href="/2024/03/27/Camunda/" class="thumb">
-    
-    
-        <span class="thumb-image thumb-none"></span>
-    
-</a>
-
-            </div>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-              </p>
-              <p class="item-title">
-                <a href="/2024/03/27/Camunda/" class="title">Camunda</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2024-03-26T16:00:00.000Z" itemprop="datePublished">2024-03-27</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-thumb">
-              <a href="/2024/03/09/k8s/" class="thumb">
-    
-    
-        <span class="thumb-image thumb-none"></span>
-    
-</a>
-
-            </div>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-              </p>
-              <p class="item-title">
-                <a href="/2024/03/09/k8s/" class="title">k8s</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2024-03-08T16:00:00.000Z" itemprop="datePublished">2024-03-09</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-thumb">
-              <a href="/2023/02/28/k3s%E5%AE%9E%E6%88%98/" class="thumb">
-    
-    
-        <span class="thumb-image thumb-none"></span>
-    
-</a>
-
-            </div>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
-              </p>
-              <p class="item-title">
-                <a href="/2023/02/28/k3s%E5%AE%9E%E6%88%98/" class="title">k3s实战</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2023-02-27T16:00:00.000Z" itemprop="datePublished">2023-02-28</time>
-              </p>
-            </div>
-          </li>
-          
-          <li>
-            
-            <div class="item-thumb">
-              <a href="/2022/06/06/MySQL%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/" class="thumb">
-    
-    
-        <span class="thumb-image thumb-none"></span>
-    
-</a>
-
-            </div>
-            
-            <div class="item-inner">
-              <p class="item-category">
-                <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-              </p>
-              <p class="item-title">
-                <a href="/2022/06/06/MySQL%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/" class="title">MySQL性能分析工具的使用</a>
-              </p>
-              <p class="item-date">
-                <time datetime="2022-06-05T16:00:00.000Z" itemprop="datePublished">2022-06-06</time>
-              </p>
-            </div>
-          </li>
-          
-      </ul>
-    </div>
-  </div>
-  
-
-    
-  </div>
-</aside>
-
-  
-  
-  <aside class="sidebar sidebar-toc collapse   in  " id="collapseToc" itemscope itemtype="http://schema.org/WPSideBar">
-  <div class="slimContent">
-    <nav id="toc" class="article-toc">
-      <h3 class="toc-title">文章目录</h3>
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">安装及配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E5%AE%89%E8%A3%85%EF%BC%9A"><span class="toc-number">2.1.</span> <span class="toc-text">Linux安装：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E5%8F%8A%E9%85%8D%E7%BD%AE"><span class="toc-number">2.2.</span> <span class="toc-text">访问及配置</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#RabbitMQ%E7%AE%80%E4%BB%8B"><span class="toc-number">3.</span> <span class="toc-text">RabbitMQ简介</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-number">3.1.</span> <span class="toc-text">核心概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Message"><span class="toc-number">3.1.1.</span> <span class="toc-text">Message</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Publish"><span class="toc-number">3.1.2.</span> <span class="toc-text">Publish</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Exchange"><span class="toc-number">3.1.3.</span> <span class="toc-text">Exchange</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Queue"><span class="toc-number">3.1.4.</span> <span class="toc-text">Queue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Binding"><span class="toc-number">3.1.5.</span> <span class="toc-text">Binding</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Connection"><span class="toc-number">3.1.6.</span> <span class="toc-text">Connection</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Channel"><span class="toc-number">3.1.7.</span> <span class="toc-text">Channel</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Consumer"><span class="toc-number">3.1.8.</span> <span class="toc-text">Consumer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Virtual-Host"><span class="toc-number">3.1.9.</span> <span class="toc-text">Virtual Host</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Broker"><span class="toc-number">3.1.10.</span> <span class="toc-text">Broker</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5%E7%A7%8D%E6%B6%88%E6%81%AF%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.2.</span> <span class="toc-text">5种消息模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.2.1.</span> <span class="toc-text">简单模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.2.2.</span> <span class="toc-text">工作模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%91%E5%B8%83-%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F%EF%BC%88fanout%EF%BC%89"><span class="toc-number">3.2.3.</span> <span class="toc-text">发布&#x2F;订阅模式（fanout）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B7%AF%E7%94%B1%E6%A8%A1%E5%BC%8F%EF%BC%88direct%EF%BC%89"><span class="toc-number">3.2.4.</span> <span class="toc-text">路由模式（direct）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E9%85%8D%E7%AC%A6%E6%A8%A1%E5%BC%8F%EF%BC%88topic%EF%BC%89"><span class="toc-number">3.2.5.</span> <span class="toc-text">通配符模式（topic）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#header%E6%A8%A1%E5%BC%8F%EF%BC%88header%EF%BC%89"><span class="toc-number">3.2.6.</span> <span class="toc-text">header模式（header）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RPC%E6%A8%A1%E5%BC%8F%EF%BC%88direct%EF%BC%89"><span class="toc-number">3.2.7.</span> <span class="toc-text">RPC模式（direct）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E7%A1%AE%E8%AE%A4%E6%9C%BA%E5%88%B6-%E5%8F%AF%E9%9D%A0%E6%8A%B5%E8%BE%BE"><span class="toc-number">4.</span> <span class="toc-text">消息确认机制-可靠抵达</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E5%8F%AF%E9%9D%A0%E6%80%A7-%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1"><span class="toc-number">5.</span> <span class="toc-text">如何保证消息可靠性-消息丢失</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1"><span class="toc-number">5.1.</span> <span class="toc-text">1.消息丢失</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%B6%88%E6%81%AF%E9%87%8D%E5%A4%8D"><span class="toc-number">5.2.</span> <span class="toc-text">2.消息重复</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%B6%88%E6%81%AF%E7%A7%AF%E5%8E%8B"><span class="toc-number">5.3.</span> <span class="toc-text">3.消息积压</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RabbitMQ%E5%BB%B6%E6%97%B6%E9%98%9F%E5%88%97%EF%BC%88%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%EF%BC%89"><span class="toc-number">5.4.</span> <span class="toc-text">RabbitMQ延时队列（实现定时任务）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9A"><span class="toc-number">5.4.1.</span> <span class="toc-text">常用解决方案：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E7%9A%84TTL%EF%BC%88Time-To-Live%EF%BC%89"><span class="toc-number">5.4.2.</span> <span class="toc-text">消息的TTL（Time To Live）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Dead-Letter-Exchanges-DLX"><span class="toc-number">5.4.3.</span> <span class="toc-text">Dead Letter Exchanges(DLX)</span></a></li></ol></li></ol></li></ol>
-    </nav>
-  </div>
-</aside>
-
-<main class="main" role="main">
-  <div class="content">
-  <article id="post-RabbitMQ" class="article article-type-post" itemscope itemtype="http://schema.org/BlogPosting">
-    
-    <div class="article-header">
-      
-        
-  
-    <h1 class="article-title" itemprop="name">
-      RabbitMQ
-    </h1>
-  
-
-      
-      <div class="article-meta">
-        <span class="article-date">
-    <i class="icon icon-calendar-check"></i>
-	<a href="/2021/07/31/RabbitMQ/" class="article-date">
-	  <time datetime="2021-07-30T16:00:00.000Z" itemprop="datePublished">2021-07-31</time>
-	</a>
-</span>
-        
-  <span class="article-category">
-    <i class="icon icon-folder"></i>
-    <a class="article-category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
-  </span>
-
-        
-  <span class="article-tag">
-    <i class="icon icon-tags"></i>
-	<a class="article-tag-link-link" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a>
-  </span>
-
-
-        
-
-	<span class="article-read hidden-xs">
-    	<i class="icon icon-eye-fill" aria-hidden="true"></i>
-    	<span id="/2021/07/31/RabbitMQ/" class="leancloud_visitors"  data-flag-title="RabbitMQ">0</span>
     </span>
-
-        <span class="post-comment"><i class="icon icon-comment"></i> <a href="/2021/07/31/RabbitMQ/#comments" class="article-comment-link">评论</a></span>
+    <br/>
+    <span id="actions">
+      <ul>
         
-	
-		<span class="post-wordcount hidden-xs" itemprop="wordCount">字数统计: 2.6k(字)</span>
-	
-	
-		<span class="post-readcount hidden-xs" itemprop="timeRequired">阅读时长: 9(分)</span>
-	
+        <li><a class="icon" aria-label="上一篇" href="/2021/07/31/MySQL/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2021/04/26/JVM/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://yangh124.github.io/2021/07/31/RabbitMQ/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://yangh124.github.io/2021/07/31/RabbitMQ/&text=RabbitMQ"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://yangh124.github.io/2021/07/31/RabbitMQ/&title=RabbitMQ"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://yangh124.github.io/2021/07/31/RabbitMQ/&is_video=false&description=RabbitMQ"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=RabbitMQ&body=Check out this article: https://yangh124.github.io/2021/07/31/RabbitMQ/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://yangh124.github.io/2021/07/31/RabbitMQ/&title=RabbitMQ"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://yangh124.github.io/2021/07/31/RabbitMQ/&title=RabbitMQ"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://yangh124.github.io/2021/07/31/RabbitMQ/&title=RabbitMQ"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://yangh124.github.io/2021/07/31/RabbitMQ/&title=RabbitMQ"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://yangh124.github.io/2021/07/31/RabbitMQ/&name=RabbitMQ&description=&lt;h2 id=&#34;简介&#34;&gt;&lt;a href=&#34;#简介&#34; class=&#34;headerlink&#34; title=&#34;简介&#34;&gt;&lt;/a&gt;简介&lt;/h2&gt;&lt;p&gt;RabbitMQ是最受欢迎的开源消息中间件之一，在全球范围内被广泛应用。RabbitMQ是轻量级且易于部署的，能支持多种消息协议。RabbitMQ可以部署在分布式系统中，以满足大规模、高可用的要求。&lt;/p&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://yangh124.github.io/2021/07/31/RabbitMQ/&t=RabbitMQ"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
 
-      </div>
     </div>
-    <div class="article-entry marked-body" itemprop="articleBody">
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">安装及配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Linux%E5%AE%89%E8%A3%85%EF%BC%9A"><span class="toc-number">2.1.</span> <span class="toc-text">Linux安装：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E5%8F%8A%E9%85%8D%E7%BD%AE"><span class="toc-number">2.2.</span> <span class="toc-text">访问及配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RabbitMQ%E7%AE%80%E4%BB%8B"><span class="toc-number">3.</span> <span class="toc-text">RabbitMQ简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-number">3.1.</span> <span class="toc-text">核心概念</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Message"><span class="toc-number">3.1.1.</span> <span class="toc-text">Message</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Publish"><span class="toc-number">3.1.2.</span> <span class="toc-text">Publish</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Exchange"><span class="toc-number">3.1.3.</span> <span class="toc-text">Exchange</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Queue"><span class="toc-number">3.1.4.</span> <span class="toc-text">Queue</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Binding"><span class="toc-number">3.1.5.</span> <span class="toc-text">Binding</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Connection"><span class="toc-number">3.1.6.</span> <span class="toc-text">Connection</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Channel"><span class="toc-number">3.1.7.</span> <span class="toc-text">Channel</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Consumer"><span class="toc-number">3.1.8.</span> <span class="toc-text">Consumer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Virtual-Host"><span class="toc-number">3.1.9.</span> <span class="toc-text">Virtual Host</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Broker"><span class="toc-number">3.1.10.</span> <span class="toc-text">Broker</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5%E7%A7%8D%E6%B6%88%E6%81%AF%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.2.</span> <span class="toc-text">5种消息模式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.2.1.</span> <span class="toc-text">简单模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.2.2.</span> <span class="toc-text">工作模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%91%E5%B8%83-%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F%EF%BC%88fanout%EF%BC%89"><span class="toc-number">3.2.3.</span> <span class="toc-text">发布&#x2F;订阅模式（fanout）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B7%AF%E7%94%B1%E6%A8%A1%E5%BC%8F%EF%BC%88direct%EF%BC%89"><span class="toc-number">3.2.4.</span> <span class="toc-text">路由模式（direct）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%9A%E9%85%8D%E7%AC%A6%E6%A8%A1%E5%BC%8F%EF%BC%88topic%EF%BC%89"><span class="toc-number">3.2.5.</span> <span class="toc-text">通配符模式（topic）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#header%E6%A8%A1%E5%BC%8F%EF%BC%88header%EF%BC%89"><span class="toc-number">3.2.6.</span> <span class="toc-text">header模式（header）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RPC%E6%A8%A1%E5%BC%8F%EF%BC%88direct%EF%BC%89"><span class="toc-number">3.2.7.</span> <span class="toc-text">RPC模式（direct）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E7%A1%AE%E8%AE%A4%E6%9C%BA%E5%88%B6-%E5%8F%AF%E9%9D%A0%E6%8A%B5%E8%BE%BE"><span class="toc-number">4.</span> <span class="toc-text">消息确认机制-可靠抵达</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E5%8F%AF%E9%9D%A0%E6%80%A7-%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1"><span class="toc-number">5.</span> <span class="toc-text">如何保证消息可靠性-消息丢失</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1"><span class="toc-number">5.1.</span> <span class="toc-text">1.消息丢失</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%B6%88%E6%81%AF%E9%87%8D%E5%A4%8D"><span class="toc-number">5.2.</span> <span class="toc-text">2.消息重复</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%B6%88%E6%81%AF%E7%A7%AF%E5%8E%8B"><span class="toc-number">5.3.</span> <span class="toc-text">3.消息积压</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RabbitMQ%E5%BB%B6%E6%97%B6%E9%98%9F%E5%88%97%EF%BC%88%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%EF%BC%89"><span class="toc-number">5.4.</span> <span class="toc-text">RabbitMQ延时队列（实现定时任务）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9A"><span class="toc-number">5.4.1.</span> <span class="toc-text">常用解决方案：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E7%9A%84TTL%EF%BC%88Time-To-Live%EF%BC%89"><span class="toc-number">5.4.2.</span> <span class="toc-text">消息的TTL（Time To Live）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Dead-Letter-Exchanges-DLX"><span class="toc-number">5.4.3.</span> <span class="toc-text">Dead Letter Exchanges(DLX)</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        RabbitMQ
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yangh</span>
+      </span>
       
-        <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>RabbitMQ是最受欢迎的开源消息中间件之一，在全球范围内被广泛应用。RabbitMQ是轻量级且易于部署的，能支持多种消息协议。RabbitMQ可以部署在分布式系统中，以满足大规模、高可用的要求。</p>
+    <div class="postdate">
+      
+        <time datetime="2021-07-30T16:00:00.000Z" class="dt-published" itemprop="datePublished">2021-07-31</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" rel="tag">消息队列</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>RabbitMQ是最受欢迎的开源消息中间件之一，在全球范围内被广泛应用。RabbitMQ是轻量级且易于部署的，能支持多种消息协议。RabbitMQ可以部署在分布式系统中，以满足大规模、高可用的要求。</p>
 <span id="more"></span>
 
-<h1 id="安装及配置"><a href="#安装及配置" class="headerlink" title="安装及配置"></a>安装及配置</h1><h2 id="Linux安装："><a href="#Linux安装：" class="headerlink" title="Linux安装："></a>Linux安装：</h2><p>下载docker镜像</p>
+<h2 id="安装及配置"><a href="#安装及配置" class="headerlink" title="安装及配置"></a>安装及配置</h2><h3 id="Linux安装："><a href="#Linux安装：" class="headerlink" title="Linux安装："></a>Linux安装：</h3><p>下载docker镜像</p>
 <pre><code>docker pull rabbitmq:3.7.15
 </code></pre>
 <p>使用docker命令启动服务</p>
@@ -448,7 +197,7 @@
 rabbitmq-plugins enable rabbitmq_management
 </code></pre>
 <p>开启防火墙便于外网访问</p>
-<h2 id="访问及配置"><a href="#访问及配置" class="headerlink" title="访问及配置"></a>访问及配置</h2><ol>
+<h3 id="访问及配置"><a href="#访问及配置" class="headerlink" title="访问及配置"></a>访问及配置</h3><ol>
 <li>访问RabbitMQ管理页面地址，查看是否安装成功（Linux下使用服务器IP访问即可）：<a target="_blank" rel="noopener" href="http://localhost:15672/">http://localhost:15672</a></li>
 <li>输入账号密码并登录，这里使用默认账号密码登录：guest guest</li>
 <li>创建帐号并设置其角色为管理员：yh yh<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291220880322.jpg" alt="16291220880322"></li>
@@ -456,67 +205,67 @@ rabbitmq-plugins enable rabbitmq_management
 <li>点击yh用户，给yh用户配置该虚拟host的权限；<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291221501459.jpg" alt="16291221501459"></li>
 <li>至此，RabbitMQ的配置完成。</li>
 </ol>
-<h1 id="RabbitMQ简介"><a href="#RabbitMQ简介" class="headerlink" title="RabbitMQ简介"></a>RabbitMQ简介</h1><p>RabbitMQ是一个由erlang开发的AMQP(Advanced Message Queue Protocol)的开源实现。</p>
-<h2 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h2><h3 id="Message"><a href="#Message" class="headerlink" title="Message"></a>Message</h3><blockquote>
+<h2 id="RabbitMQ简介"><a href="#RabbitMQ简介" class="headerlink" title="RabbitMQ简介"></a>RabbitMQ简介</h2><p>RabbitMQ是一个由erlang开发的AMQP(Advanced Message Queue Protocol)的开源实现。</p>
+<h3 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h3><h4 id="Message"><a href="#Message" class="headerlink" title="Message"></a>Message</h4><blockquote>
 <p>消息，消息是不具名的，它由消息头和消息体组成。消息体是不透明的，而消息头则由一系列的可选属性组成，这些属性包括routing-key（路由键）、priority（相对于其他消息的优先权）、delivery-mode（指出该消息可能需要持久性储存）等。</p>
 </blockquote>
-<h3 id="Publish"><a href="#Publish" class="headerlink" title="Publish"></a>Publish</h3><blockquote>
+<h4 id="Publish"><a href="#Publish" class="headerlink" title="Publish"></a>Publish</h4><blockquote>
 <p>消息的生产者，也是一个向交换器发布消息的客户端应用程序。</p>
 </blockquote>
-<h3 id="Exchange"><a href="#Exchange" class="headerlink" title="Exchange"></a>Exchange</h3><blockquote>
+<h4 id="Exchange"><a href="#Exchange" class="headerlink" title="Exchange"></a>Exchange</h4><blockquote>
 <p>交换器，用来接收生产者发送的消息并将这些消息路由给服务器中的队列。Exchange有4种类型：direct（默认），fanout，topic和headers，不同类型的Exchange转发消息的策略有所区别</p>
 </blockquote>
-<h3 id="Queue"><a href="#Queue" class="headerlink" title="Queue"></a>Queue</h3><blockquote>
+<h4 id="Queue"><a href="#Queue" class="headerlink" title="Queue"></a>Queue</h4><blockquote>
 <p>消息队列，用来保存消息直到发送给消费者，它是消息的容器，也是消息的终点。一个消息可投入一个或多个队列。消息一直在队列里面，等待消费者连接到这个队列将其取走。</p>
 </blockquote>
-<h3 id="Binding"><a href="#Binding" class="headerlink" title="Binding"></a>Binding</h3><blockquote>
+<h4 id="Binding"><a href="#Binding" class="headerlink" title="Binding"></a>Binding</h4><blockquote>
 <p>绑定，用于消息队列和交换器之间的关联。一个绑定就是基于路由键将交换器和消息队列连接起来的路由规则，所以可以将交换器理解为一个由绑定构成的路由表。Exchange和Queue的绑定可以是多对多的关系。</p>
 </blockquote>
-<h3 id="Connection"><a href="#Connection" class="headerlink" title="Connection"></a>Connection</h3><blockquote>
+<h4 id="Connection"><a href="#Connection" class="headerlink" title="Connection"></a>Connection</h4><blockquote>
 <p>网络连接，比如一个TCP连接。</p>
 </blockquote>
-<h3 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h3><blockquote>
+<h4 id="Channel"><a href="#Channel" class="headerlink" title="Channel"></a>Channel</h4><blockquote>
 <p>信道，多路复用连接中的一条独立的双向数据流通道。信道是建立在真实的TCP连接内的虚拟连接，AMQP命令都是通过信道发出去的，不管是发布消息、订阅队列还是接收消息，这些都是通过信道完成的。因为对于操作系统来说建立和销毁TCP都是非常昂贵的开销，所以引入信道的概念，以复用一条TCP连接。</p>
 </blockquote>
-<h3 id="Consumer"><a href="#Consumer" class="headerlink" title="Consumer"></a>Consumer</h3><blockquote>
+<h4 id="Consumer"><a href="#Consumer" class="headerlink" title="Consumer"></a>Consumer</h4><blockquote>
 <p>消息的消费者，表示一个从消息队列中取得消息的客户端应用程序。</p>
 </blockquote>
-<h3 id="Virtual-Host"><a href="#Virtual-Host" class="headerlink" title="Virtual Host"></a>Virtual Host</h3><blockquote>
+<h4 id="Virtual-Host"><a href="#Virtual-Host" class="headerlink" title="Virtual Host"></a>Virtual Host</h4><blockquote>
 <p>虚拟主机，表示一批交换器、消息队列和相关对象。虚拟主机是共享相同身份认证和加密环境的独立服务器域。每个vhost本质上就是一个mini版的RabbitMQ服务器，拥有自己的队列、交换器、绑定和权限机制。vhost是AMQP概念的基础，必须在连接时指定，默认的vhost是&#x2F;。</p>
 </blockquote>
-<h3 id="Broker"><a href="#Broker" class="headerlink" title="Broker"></a>Broker</h3><blockquote>
+<h4 id="Broker"><a href="#Broker" class="headerlink" title="Broker"></a>Broker</h4><blockquote>
 <p>表示消息队列服务器实体</p>
 </blockquote>
 <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291223199643.jpg" alt="16291223199643"></p>
-<h2 id="5种消息模式"><a href="#5种消息模式" class="headerlink" title="5种消息模式"></a>5种消息模式</h2><h3 id="简单模式"><a href="#简单模式" class="headerlink" title="简单模式"></a>简单模式</h3><blockquote>
+<h3 id="5种消息模式"><a href="#5种消息模式" class="headerlink" title="5种消息模式"></a>5种消息模式</h3><h4 id="简单模式"><a href="#简单模式" class="headerlink" title="简单模式"></a>简单模式</h4><blockquote>
 <p>简单模式是最简单的消息模式，它包含一个生产者、一个消费者和一个队列。生产者向队列里发送消息，消费者从队列中获取消息并消费。</p>
 </blockquote>
 <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291223509014.jpg" alt="16291223509014"></p>
-<h3 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h3><blockquote>
+<h4 id="工作模式"><a href="#工作模式" class="headerlink" title="工作模式"></a>工作模式</h4><blockquote>
 <p>工作模式是指向多个互相竞争的消费者发送消息的模式，它包含一个生产者、两个消费者和一个队列。两个消费者同时绑定到一个队列上去，当消费者获取消息处理耗时任务时，空闲的消费者从队列中获取并消费消息。</p>
 </blockquote>
 <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291223898130.jpg" alt="16291223898130"></p>
-<h3 id="发布-订阅模式（fanout）"><a href="#发布-订阅模式（fanout）" class="headerlink" title="发布&#x2F;订阅模式（fanout）"></a>发布&#x2F;订阅模式（fanout）</h3><blockquote>
+<h4 id="发布-订阅模式（fanout）"><a href="#发布-订阅模式（fanout）" class="headerlink" title="发布&#x2F;订阅模式（fanout）"></a>发布&#x2F;订阅模式（fanout）</h4><blockquote>
 <p>发布&#x2F;订阅模式是指同时向多个消费者发送消息的模式（类似广播的形式），它包含一个生产者、两个消费者、两个队列和一个交换机。两个消费者同时绑定到不同的队列上去，两个队列绑定到交换机上去，生产者通过发送消息到交换机，所有消费者接收并消费消息。</p>
 </blockquote>
 <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291224068875.jpg" alt="16291224068875"></p>
-<h3 id="路由模式（direct）"><a href="#路由模式（direct）" class="headerlink" title="路由模式（direct）"></a>路由模式（direct）</h3><blockquote>
+<h4 id="路由模式（direct）"><a href="#路由模式（direct）" class="headerlink" title="路由模式（direct）"></a>路由模式（direct）</h4><blockquote>
 <p>路由模式是可以根据路由键选择性给多个消费者发送消息的模式，它包含一个生产者、两个消费者、两个队列和一个交换机。两个消费者同时绑定到不同的队列上去，两个队列通过路由键绑定到交换机上去，生产者发送消息到交换机，交换机通过路由键转发到不同队列，队列绑定的消费者接收并消费消息。</p>
 </blockquote>
 <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291224228449.jpg" alt="16291224228449"></p>
-<h3 id="通配符模式（topic）"><a href="#通配符模式（topic）" class="headerlink" title="通配符模式（topic）"></a>通配符模式（topic）</h3><blockquote>
+<h4 id="通配符模式（topic）"><a href="#通配符模式（topic）" class="headerlink" title="通配符模式（topic）"></a>通配符模式（topic）</h4><blockquote>
 <p>通配符模式是可以根据路由键匹配规则选择性给多个消费者发送消息的模式，它包含一个生产者、两个消费者、两个队列和一个交换机。两个消费者同时绑定到不同的队列上去，两个队列通过路由键匹配规则绑定到交换机上去，生产者发送消息到交换机，交换机通过路由键匹配规则转发到不同队列，队列绑定的消费者接收并消费消息。</p>
 </blockquote>
 <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291224454336.jpg" alt="16291224454336"></p>
-<h3 id="header模式（header）"><a href="#header模式（header）" class="headerlink" title="header模式（header）"></a>header模式（header）</h3><p>header模式与routing不同的地方在于，header模式取消routingkey，使用header中的<br>key&#x2F;value（键值对）匹配队列。</p>
-<h3 id="RPC模式（direct）"><a href="#RPC模式（direct）" class="headerlink" title="RPC模式（direct）"></a>RPC模式（direct）</h3><blockquote>
+<h4 id="header模式（header）"><a href="#header模式（header）" class="headerlink" title="header模式（header）"></a>header模式（header）</h4><p>header模式与routing不同的地方在于，header模式取消routingkey，使用header中的<br>key&#x2F;value（键值对）匹配队列。</p>
+<h4 id="RPC模式（direct）"><a href="#RPC模式（direct）" class="headerlink" title="RPC模式（direct）"></a>RPC模式（direct）</h4><blockquote>
 <p>1、客户端即是生产者就是消费者，向RPC请求队列发送RPC调用消息，同时监听RPC响应队列。</p>
 <p>2、服务端监听RPC请求队列的消息，收到消息后执行服务端的方法，得到方法返回的结果。</p>
 <p>3、服务端将RPC方法 的结果发送到RPC响应队列。</p>
 <p>4、客户端（RPC调用方）监听RPC响应队列，接收到RPC调用结果。</p>
 </blockquote>
 <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291225166457.jpg" alt="16291225166457"></p>
-<h1 id="消息确认机制-可靠抵达"><a href="#消息确认机制-可靠抵达" class="headerlink" title="消息确认机制-可靠抵达"></a>消息确认机制-可靠抵达</h1><blockquote>
+<h2 id="消息确认机制-可靠抵达"><a href="#消息确认机制-可靠抵达" class="headerlink" title="消息确认机制-可靠抵达"></a>消息确认机制-可靠抵达</h2><blockquote>
 <p>保证消息不丢失，可靠抵达，可以使用事务消息，性能下降250倍，为此引入确认机制</p>
 </blockquote>
 <ul>
@@ -529,7 +278,7 @@ rabbitmq-plugins enable rabbitmq_management
 </ul>
 <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291226024394.jpg" alt="16291226024394"></p>
 <p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/16/16291226225999.jpg" alt="16291226225999"></p>
-<h1 id="如何保证消息可靠性-消息丢失"><a href="#如何保证消息可靠性-消息丢失" class="headerlink" title="如何保证消息可靠性-消息丢失"></a>如何保证消息可靠性-消息丢失</h1><h2 id="1-消息丢失"><a href="#1-消息丢失" class="headerlink" title="1.消息丢失"></a>1.消息丢失</h2><blockquote>
+<h2 id="如何保证消息可靠性-消息丢失"><a href="#如何保证消息可靠性-消息丢失" class="headerlink" title="如何保证消息可靠性-消息丢失"></a>如何保证消息可靠性-消息丢失</h2><h3 id="1-消息丢失"><a href="#1-消息丢失" class="headerlink" title="1.消息丢失"></a>1.消息丢失</h3><blockquote>
 <p>消息发送出去，由于网络原因未到达服务器</p>
 </blockquote>
 <ul>
@@ -552,7 +301,7 @@ rabbitmq-plugins enable rabbitmq_management
 <ul>
 <li>开启手动ack，消费成功才移除，消费失败就noack并重新入队</li>
 </ul>
-<h2 id="2-消息重复"><a href="#2-消息重复" class="headerlink" title="2.消息重复"></a>2.消息重复</h2><blockquote>
+<h3 id="2-消息重复"><a href="#2-消息重复" class="headerlink" title="2.消息重复"></a>2.消息重复</h3><blockquote>
 <p>消息消费成功，但是手动ack时宕机，导致ack失败，消息被发送给其他消费者</p>
 </blockquote>
 <blockquote>
@@ -564,7 +313,7 @@ rabbitmq-plugins enable rabbitmq_management
 <li><p>rabbitmq的每一个消息都有redelivered字段，可以获取是否被重新投递过来的，而不是第一次投递</p>
 </li>
 </ul>
-<h2 id="3-消息积压"><a href="#3-消息积压" class="headerlink" title="3.消息积压"></a>3.消息积压</h2><blockquote>
+<h3 id="3-消息积压"><a href="#3-消息积压" class="headerlink" title="3.消息积压"></a>3.消息积压</h3><blockquote>
 <p>消费者宕机</p>
 </blockquote>
 <blockquote>
@@ -579,14 +328,14 @@ rabbitmq-plugins enable rabbitmq_management
 <li><p>先将消息记录到数据库，再慢慢处理</p>
 </li>
 </ul>
-<h2 id="RabbitMQ延时队列（实现定时任务）"><a href="#RabbitMQ延时队列（实现定时任务）" class="headerlink" title="RabbitMQ延时队列（实现定时任务）"></a>RabbitMQ延时队列（实现定时任务）</h2><blockquote>
+<h3 id="RabbitMQ延时队列（实现定时任务）"><a href="#RabbitMQ延时队列（实现定时任务）" class="headerlink" title="RabbitMQ延时队列（实现定时任务）"></a>RabbitMQ延时队列（实现定时任务）</h3><blockquote>
 <p>场景：比如未付款订单，超时一定时间后，系统自动取消订单并释放库存。</p>
 </blockquote>
-<h3 id="常用解决方案："><a href="#常用解决方案：" class="headerlink" title="常用解决方案："></a>常用解决方案：</h3><p>spring Schedule定时任务轮询数据库</p>
+<h4 id="常用解决方案："><a href="#常用解决方案：" class="headerlink" title="常用解决方案："></a>常用解决方案：</h4><p>spring Schedule定时任务轮询数据库</p>
 <p><strong>缺点：</strong></p>
 <p>消耗系统内存，增加数据库压力，存在时间误差</p>
 <p><strong>解决：RabbitMQ的消息ttl和死信Exchange结合</strong></p>
-<h3 id="消息的TTL（Time-To-Live）"><a href="#消息的TTL（Time-To-Live）" class="headerlink" title="消息的TTL（Time To Live）"></a>消息的TTL（Time To Live）</h3><ul>
+<h4 id="消息的TTL（Time-To-Live）"><a href="#消息的TTL（Time-To-Live）" class="headerlink" title="消息的TTL（Time To Live）"></a>消息的TTL（Time To Live）</h4><ul>
 <li><p>消息TTL就是消息的存活时间</p>
 </li>
 <li><p>RabbitMQ可以对队列和消息分别设置TTL</p>
@@ -596,7 +345,7 @@ rabbitmq-plugins enable rabbitmq_management
 <li><p>如果队列设置了。消息也设置了，那么会取小的。所以一个消息如果被路由到不同的队列，这个消息的死亡的时间可能不一样（不同队列设置）。这里单讲单个消息的TTL因为它才是实现延迟任务的关键。可以通过设置消息expiration字段或者x-message-ttl属性来设置时间，两者是一样的效果。</p>
 </li>
 </ul>
-<h3 id="Dead-Letter-Exchanges-DLX"><a href="#Dead-Letter-Exchanges-DLX" class="headerlink" title="Dead Letter Exchanges(DLX)"></a>Dead Letter Exchanges(DLX)</h3><ul>
+<h4 id="Dead-Letter-Exchanges-DLX"><a href="#Dead-Letter-Exchanges-DLX" class="headerlink" title="Dead Letter Exchanges(DLX)"></a>Dead Letter Exchanges(DLX)</h4><ul>
 <li><p>一个消息在满足如下条件下，会进入死信路由，记住这里是路由不是队列，一个路由可以应对很多队列。（什么是死信）</p>
 </li>
 <li><p>一个消息被消费者拒收了，并且reject方法的参数是requeue是false。也就是说不会被再次放在队列里，被其他消费者使用。（basicNack&#x2F;basicReject）requeue&#x3D;false</p>
@@ -611,209 +360,153 @@ rabbitmq-plugins enable rabbitmq_management
 </li>
 </ul>
 
-      
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a href="/categories/">分类</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/yangh124">项目</a></li>
+        
+      </ul>
     </div>
-    <div class="article-footer">
-      <blockquote class="mt-2x">
-  <ul class="post-copyright list-unstyled">
-    
-    <li class="post-copyright-link hidden-xs">
-      <strong>本文链接：</strong>
-      <a href="https://yangh124.github.io/2021/07/31/RabbitMQ/" title="RabbitMQ" target="_blank" rel="external">https://yangh124.github.io/2021/07/31/RabbitMQ/</a>
-    </li>
-    
-    <li class="post-copyright-license">
-      <strong>版权声明： </strong> 本博客所有文章除特别声明外，均采用 <a href="http://creativecommons.org/licenses/by/4.0/deed.zh" target="_blank" rel="external">CC BY 4.0 CN协议</a> 许可协议。转载请注明出处！
-    </li>
-  </ul>
-</blockquote>
 
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">安装及配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Linux%E5%AE%89%E8%A3%85%EF%BC%9A"><span class="toc-number">2.1.</span> <span class="toc-text">Linux安装：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E5%8F%8A%E9%85%8D%E7%BD%AE"><span class="toc-number">2.2.</span> <span class="toc-text">访问及配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RabbitMQ%E7%AE%80%E4%BB%8B"><span class="toc-number">3.</span> <span class="toc-text">RabbitMQ简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="toc-number">3.1.</span> <span class="toc-text">核心概念</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Message"><span class="toc-number">3.1.1.</span> <span class="toc-text">Message</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Publish"><span class="toc-number">3.1.2.</span> <span class="toc-text">Publish</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Exchange"><span class="toc-number">3.1.3.</span> <span class="toc-text">Exchange</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Queue"><span class="toc-number">3.1.4.</span> <span class="toc-text">Queue</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Binding"><span class="toc-number">3.1.5.</span> <span class="toc-text">Binding</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Connection"><span class="toc-number">3.1.6.</span> <span class="toc-text">Connection</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Channel"><span class="toc-number">3.1.7.</span> <span class="toc-text">Channel</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Consumer"><span class="toc-number">3.1.8.</span> <span class="toc-text">Consumer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Virtual-Host"><span class="toc-number">3.1.9.</span> <span class="toc-text">Virtual Host</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Broker"><span class="toc-number">3.1.10.</span> <span class="toc-text">Broker</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5%E7%A7%8D%E6%B6%88%E6%81%AF%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.2.</span> <span class="toc-text">5种消息模式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.2.1.</span> <span class="toc-text">简单模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="toc-number">3.2.2.</span> <span class="toc-text">工作模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%91%E5%B8%83-%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F%EF%BC%88fanout%EF%BC%89"><span class="toc-number">3.2.3.</span> <span class="toc-text">发布&#x2F;订阅模式（fanout）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B7%AF%E7%94%B1%E6%A8%A1%E5%BC%8F%EF%BC%88direct%EF%BC%89"><span class="toc-number">3.2.4.</span> <span class="toc-text">路由模式（direct）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%9A%E9%85%8D%E7%AC%A6%E6%A8%A1%E5%BC%8F%EF%BC%88topic%EF%BC%89"><span class="toc-number">3.2.5.</span> <span class="toc-text">通配符模式（topic）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#header%E6%A8%A1%E5%BC%8F%EF%BC%88header%EF%BC%89"><span class="toc-number">3.2.6.</span> <span class="toc-text">header模式（header）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RPC%E6%A8%A1%E5%BC%8F%EF%BC%88direct%EF%BC%89"><span class="toc-number">3.2.7.</span> <span class="toc-text">RPC模式（direct）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E7%A1%AE%E8%AE%A4%E6%9C%BA%E5%88%B6-%E5%8F%AF%E9%9D%A0%E6%8A%B5%E8%BE%BE"><span class="toc-number">4.</span> <span class="toc-text">消息确认机制-可靠抵达</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%B6%88%E6%81%AF%E5%8F%AF%E9%9D%A0%E6%80%A7-%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1"><span class="toc-number">5.</span> <span class="toc-text">如何保证消息可靠性-消息丢失</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1"><span class="toc-number">5.1.</span> <span class="toc-text">1.消息丢失</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%B6%88%E6%81%AF%E9%87%8D%E5%A4%8D"><span class="toc-number">5.2.</span> <span class="toc-text">2.消息重复</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%B6%88%E6%81%AF%E7%A7%AF%E5%8E%8B"><span class="toc-number">5.3.</span> <span class="toc-text">3.消息积压</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RabbitMQ%E5%BB%B6%E6%97%B6%E9%98%9F%E5%88%97%EF%BC%88%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%EF%BC%89"><span class="toc-number">5.4.</span> <span class="toc-text">RabbitMQ延时队列（实现定时任务）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9A"><span class="toc-number">5.4.1.</span> <span class="toc-text">常用解决方案：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E7%9A%84TTL%EF%BC%88Time-To-Live%EF%BC%89"><span class="toc-number">5.4.2.</span> <span class="toc-text">消息的TTL（Time To Live）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Dead-Letter-Exchanges-DLX"><span class="toc-number">5.4.3.</span> <span class="toc-text">Dead Letter Exchanges(DLX)</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
 
-<div class="panel panel-default panel-badger">
-  <div class="panel-body">
-    <figure class="media">
-      <div class="media-left">
-        <a href="https://github.com/yangh124" target="_blank" class="img-burn thumb-sm visible-lg">
-          <img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/04/25/avatar.JPG" class="img-rounded w-full" alt="">
-        </a>
-      </div>
-      <div class="media-body">
-        <h3 class="media-heading"><a href="https://github.com/yangh124" target="_blank"><span class="text-dark">yangh124</span><small class="ml-1x"></small></a></h3>
-        <div>你还有好多未完成的梦，你有什么道理停下脚步。</div>
-      </div>
-    </figure>
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://yangh124.github.io/2021/07/31/RabbitMQ/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://yangh124.github.io/2021/07/31/RabbitMQ/&text=RabbitMQ"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://yangh124.github.io/2021/07/31/RabbitMQ/&title=RabbitMQ"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://yangh124.github.io/2021/07/31/RabbitMQ/&is_video=false&description=RabbitMQ"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=RabbitMQ&body=Check out this article: https://yangh124.github.io/2021/07/31/RabbitMQ/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://yangh124.github.io/2021/07/31/RabbitMQ/&title=RabbitMQ"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://yangh124.github.io/2021/07/31/RabbitMQ/&title=RabbitMQ"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://yangh124.github.io/2021/07/31/RabbitMQ/&title=RabbitMQ"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://yangh124.github.io/2021/07/31/RabbitMQ/&title=RabbitMQ"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://yangh124.github.io/2021/07/31/RabbitMQ/&name=RabbitMQ&description=&lt;h2 id=&#34;简介&#34;&gt;&lt;a href=&#34;#简介&#34; class=&#34;headerlink&#34; title=&#34;简介&#34;&gt;&lt;/a&gt;简介&lt;/h2&gt;&lt;p&gt;RabbitMQ是最受欢迎的开源消息中间件之一，在全球范围内被广泛应用。RabbitMQ是轻量级且易于部署的，能支持多种消息协议。RabbitMQ可以部署在分布式系统中，以满足大规模、高可用的要求。&lt;/p&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://yangh124.github.io/2021/07/31/RabbitMQ/&t=RabbitMQ"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
   </div>
 </div>
 
-
-    </div>
-  </article>
-  
-    
-  <section id="comments">
-  	
-      <div id="vcomments"></div>
-    
-  </section>
-
-
-  
-</div>
-
-  <nav class="bar bar-footer clearfix" data-stick-bottom>
-  <div class="bar-inner">
-  
-  <ul class="pager pull-left">
-    
-    <li class="prev">
-      <a href="/2021/07/31/MySQL/" title="MySQL"><i class="icon icon-angle-left" aria-hidden="true"></i><span>&nbsp;&nbsp;上一篇</span></a>
-    </li>
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
     
     
-    <li class="next">
-      <a href="/2021/04/26/JVM/" title="JVM"><span>下一篇&nbsp;&nbsp;</span><i class="icon icon-angle-right" aria-hidden="true"></i></a>
-    </li>
-    
-    
-    <li class="toggle-toc">
-      <a class="toggle-btn " data-toggle="collapse" href="#collapseToc" aria-expanded="false" title="文章目录" role="button">    <span>[&nbsp;</span><span>文章目录</span>
-        <i class="text-collapsed icon icon-anchor"></i>
-        <i class="text-in icon icon-close"></i>
-        <span>]</span>
-      </a>
-    </li>
-    
-  </ul>
-  
-  
-  
-  <div class="bar-right">
-    
-    <div class="share-component" data-sites="weibo,qq,wechat,facebook,twitter" data-mobile-sites="weibo,qq,qzone"></div>
-    
+    2016-2024
+    yangh
   </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yangh124">项目</a></li><!--
+     -->
+      </ul>
+    </nav>
   </div>
-</nav>
-  
-
-
-</main>
-
-  <footer class="footer" itemscope itemtype="http://schema.org/WPFooter">
-    
-        <div class="copyright">
-            
-                &copy; 2024
-                    yangh
-                        
-                            <div class="publishby">
-                                Theme by <a href="https://github.com/cofess" target="_blank">
-                                        cofess </a>
-                                    base on <a href="https://github.com/cofess/hexo-theme-pure"
-                                            target="_blank">pure</a>.
-                            </div>
-        </div>
 </footer>
-  <script src="//cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
-<script>
-window.jQuery || document.write('<script src="js/jquery.min.js"><\/script>')
-</script>
 
-<script src="/js/plugin.min.js"></script>
+    </div>
+    <!-- styles -->
 
 
-<script src="/js/application.js"></script>
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
 
 
-    <script>
-(function (window) {
-    var INSIGHT_CONFIG = {
-        TRANSLATION: {
-            POSTS: '文章',
-            PAGES: '页面',
-            CATEGORIES: '分类',
-            TAGS: '标签',
-            UNTITLED: '(未命名)',
-        },
-        ROOT_URL: '/',
-        CONTENT_URL: '/content.json',
-    };
-    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
-})(window);
-</script>
+    <!-- jquery -->
 
-<script src="/js/insight.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
 
 
 
 
+<!-- clipboard -->
 
-
-   
-
-
-
-
-   
-    
-  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/valine"></script>
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
   <script type="text/javascript">
-  var GUEST = ['nick', 'mail', 'link'];
-  var meta = 'nick,mail,link';
-  meta = meta.split(',').filter(function(item) {
-    return GUEST.indexOf(item) > -1;
-  });
-  new Valine({
-    el: '#vcomments',
-    verify: false,
-    notify: false,
-    appId: 'HXqdy9Gelr3kb7pii3TOj4fl-9Nh9j0Va',
-    appKey: 'CY8JtaywMBlw476SSnU4X9RH',
-    placeholder: 'Just go go',
-    avatar: 'mm',
-    meta: meta,
-    pageSize: '10' || 10,
-    visitor: true
-  });
-  </script>
-
-     
-
-
-
-  <script src="//cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.3.5/dist/jquery.fancybox.min.js"></script>
-  <script>
-  //利用 FancyBox 实现点击图片放大
-  $(document).ready(function() {
-    $('article img').not('[hidden]').not('.panel-body img').each(function() {
-      var $image = $(this);
-      var imageCaption = $image.attr('alt');
-      var $imageWrapLink = $image.parent('a');
-      if ($imageWrapLink.length < 1) {
-        var src = this.getAttribute('src');
-        var idx = src.lastIndexOf('?');
-        if (idx != -1) {
-          src = src.substring(0, idx);
-        }
-        $imageWrapLink = $image.wrap('<a href="' + src + '"></a>').parent('a');
-      }
-      $imageWrapLink.attr('data-fancybox', 'images');
-      if (imageCaption) {
-        $imageWrapLink.attr('data-caption', imageCaption);
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
       }
     });
-    $().fancybox({
-      selector: '[data-fancybox="images"]',
-      hash: false,
-      loop: false,
-    });
-  });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
   </script>
 
 
+<script src="/js/main.js"></script>
 
+<!-- search -->
 
+<!-- Baidu Analytics -->
 
-</body>
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+<!-- hexo injector body_end start --><script src="https://unpkg.com/live2dapi-noa@latest/npm/random/autoload.js">
+<script src="/js/jquery.js"></script>
+<!-- hexo injector body_end end --></body>
 </html>
