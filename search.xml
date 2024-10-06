@@ -40,6 +40,129 @@
       </tags>
   </entry>
   <entry>
+    <title>Docker常用命令</title>
+    <url>/2021/07/31/Docker%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h2 id="Docker简介"><a href="#Docker简介" class="headerlink" title="Docker简介"></a>Docker简介</h2><pre><code>Docker是一个开源的应用容器引擎，让开发者可以打包应用及依赖包到一个可移植的镜像中，然后发布到任何流行的Linux或Windows机器上。使用Docker可以更方便地打包、测试以及部署应用程序。
+</code></pre>
+<span id="more"></span>
+
+<h2 id="Docker环境安装（Linux）"><a href="#Docker环境安装（Linux）" class="headerlink" title="Docker环境安装（Linux）"></a>Docker环境安装（Linux）</h2><h3 id="1-安装yum-utils；"><a href="#1-安装yum-utils；" class="headerlink" title="1. 安装yum-utils；"></a>1. 安装yum-utils；</h3><pre><code>yum install -y yum-utils device-mapper-persistent-data lvm2
+</code></pre>
+<h3 id="2-为yum源添加docker仓库位置；"><a href="#2-为yum源添加docker仓库位置；" class="headerlink" title="2. 为yum源添加docker仓库位置；"></a>2. 为yum源添加docker仓库位置；</h3><pre><code>yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+</code></pre>
+<h3 id="3-安装dokcer服务；"><a href="#3-安装dokcer服务；" class="headerlink" title="3. 安装dokcer服务；"></a>3. 安装dokcer服务；</h3><pre><code>yum install docker-ce
+</code></pre>
+<h3 id="4-启动docker服务；"><a href="#4-启动docker服务；" class="headerlink" title="4. 启动docker服务；"></a>4. 启动docker服务；</h3><pre><code>systemctl start docker
+</code></pre>
+<h2 id="Docker常用镜像命令"><a href="#Docker常用镜像命令" class="headerlink" title="Docker常用镜像命令"></a>Docker常用镜像命令</h2><h3 id="搜索镜像"><a href="#搜索镜像" class="headerlink" title="搜索镜像"></a>搜索镜像</h3><pre><code>docker search xxx
+</code></pre>
+<h3 id="下载镜像"><a href="#下载镜像" class="headerlink" title="下载镜像"></a>下载镜像</h3><pre><code>dockr pull xxx
+</code></pre>
+<h3 id="查看镜像版本"><a href="#查看镜像版本" class="headerlink" title="查看镜像版本"></a>查看镜像版本</h3><pre><code>由于docker search命令只能查找出是否有该镜像，不能找到该镜像支持的版本，所以我们需要通过Docker Hub来搜索支持的版本。
+进入Docker Hub的官网，地址：[https://hub.docker.com](https://hub.docker.com/)
+</code></pre>
+<h3 id="列出镜像"><a href="#列出镜像" class="headerlink" title="列出镜像"></a>列出镜像</h3><p>docker images</p>
+<h3 id="删除镜像"><a href="#删除镜像" class="headerlink" title="删除镜像"></a>删除镜像</h3><h4 id="1-指定名称删除镜像"><a href="#1-指定名称删除镜像" class="headerlink" title="1. 指定名称删除镜像"></a>1. 指定名称删除镜像</h4><pre><code>docker rmi java:8.0
+</code></pre>
+<h4 id="2-指定名称强制删除镜像"><a href="#2-指定名称强制删除镜像" class="headerlink" title="2. 指定名称强制删除镜像"></a>2. 指定名称强制删除镜像</h4><pre><code>docker rmi -f java:8.0
+</code></pre>
+<h4 id="3-删除所有没有引用的镜像"><a href="#3-删除所有没有引用的镜像" class="headerlink" title="3. 删除所有没有引用的镜像"></a>3. 删除所有没有引用的镜像</h4><pre><code>docker rmi `docker images | grep none | awk  &#39;&#123;print $3&#125;&#39;`
+</code></pre>
+<h4 id="4-强制删除所有镜像"><a href="#4-强制删除所有镜像" class="headerlink" title="4. 强制删除所有镜像"></a>4. 强制删除所有镜像</h4><pre><code>docker rmi -f $(docker images)
+</code></pre>
+<h3 id="构建镜像"><a href="#构建镜像" class="headerlink" title="构建镜像"></a>构建镜像</h3><pre><code>-t 表示指定镜像仓库名称/镜像名称:镜像标签 .表示使用当前目录下的Dockerfile文件 
+docker build -t yh124/test-porject:1.0-SNAPSHOT .
+</code></pre>
+<h2 id="Docker容器常用命令"><a href="#Docker容器常用命令" class="headerlink" title="Docker容器常用命令"></a>Docker容器常用命令</h2><h3 id="新建并启动容器"><a href="#新建并启动容器" class="headerlink" title="新建并启动容器"></a>新建并启动容器</h3><pre><code>docker run -p 80:80 --name nginx \ -e TZ=&quot;Asia/Shanghai&quot; \ -v /mydata/nginx/html:/usr/share/nginx/html \ -d nginx:1.17.0
+
+1. -p：将宿主机和容器端口进行映射，格式为：宿主机端口:容器端口。
+2. --name：自定义容器名称，之后可以通过容器名称进行操作。
+3. -e：设置容器的环境变量，这里设置的时区。
+4. -v：将宿主机的文件挂载到容器中，格式为：宿主机文件目录:容器文件目录。
+5. -d：表示容器以后台方式运行
+</code></pre>
+<h3 id="列出容器"><a href="#列出容器" class="headerlink" title="列出容器"></a>列出容器</h3><h4 id="1-列出运行中的所有容器"><a href="#1-列出运行中的所有容器" class="headerlink" title="1. 列出运行中的所有容器"></a>1. 列出运行中的所有容器</h4><pre><code>docker ps
+</code></pre>
+<h4 id="2-列出所有容器"><a href="#2-列出所有容器" class="headerlink" title="2. 列出所有容器"></a>2. 列出所有容器</h4><pre><code>docker ps -a
+</code></pre>
+<h3 id="停止容器"><a href="#停止容器" class="headerlink" title="停止容器"></a>停止容器</h3><pre><code>docker stop \$containerName(or \$containerID)
+</code></pre>
+<h3 id="强制停止容器"><a href="#强制停止容器" class="headerlink" title="强制停止容器"></a>强制停止容器</h3><pre><code>docker kill xxx
+</code></pre>
+<h3 id="启动容器"><a href="#启动容器" class="headerlink" title="启动容器"></a>启动容器</h3><pre><code>docker start xxx
+</code></pre>
+<h3 id="进入容器"><a href="#进入容器" class="headerlink" title="进入容器"></a>进入容器</h3><h4 id="1-先查出容器pid"><a href="#1-先查出容器pid" class="headerlink" title="1. 先查出容器pid"></a>1. 先查出容器pid</h4><pre><code>docker inspect --format &quot;&#123;&#123;.State.Pid&#125;&#125;&quot; $ContainerName
+</code></pre>
+<h4 id="2-根据容器pid进入容器"><a href="#2-根据容器pid进入容器" class="headerlink" title="2. 根据容器pid进入容器"></a>2. 根据容器pid进入容器</h4><pre><code>nsenter --target &quot;$pid&quot; --mount --uts --ipc --net --pid
+</code></pre>
+<h3 id="删除容器"><a href="#删除容器" class="headerlink" title="删除容器"></a>删除容器</h3><h4 id="1-删除指定容器"><a href="#1-删除指定容器" class="headerlink" title="1. 删除指定容器"></a>1. 删除指定容器</h4><pre><code>docker rm $ContainerName
+</code></pre>
+<h4 id="2-按名称通配符删除容器，比如删除以名称test-开头的容器"><a href="#2-按名称通配符删除容器，比如删除以名称test-开头的容器" class="headerlink" title="2. 按名称通配符删除容器，比如删除以名称test-开头的容器"></a>2. 按名称通配符删除容器，比如删除以名称test-开头的容器</h4><pre><code>docker rm &#39;docker ps -a | grep test-* | awk &#123;print $1&#125;&#39;
+</code></pre>
+<h4 id="3-强制删除所有容器"><a href="#3-强制删除所有容器" class="headerlink" title="3. 强制删除所有容器"></a>3. 强制删除所有容器</h4><pre><code>docker rm -f $(docker ps -a -q)
+</code></pre>
+<h3 id="查看容器日志"><a href="#查看容器日志" class="headerlink" title="查看容器日志"></a>查看容器日志</h3><h4 id="1-查看容器产生的全部日志"><a href="#1-查看容器产生的全部日志" class="headerlink" title="1. 查看容器产生的全部日志"></a>1. 查看容器产生的全部日志</h4><pre><code>docker logs $ContainerName
+</code></pre>
+<h4 id="2-动态查看日志"><a href="#2-动态查看日志" class="headerlink" title="2. 动态查看日志"></a>2. 动态查看日志</h4><pre><code>docker logs -f -t --tail=100 $ContainerName
+</code></pre>
+<h3 id="查看容器的IP地址"><a href="#查看容器的IP地址" class="headerlink" title="查看容器的IP地址"></a>查看容器的IP地址</h3><pre><code>docker inspect --format &#39;&#123;&#123;.NetworkSettings.IPAddress&#125;&#125;&#39; $ContainerName
+</code></pre>
+<h3 id="修改容器的启动方式"><a href="#修改容器的启动方式" class="headerlink" title="修改容器的启动方式"></a>修改容器的启动方式</h3><h4 id="1-将容器启动方式改为always"><a href="#1-将容器启动方式改为always" class="headerlink" title="1. 将容器启动方式改为always"></a>1. 将容器启动方式改为always</h4><pre><code>    docker container update --restart=always $ContainerName 
+</code></pre>
+<h4 id="2-关闭自动重启"><a href="#2-关闭自动重启" class="headerlink" title="2. 关闭自动重启"></a>2. 关闭自动重启</h4><pre><code>    docker container update --restart=no $ContainerName
+</code></pre>
+<h3 id="同步宿主机时间到容器"><a href="#同步宿主机时间到容器" class="headerlink" title="同步宿主机时间到容器"></a>同步宿主机时间到容器</h3><pre><code>docker cp /etc/localtime $ContainerName:/etc
+</code></pre>
+<h3 id="指定容器时区"><a href="#指定容器时区" class="headerlink" title="指定容器时区"></a>指定容器时区</h3><pre><code>docker run -p 80:80 --name nginx \ -e TZ=&quot;Asia/Shanghai&quot; \ -d nginx:1.17.0
+</code></pre>
+<h3 id="查看容器资源占用状况"><a href="#查看容器资源占用状况" class="headerlink" title="查看容器资源占用状况"></a>查看容器资源占用状况</h3><h4 id="1-查看指定容器资源占用状况，比如cpu，网络，内存，IO状态"><a href="#1-查看指定容器资源占用状况，比如cpu，网络，内存，IO状态" class="headerlink" title="1. 查看指定容器资源占用状况，比如cpu，网络，内存，IO状态"></a>1. 查看指定容器资源占用状况，比如cpu，网络，内存，IO状态</h4><pre><code>docker stats $ContainerName
+</code></pre>
+<h4 id="2-查看所有容器医院占用情况"><a href="#2-查看所有容器医院占用情况" class="headerlink" title="2. 查看所有容器医院占用情况"></a>2. 查看所有容器医院占用情况</h4><pre><code>docker stats -a
+</code></pre>
+<h3 id="查看磁盘使用情况"><a href="#查看磁盘使用情况" class="headerlink" title="查看磁盘使用情况"></a>查看磁盘使用情况</h3><pre><code>docker system df
+</code></pre>
+<h3 id="执行容器内部命令（进入容器）"><a href="#执行容器内部命令（进入容器）" class="headerlink" title="执行容器内部命令（进入容器）"></a>执行容器内部命令（进入容器）</h3><pre><code>docker exec -it $ContainerName /bin/bash
+</code></pre>
+<h3 id="指定账号进入容器内部"><a href="#指定账号进入容器内部" class="headerlink" title="指定账号进入容器内部"></a>指定账号进入容器内部</h3><pre><code>使用root账号进入容器内部 
+docker exec -it --user root $ContainerName /bin/bash
+</code></pre>
+<h3 id="查看所有网络"><a href="#查看所有网络" class="headerlink" title="查看所有网络"></a>查看所有网络</h3><pre><code>docker network ls
+</code></pre>
+<h3 id="创建外部网络"><a href="#创建外部网络" class="headerlink" title="创建外部网络"></a>创建外部网络</h3><pre><code>docker network create -d bridge my-bridge-network
+</code></pre>
+<h3 id="指定容器网络"><a href="#指定容器网络" class="headerlink" title="指定容器网络"></a>指定容器网络</h3><pre><code>docker run -p 80:80 --name nginx \ --network my-bridge-network \ -d nginx:1.17.0
+</code></pre>
+<h3 id="修改镜像的存放位置"><a href="#修改镜像的存放位置" class="headerlink" title="修改镜像的存放位置"></a>修改镜像的存放位置</h3><h4 id="1-查看镜像的存放位置"><a href="#1-查看镜像的存放位置" class="headerlink" title="1. 查看镜像的存放位置"></a>1. 查看镜像的存放位置</h4><pre><code>docker info | grep &quot;Docker Root Dir&quot;
+</code></pre>
+<h4 id="2-关闭docker-服务"><a href="#2-关闭docker-服务" class="headerlink" title="2. 关闭docker 服务"></a>2. 关闭docker 服务</h4><pre><code>systemctl stop docker
+</code></pre>
+<h4 id="3-先将原镜像目录移动到目标目录"><a href="#3-先将原镜像目录移动到目标目录" class="headerlink" title="3. 先将原镜像目录移动到目标目录"></a>3. 先将原镜像目录移动到目标目录</h4><pre><code>mv /var/lib/docker /mydata/docker
+</code></pre>
+<h4 id="4-建立软连接"><a href="#4-建立软连接" class="headerlink" title="4. 建立软连接"></a>4. 建立软连接</h4><pre><code>ln -s /mydata/docker /var/lib/docker
+</code></pre>
+<h3 id="Docker容器清理"><a href="#Docker容器清理" class="headerlink" title="Docker容器清理"></a>Docker容器清理</h3><h4 id="1-查看Docker占用磁盘空间"><a href="#1-查看Docker占用磁盘空间" class="headerlink" title="1. 查看Docker占用磁盘空间"></a>1. 查看Docker占用磁盘空间</h4><pre><code>docker system df
+</code></pre>
+<h4 id="2-删除所有关闭的容器"><a href="#2-删除所有关闭的容器" class="headerlink" title="2. 删除所有关闭的容器"></a>2. 删除所有关闭的容器</h4><pre><code>docker ps -a | grep Exit | cut -d &#39; &#39; -f 1 | xargs docker rm
+</code></pre>
+<h4 id="3-删除所有dangling镜像（没有Tag的镜像）"><a href="#3-删除所有dangling镜像（没有Tag的镜像）" class="headerlink" title="3. 删除所有dangling镜像（没有Tag的镜像）"></a>3. 删除所有dangling镜像（没有Tag的镜像）</h4><pre><code>docker rmi $(docker images | grep &quot;^&lt;none&gt;&quot; | awk &quot;&#123;print $3&#125;&quot;)
+</code></pre>
+<h4 id="4-删除所有dangling-数据卷（即无用的volume）"><a href="#4-删除所有dangling-数据卷（即无用的volume）" class="headerlink" title="4. 删除所有dangling 数据卷（即无用的volume）"></a>4. 删除所有dangling 数据卷（即无用的volume）</h4><pre><code>docker volume rm $(docker volume ls -qf dangling=true)
+</code></pre>
+<h2 id="Docker-Compose"><a href="#Docker-Compose" class="headerlink" title="Docker Compose"></a>Docker Compose</h2><h3 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h3><h4 id="构建、创建、启动相关容器"><a href="#构建、创建、启动相关容器" class="headerlink" title="构建、创建、启动相关容器"></a>构建、创建、启动相关容器</h4><pre><code>docker-compose up -d #指定yaml文件 -f 指定文件(file) -d 后台运行 docker-compose -f docker-compose.yml up -d
+</code></pre>
+<h4 id="停止所有相关容器"><a href="#停止所有相关容器" class="headerlink" title="停止所有相关容器"></a>停止所有相关容器</h4><pre><code>docker-compose stop
+</code></pre>
+<h4 id="列出所有容器信息"><a href="#列出所有容器信息" class="headerlink" title="列出所有容器信息"></a>列出所有容器信息</h4><pre><code>docker-compose ps
+</code></pre>
+]]></content>
+      <categories>
+        <category>运维</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Camunda</title>
     <url>/2024/03/27/Camunda/</url>
     <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>Camunda是一个基于java的框架，支持用于工作流和过程自动化的BPMN、用于案例管理的CMMN和用于商业决策管理的DMN。</p>
@@ -373,129 +496,6 @@
       </categories>
       <tags>
         <tag>Camunda</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Docker常用命令</title>
-    <url>/2021/07/31/Docker%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/</url>
-    <content><![CDATA[<h2 id="Docker简介"><a href="#Docker简介" class="headerlink" title="Docker简介"></a>Docker简介</h2><pre><code>Docker是一个开源的应用容器引擎，让开发者可以打包应用及依赖包到一个可移植的镜像中，然后发布到任何流行的Linux或Windows机器上。使用Docker可以更方便地打包、测试以及部署应用程序。
-</code></pre>
-<span id="more"></span>
-
-<h2 id="Docker环境安装（Linux）"><a href="#Docker环境安装（Linux）" class="headerlink" title="Docker环境安装（Linux）"></a>Docker环境安装（Linux）</h2><h3 id="1-安装yum-utils；"><a href="#1-安装yum-utils；" class="headerlink" title="1. 安装yum-utils；"></a>1. 安装yum-utils；</h3><pre><code>yum install -y yum-utils device-mapper-persistent-data lvm2
-</code></pre>
-<h3 id="2-为yum源添加docker仓库位置；"><a href="#2-为yum源添加docker仓库位置；" class="headerlink" title="2. 为yum源添加docker仓库位置；"></a>2. 为yum源添加docker仓库位置；</h3><pre><code>yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-</code></pre>
-<h3 id="3-安装dokcer服务；"><a href="#3-安装dokcer服务；" class="headerlink" title="3. 安装dokcer服务；"></a>3. 安装dokcer服务；</h3><pre><code>yum install docker-ce
-</code></pre>
-<h3 id="4-启动docker服务；"><a href="#4-启动docker服务；" class="headerlink" title="4. 启动docker服务；"></a>4. 启动docker服务；</h3><pre><code>systemctl start docker
-</code></pre>
-<h2 id="Docker常用镜像命令"><a href="#Docker常用镜像命令" class="headerlink" title="Docker常用镜像命令"></a>Docker常用镜像命令</h2><h3 id="搜索镜像"><a href="#搜索镜像" class="headerlink" title="搜索镜像"></a>搜索镜像</h3><pre><code>docker search xxx
-</code></pre>
-<h3 id="下载镜像"><a href="#下载镜像" class="headerlink" title="下载镜像"></a>下载镜像</h3><pre><code>dockr pull xxx
-</code></pre>
-<h3 id="查看镜像版本"><a href="#查看镜像版本" class="headerlink" title="查看镜像版本"></a>查看镜像版本</h3><pre><code>由于docker search命令只能查找出是否有该镜像，不能找到该镜像支持的版本，所以我们需要通过Docker Hub来搜索支持的版本。
-进入Docker Hub的官网，地址：[https://hub.docker.com](https://hub.docker.com/)
-</code></pre>
-<h3 id="列出镜像"><a href="#列出镜像" class="headerlink" title="列出镜像"></a>列出镜像</h3><p>docker images</p>
-<h3 id="删除镜像"><a href="#删除镜像" class="headerlink" title="删除镜像"></a>删除镜像</h3><h4 id="1-指定名称删除镜像"><a href="#1-指定名称删除镜像" class="headerlink" title="1. 指定名称删除镜像"></a>1. 指定名称删除镜像</h4><pre><code>docker rmi java:8.0
-</code></pre>
-<h4 id="2-指定名称强制删除镜像"><a href="#2-指定名称强制删除镜像" class="headerlink" title="2. 指定名称强制删除镜像"></a>2. 指定名称强制删除镜像</h4><pre><code>docker rmi -f java:8.0
-</code></pre>
-<h4 id="3-删除所有没有引用的镜像"><a href="#3-删除所有没有引用的镜像" class="headerlink" title="3. 删除所有没有引用的镜像"></a>3. 删除所有没有引用的镜像</h4><pre><code>docker rmi `docker images | grep none | awk  &#39;&#123;print $3&#125;&#39;`
-</code></pre>
-<h4 id="4-强制删除所有镜像"><a href="#4-强制删除所有镜像" class="headerlink" title="4. 强制删除所有镜像"></a>4. 强制删除所有镜像</h4><pre><code>docker rmi -f $(docker images)
-</code></pre>
-<h3 id="构建镜像"><a href="#构建镜像" class="headerlink" title="构建镜像"></a>构建镜像</h3><pre><code>-t 表示指定镜像仓库名称/镜像名称:镜像标签 .表示使用当前目录下的Dockerfile文件 
-docker build -t yh124/test-porject:1.0-SNAPSHOT .
-</code></pre>
-<h2 id="Docker容器常用命令"><a href="#Docker容器常用命令" class="headerlink" title="Docker容器常用命令"></a>Docker容器常用命令</h2><h3 id="新建并启动容器"><a href="#新建并启动容器" class="headerlink" title="新建并启动容器"></a>新建并启动容器</h3><pre><code>docker run -p 80:80 --name nginx \ -e TZ=&quot;Asia/Shanghai&quot; \ -v /mydata/nginx/html:/usr/share/nginx/html \ -d nginx:1.17.0
-
-1. -p：将宿主机和容器端口进行映射，格式为：宿主机端口:容器端口。
-2. --name：自定义容器名称，之后可以通过容器名称进行操作。
-3. -e：设置容器的环境变量，这里设置的时区。
-4. -v：将宿主机的文件挂载到容器中，格式为：宿主机文件目录:容器文件目录。
-5. -d：表示容器以后台方式运行
-</code></pre>
-<h3 id="列出容器"><a href="#列出容器" class="headerlink" title="列出容器"></a>列出容器</h3><h4 id="1-列出运行中的所有容器"><a href="#1-列出运行中的所有容器" class="headerlink" title="1. 列出运行中的所有容器"></a>1. 列出运行中的所有容器</h4><pre><code>docker ps
-</code></pre>
-<h4 id="2-列出所有容器"><a href="#2-列出所有容器" class="headerlink" title="2. 列出所有容器"></a>2. 列出所有容器</h4><pre><code>docker ps -a
-</code></pre>
-<h3 id="停止容器"><a href="#停止容器" class="headerlink" title="停止容器"></a>停止容器</h3><pre><code>docker stop \$containerName(or \$containerID)
-</code></pre>
-<h3 id="强制停止容器"><a href="#强制停止容器" class="headerlink" title="强制停止容器"></a>强制停止容器</h3><pre><code>docker kill xxx
-</code></pre>
-<h3 id="启动容器"><a href="#启动容器" class="headerlink" title="启动容器"></a>启动容器</h3><pre><code>docker start xxx
-</code></pre>
-<h3 id="进入容器"><a href="#进入容器" class="headerlink" title="进入容器"></a>进入容器</h3><h4 id="1-先查出容器pid"><a href="#1-先查出容器pid" class="headerlink" title="1. 先查出容器pid"></a>1. 先查出容器pid</h4><pre><code>docker inspect --format &quot;&#123;&#123;.State.Pid&#125;&#125;&quot; $ContainerName
-</code></pre>
-<h4 id="2-根据容器pid进入容器"><a href="#2-根据容器pid进入容器" class="headerlink" title="2. 根据容器pid进入容器"></a>2. 根据容器pid进入容器</h4><pre><code>nsenter --target &quot;$pid&quot; --mount --uts --ipc --net --pid
-</code></pre>
-<h3 id="删除容器"><a href="#删除容器" class="headerlink" title="删除容器"></a>删除容器</h3><h4 id="1-删除指定容器"><a href="#1-删除指定容器" class="headerlink" title="1. 删除指定容器"></a>1. 删除指定容器</h4><pre><code>docker rm $ContainerName
-</code></pre>
-<h4 id="2-按名称通配符删除容器，比如删除以名称test-开头的容器"><a href="#2-按名称通配符删除容器，比如删除以名称test-开头的容器" class="headerlink" title="2. 按名称通配符删除容器，比如删除以名称test-开头的容器"></a>2. 按名称通配符删除容器，比如删除以名称test-开头的容器</h4><pre><code>docker rm &#39;docker ps -a | grep test-* | awk &#123;print $1&#125;&#39;
-</code></pre>
-<h4 id="3-强制删除所有容器"><a href="#3-强制删除所有容器" class="headerlink" title="3. 强制删除所有容器"></a>3. 强制删除所有容器</h4><pre><code>docker rm -f $(docker ps -a -q)
-</code></pre>
-<h3 id="查看容器日志"><a href="#查看容器日志" class="headerlink" title="查看容器日志"></a>查看容器日志</h3><h4 id="1-查看容器产生的全部日志"><a href="#1-查看容器产生的全部日志" class="headerlink" title="1. 查看容器产生的全部日志"></a>1. 查看容器产生的全部日志</h4><pre><code>docker logs $ContainerName
-</code></pre>
-<h4 id="2-动态查看日志"><a href="#2-动态查看日志" class="headerlink" title="2. 动态查看日志"></a>2. 动态查看日志</h4><pre><code>docker logs -f -t --tail=100 $ContainerName
-</code></pre>
-<h3 id="查看容器的IP地址"><a href="#查看容器的IP地址" class="headerlink" title="查看容器的IP地址"></a>查看容器的IP地址</h3><pre><code>docker inspect --format &#39;&#123;&#123;.NetworkSettings.IPAddress&#125;&#125;&#39; $ContainerName
-</code></pre>
-<h3 id="修改容器的启动方式"><a href="#修改容器的启动方式" class="headerlink" title="修改容器的启动方式"></a>修改容器的启动方式</h3><h4 id="1-将容器启动方式改为always"><a href="#1-将容器启动方式改为always" class="headerlink" title="1. 将容器启动方式改为always"></a>1. 将容器启动方式改为always</h4><pre><code>    docker container update --restart=always $ContainerName 
-</code></pre>
-<h4 id="2-关闭自动重启"><a href="#2-关闭自动重启" class="headerlink" title="2. 关闭自动重启"></a>2. 关闭自动重启</h4><pre><code>    docker container update --restart=no $ContainerName
-</code></pre>
-<h3 id="同步宿主机时间到容器"><a href="#同步宿主机时间到容器" class="headerlink" title="同步宿主机时间到容器"></a>同步宿主机时间到容器</h3><pre><code>docker cp /etc/localtime $ContainerName:/etc
-</code></pre>
-<h3 id="指定容器时区"><a href="#指定容器时区" class="headerlink" title="指定容器时区"></a>指定容器时区</h3><pre><code>docker run -p 80:80 --name nginx \ -e TZ=&quot;Asia/Shanghai&quot; \ -d nginx:1.17.0
-</code></pre>
-<h3 id="查看容器资源占用状况"><a href="#查看容器资源占用状况" class="headerlink" title="查看容器资源占用状况"></a>查看容器资源占用状况</h3><h4 id="1-查看指定容器资源占用状况，比如cpu，网络，内存，IO状态"><a href="#1-查看指定容器资源占用状况，比如cpu，网络，内存，IO状态" class="headerlink" title="1. 查看指定容器资源占用状况，比如cpu，网络，内存，IO状态"></a>1. 查看指定容器资源占用状况，比如cpu，网络，内存，IO状态</h4><pre><code>docker stats $ContainerName
-</code></pre>
-<h4 id="2-查看所有容器医院占用情况"><a href="#2-查看所有容器医院占用情况" class="headerlink" title="2. 查看所有容器医院占用情况"></a>2. 查看所有容器医院占用情况</h4><pre><code>docker stats -a
-</code></pre>
-<h3 id="查看磁盘使用情况"><a href="#查看磁盘使用情况" class="headerlink" title="查看磁盘使用情况"></a>查看磁盘使用情况</h3><pre><code>docker system df
-</code></pre>
-<h3 id="执行容器内部命令（进入容器）"><a href="#执行容器内部命令（进入容器）" class="headerlink" title="执行容器内部命令（进入容器）"></a>执行容器内部命令（进入容器）</h3><pre><code>docker exec -it $ContainerName /bin/bash
-</code></pre>
-<h3 id="指定账号进入容器内部"><a href="#指定账号进入容器内部" class="headerlink" title="指定账号进入容器内部"></a>指定账号进入容器内部</h3><pre><code>使用root账号进入容器内部 
-docker exec -it --user root $ContainerName /bin/bash
-</code></pre>
-<h3 id="查看所有网络"><a href="#查看所有网络" class="headerlink" title="查看所有网络"></a>查看所有网络</h3><pre><code>docker network ls
-</code></pre>
-<h3 id="创建外部网络"><a href="#创建外部网络" class="headerlink" title="创建外部网络"></a>创建外部网络</h3><pre><code>docker network create -d bridge my-bridge-network
-</code></pre>
-<h3 id="指定容器网络"><a href="#指定容器网络" class="headerlink" title="指定容器网络"></a>指定容器网络</h3><pre><code>docker run -p 80:80 --name nginx \ --network my-bridge-network \ -d nginx:1.17.0
-</code></pre>
-<h3 id="修改镜像的存放位置"><a href="#修改镜像的存放位置" class="headerlink" title="修改镜像的存放位置"></a>修改镜像的存放位置</h3><h4 id="1-查看镜像的存放位置"><a href="#1-查看镜像的存放位置" class="headerlink" title="1. 查看镜像的存放位置"></a>1. 查看镜像的存放位置</h4><pre><code>docker info | grep &quot;Docker Root Dir&quot;
-</code></pre>
-<h4 id="2-关闭docker-服务"><a href="#2-关闭docker-服务" class="headerlink" title="2. 关闭docker 服务"></a>2. 关闭docker 服务</h4><pre><code>systemctl stop docker
-</code></pre>
-<h4 id="3-先将原镜像目录移动到目标目录"><a href="#3-先将原镜像目录移动到目标目录" class="headerlink" title="3. 先将原镜像目录移动到目标目录"></a>3. 先将原镜像目录移动到目标目录</h4><pre><code>mv /var/lib/docker /mydata/docker
-</code></pre>
-<h4 id="4-建立软连接"><a href="#4-建立软连接" class="headerlink" title="4. 建立软连接"></a>4. 建立软连接</h4><pre><code>ln -s /mydata/docker /var/lib/docker
-</code></pre>
-<h3 id="Docker容器清理"><a href="#Docker容器清理" class="headerlink" title="Docker容器清理"></a>Docker容器清理</h3><h4 id="1-查看Docker占用磁盘空间"><a href="#1-查看Docker占用磁盘空间" class="headerlink" title="1. 查看Docker占用磁盘空间"></a>1. 查看Docker占用磁盘空间</h4><pre><code>docker system df
-</code></pre>
-<h4 id="2-删除所有关闭的容器"><a href="#2-删除所有关闭的容器" class="headerlink" title="2. 删除所有关闭的容器"></a>2. 删除所有关闭的容器</h4><pre><code>docker ps -a | grep Exit | cut -d &#39; &#39; -f 1 | xargs docker rm
-</code></pre>
-<h4 id="3-删除所有dangling镜像（没有Tag的镜像）"><a href="#3-删除所有dangling镜像（没有Tag的镜像）" class="headerlink" title="3. 删除所有dangling镜像（没有Tag的镜像）"></a>3. 删除所有dangling镜像（没有Tag的镜像）</h4><pre><code>docker rmi $(docker images | grep &quot;^&lt;none&gt;&quot; | awk &quot;&#123;print $3&#125;&quot;)
-</code></pre>
-<h4 id="4-删除所有dangling-数据卷（即无用的volume）"><a href="#4-删除所有dangling-数据卷（即无用的volume）" class="headerlink" title="4. 删除所有dangling 数据卷（即无用的volume）"></a>4. 删除所有dangling 数据卷（即无用的volume）</h4><pre><code>docker volume rm $(docker volume ls -qf dangling=true)
-</code></pre>
-<h2 id="Docker-Compose"><a href="#Docker-Compose" class="headerlink" title="Docker Compose"></a>Docker Compose</h2><h3 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h3><h4 id="构建、创建、启动相关容器"><a href="#构建、创建、启动相关容器" class="headerlink" title="构建、创建、启动相关容器"></a>构建、创建、启动相关容器</h4><pre><code>docker-compose up -d #指定yaml文件 -f 指定文件(file) -d 后台运行 docker-compose -f docker-compose.yml up -d
-</code></pre>
-<h4 id="停止所有相关容器"><a href="#停止所有相关容器" class="headerlink" title="停止所有相关容器"></a>停止所有相关容器</h4><pre><code>docker-compose stop
-</code></pre>
-<h4 id="列出所有容器信息"><a href="#列出所有容器信息" class="headerlink" title="列出所有容器信息"></a>列出所有容器信息</h4><pre><code>docker-compose ps
-</code></pre>
-]]></content>
-      <categories>
-        <category>运维</category>
-      </categories>
-      <tags>
-        <tag>Docker</tag>
       </tags>
   </entry>
   <entry>
@@ -985,6 +985,512 @@ docker exec -it --user root $ContainerName /bin/bash
 <blockquote>
 <p><strong>风险提示：</strong><br>通过sys库去查询时，MySQL会消耗大量资源去收集相关信息，严重的可能会导致业务请求被阻塞，从而引起故障。建议生产环境不要频繁去查询sys或performance_schema、information_schema来完成监控、巡检等工作。</p>
 </blockquote>
+]]></content>
+      <categories>
+        <category>后端</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MySQL</title>
+    <url>/2021/07/31/MySQL/</url>
+    <content><![CDATA[<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><pre><code>一个数据库事务通常包含对数据库进行读或写的一个操作序列。它的存在包含有以下两个目的：
+    1. 为数据库操作提供了一个从失败中恢复到正常状态的方法，同时提供了数据库即使在异常状态下仍能保持一致性的方法。
+    2. 当多个应用程序在并发访问数据库时，可以在这些应用程序之间提供一个隔离方法，以防止彼此的操作互相干扰。
+</code></pre>
+<span id="more"></span>
+<h3 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h3><ul>
+<li>原子性（Atomicity）：事务作为一个整体被执行，包含在其中的对数据库的操作要么全部被执行，要么都不执行。</li>
+<li>一致性（Consistency）：事务应确保数据库的状态从一个一致状态转变为另一个一致状态。一致状态的含义是数据库中的数据应满足完整性约束。</li>
+<li>隔离性（Isolation）：多个事务并发执行时，一个事务的执行不应影响其他事务的执行。</li>
+<li>持久性（Durability）：一个事务一旦提交，他对数据库的修改应该永久保存在数据库中。</li>
+</ul>
+<h3 id="数据库的读现象浅析"><a href="#数据库的读现象浅析" class="headerlink" title="数据库的读现象浅析"></a>数据库的读现象浅析</h3><pre><code>&quot;读现象&quot;是多个事务并发执行时，在读取数据方面可能碰到的状况。
+</code></pre>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278197683280.jpg"></p>
+<h4 id="脏读"><a href="#脏读" class="headerlink" title="脏读"></a>脏读</h4><p>脏读又称无效数据的读出，是指在数据库访问中，事务T1将某一值修改，然后事务T2读取该值，此后T1因为某种原因撤销对该值的修改，这就导致了T2所读取到的数据是无效的。</p>
+<p>事务一读取到事务二未提交数据。</p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278197917060.jpg"></p>
+<h4 id="不可重复读"><a href="#不可重复读" class="headerlink" title="不可重复读"></a>不可重复读</h4><p>在一个事务内，多次读同一个数据。在这个事务还没有结束时，另一个事务也访问该同一数据。那么，在第一个事务的两次读数据之间。由于第二个事务的修改，那么第一个事务读到的数据可能不一样，这样就发生了在一个事务内两次读到的数据是不一样的，因此称为不可重复读，即原始读取不可重复。</p>
+<p>在事务二提交之前，事务一不可重复读。</p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278198089221.jpg"></p>
+<h4 id="幻读"><a href="#幻读" class="headerlink" title="幻读"></a>幻读</h4><p>第一个事务对一个表中的数据进行了修改，比如这种修改涉及到表中的”全部数据行”。同时，第二个事务也修改这个表中的数据，这种修改是向表中插入”一行新数据”。那么，以后就会发生操作第一个事务的用户发现表中还有没有修改的数据行，就好象发生了幻觉一样.一般解决幻读的方法是增加范围锁RangeS，锁定检锁范围为只读，这样就避免了幻读。</p>
+<p>返回数据变多，幻读。</p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278198223940.jpg"></p>
+<p>“幻读(phantom read)”是不可重复读(Non-repeatablereads)的一种特殊场景：当事务没有获取范围锁的情况下执行SELECT ... WHERE操作可能会发生”幻影读(phantom read)”。</p>
+<h2 id="Mysql中的行级锁、表级锁、页级锁"><a href="#Mysql中的行级锁、表级锁、页级锁" class="headerlink" title="Mysql中的行级锁、表级锁、页级锁"></a>Mysql中的行级锁、表级锁、页级锁</h2><h3 id="行级锁"><a href="#行级锁" class="headerlink" title="行级锁"></a>行级锁</h3><p>行级锁是Mysql中锁粒度最细的锁，表示只针对当前操作的行为加锁。行级锁能大大减少数据库操作的冲突。其加锁粒度最小，但加锁的开销也最大。行级锁分为共享锁和排他锁。</p>
+<p>特点：开销大，加锁慢；会出现死锁；锁粒度最小，发生锁冲突的概率最低，并发度也最高。</p>
+<p>Innodb默认使用行级锁</p>
+<ul>
+<li>读锁（read lock）：也叫共享锁（shared lock），允许一个事务去读一行，阻止其他事务获得相同数据集的排他锁</li>
+<li>写锁（write lock）：也叫排他锁（exclusive lock），允许获得排他锁的事务更新数据，阻止其他事务取得相同数据集的共享锁和排他锁</li>
+</ul>
+<h4 id="行锁的实现算法"><a href="#行锁的实现算法" class="headerlink" title="行锁的实现算法"></a>行锁的实现算法</h4><ol>
+<li><p><strong>Record Lock 锁</strong></p>
+<p>单个行记录上的锁Record<br>Lock总是会去锁住索引记录，如果InnoDB存储引擎表建立的时候没有设置任何一个索引，这时InnoDB存储引擎会使用隐式的主键来进行锁定</p>
+</li>
+<li><p><strong>Gap Lock 锁</strong></p>
+<p> 当我们用范围条件而不是相等条件检索数据，并请求共享或排他锁时，InnoDB会给符合条件的已有数据记录的索引加锁，对于键值在条件范围内但并不存在的记录。<br> 优点：解决了事务并发的幻读问题不足：因为query执行过程中通过范围查找的话，他会锁定争个范围内所有的索引键值，即使这个键值并不存在。<br> 间隙锁有一个致命的弱点，就是当锁定一个范围键值之后，即使某些不存在的键值也会被无辜的锁定，而造成锁定的时候无法插入锁定键值范围内任何数据。在某些场景下这可能会对性能造成很大的危害。</p>
+</li>
+<li><p><strong>Next-key Lock 锁</strong></p>
+<p> 同时锁住数据+间隙锁(1+2),在Repeatable Read隔离级别下，Next-key Lock</p>
+</li>
+</ol>
+<p>算法是默认的行记录锁定算法。</p>
+<h3 id="表级锁"><a href="#表级锁" class="headerlink" title="表级锁"></a>表级锁</h3><p>表级锁是MySQL中锁定粒度最大的一种锁，表示对当前操作的整张表加锁，它实现简单，资源消耗较少，被大部分MySQL引擎支持。最常使用的MYISAM与INNODB都支持表级锁定。表级锁定分为<strong>表共享读锁（共享锁）</strong>与<strong>表独占写锁（排他锁）</strong>。</p>
+<p>特点：开销小，加锁快；不会出现死锁；锁定粒度大，发出锁冲突的概率最高，并发度最低。</p>
+<p>MyISAM默认使用表级锁</p>
+<ul>
+<li><p>读锁（read lock），也叫共享锁（shared lock）针对同一份数据，多个读操作可以同时进行而不会互相影响（select）</p>
+</li>
+<li><p>写锁（write lock），也叫排他锁（exclusive lock）当前操作没完成之前，会阻塞其它读和写操作（update、insert、delete）</p>
+</li>
+<li><p>意向共享锁（IS）：一个事务给一个数据行加共享锁时，必须先获得表的IS锁</p>
+</li>
+<li><p>意向排它锁（IX）：一个事务给一个数据行加排他锁时，必须先获得该表的IX锁</p>
+</li>
+</ul>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278200896050.jpg"></p>
+<p>读锁会阻塞写，但不会阻塞读。而写锁则会把读和写都阻塞。</p>
+<h4 id="表锁分析："><a href="#表锁分析：" class="headerlink" title="表锁分析："></a>表锁分析：</h4><p>查看哪些表被锁了：show open tables;</p>
+<p>分析表锁定：show status like &#39;table%&#39;;</p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278201278425.jpg"></p>
+<h3 id="页锁"><a href="#页锁" class="headerlink" title="页锁"></a>页锁</h3><p>开销和加锁时间介于行锁和表锁之间，会出现死锁，锁定粒度介于行锁和表锁之间，并发度一般。</p>
+<h3 id="Innodb中的行锁与表锁"><a href="#Innodb中的行锁与表锁" class="headerlink" title="Innodb中的行锁与表锁"></a>Innodb中的行锁与表锁</h3><p>InnoDB行锁是通过给索引上的索引项加锁来实现的，所以只有通过索引条件检索数据，InnoDB才使用行级锁，否则，InnoDB将使用表锁！(索引失效，行锁变表锁)</p>
+<p>当两个事务同时执行，一个锁住了主键索引在等待其他相关索引，一个锁定了非主键索引，在等待主键索引。这样就会发生死锁。</p>
+<p>发生死锁后，InnoDB一般都可以检测到，并使一个事务释放锁回退，另一个获取锁完成事务。</p>
+<p><strong>有多种方法可以避免死锁，这里只介绍常见的三种</strong></p>
+<pre><code>1. 如果不同程序会并发存取多个表，尽量约定以相同的顺序访问表，可以大大降低死锁机会。
+
+2. 在同一个事务中，尽可能做到一次锁定所需要的所有资源，减少死锁产生概率；
+
+3. 对于非常容易产生死锁的业务部分，可以尝试使用升级锁定颗粒度，通过表级锁定来减少死锁产生的概率；
+</code></pre>
+<h3 id="MySQL中的共享锁与排他锁"><a href="#MySQL中的共享锁与排他锁" class="headerlink" title="MySQL中的共享锁与排他锁"></a>MySQL中的共享锁与排他锁</h3><h4 id="共享锁-Share-Lock"><a href="#共享锁-Share-Lock" class="headerlink" title="共享锁(Share Lock)"></a>共享锁(Share Lock)</h4><p>共享锁又称为读锁，是读取操作创建的锁。其他用户可以并发读取数据，但任何事物都不能对数据进行修改，直到已释放所有共享锁。</p>
+<ul>
+<li>显式加锁 锁行：SELECT ... LOCK IN SHARE MODE; 锁表：LOCK TABLE XXX READ;(解锁UNLOCK TABLES)</li>
+</ul>
+<h4 id="排他锁（Exclusive-Lock）"><a href="#排他锁（Exclusive-Lock）" class="headerlink" title="排他锁（Exclusive Lock）"></a>排他锁（Exclusive Lock）</h4><p>排他锁又称写锁，如果事务T对数据A加上排他锁后，则其他事务不能再对A加任任何类型的读写。获准排他锁的事务既能读数据，又能修改数据。</p>
+<ul>
+<li>显式加锁 锁行：SELECT ... FOR UPDATE; 锁表：LOCK TABLE XXX WRITE;(解锁UNLOCK TABLES)</li>
+</ul>
+<h3 id="InnoDB的间隙锁："><a href="#InnoDB的间隙锁：" class="headerlink" title="InnoDB的间隙锁："></a>InnoDB的间隙锁：</h3><ul>
+<li>当我们用范围条件而不是相等条件检索数据，并请求共享或排他锁时，InnoDB会给符合条件的已有数据记录的索引项加锁；对于键值在条件范围内但并不存在的记录，叫做”间隙（GAP)”，InnoDB也会对这个”间隙”加锁，这种锁机制就是所谓的间隙锁（Next-Key锁）。</li>
+</ul>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278202632410.jpg"></p>
+<h3 id="深入理解乐观锁与悲观锁"><a href="#深入理解乐观锁与悲观锁" class="headerlink" title="深入理解乐观锁与悲观锁"></a>深入理解乐观锁与悲观锁</h3><pre><code>乐观并发控制(乐观锁)和悲观并发控制（悲观锁）是并发控制主要采用的技术手段。
+</code></pre>
+<h4 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h4><p>通过开启排他锁的方式实现了悲观锁</p>
+<h4 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h4><p>实现数据版本有两种方式，第一种是使用版本号，第二种是使用时间戳。</p>
+<h3 id="深入分析事务的隔离级别"><a href="#深入分析事务的隔离级别" class="headerlink" title="深入分析事务的隔离级别"></a>深入分析事务的隔离级别</h3><h4 id="未提交读-Read-uncommitted"><a href="#未提交读-Read-uncommitted" class="headerlink" title="未提交读(Read uncommitted)"></a>未提交读(Read uncommitted)</h4><p>读未提交是最低级的隔离级别。在这种事物隔离级别下，一个事务可以读到另一个事务未提交数据。</p>
+<h4 id="未提交读会导致脏读"><a href="#未提交读会导致脏读" class="headerlink" title="未提交读会导致脏读"></a>未提交读会导致脏读</h4><p>未提交读的数据库锁情况（实现原理） 事务在读数据的时候并未对数据加锁。<br>事务在修改数据的时候只对数据增加行级共享锁。</p>
+<h4 id="提交读-Read-committed"><a href="#提交读-Read-committed" class="headerlink" title="提交读(Read committed)"></a>提交读(Read committed)</h4><p>在一个事务修改数据过程中，如果事务还没提交，其他事务不能读该数据。</p>
+<p><strong>提交读不能解决不可重复读的读现象（重复读数据会变化）</strong></p>
+<p><strong>提交读的数据库锁情况</strong> 事务对当前被读取的数据加行级共享锁（当读到时才加锁），一旦读完该行，立即释放该行级共享锁；<br>事务在更新某数据的瞬间（就是发生更新的瞬间），必须先对其加行级排他锁，直到事务结束才释放。</p>
+<h4 id="可重复读-Repeatable-reads"><a href="#可重复读-Repeatable-reads" class="headerlink" title="可重复读(Repeatable reads)"></a>可重复读(Repeatable reads)</h4><p>这种隔离级别就叫可重复读（mysql默认隔离级别）</p>
+<p><strong>可重复读不能解决幻读</strong></p>
+<h5 id="MySQL如何解决幻读？"><a href="#MySQL如何解决幻读？" class="headerlink" title="MySQL如何解决幻读？"></a>MySQL如何解决幻读？</h5><p>SERIALIZABLE 串行化</p>
+<p>MVCC + Next-Key Lock</p>
+<p><strong>可重复读的数据库锁情况</strong><br>事务在读取某数据的瞬间（就是开始读取的瞬间），必须先对其加行级共享锁，直到事务结束才释放；<br>事务在更新某数据的瞬间（就是发生更新的瞬间），必须先对其加行级排他锁，直到事务结束才释放。</p>
+<h4 id="可序列化-Serializable"><a href="#可序列化-Serializable" class="headerlink" title="可序列化(Serializable)"></a>可序列化(Serializable)</h4><p>可序列化(Serializable)是最高的隔离级别，前面提到的所有的隔离级别都无法解决的幻读，在可序列化的隔离级别中可以解决。</p>
+<p><strong>可序列化的数据库锁情况</strong><br>事务在读取数据时，必须先对其加 表级共享锁，直到事务结束才释放； 事务在更新数据时，必须先对其加 表级排他锁，直到事务结束才释放。</p>
+<h2 id="MySQL性能优化"><a href="#MySQL性能优化" class="headerlink" title="MySQL性能优化"></a>MySQL性能优化</h2><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278204036880.jpg"></p>
+<h3 id="单条SQL运行慢"><a href="#单条SQL运行慢" class="headerlink" title="单条SQL运行慢"></a>单条SQL运行慢</h3><h4 id="创建并正确使用索引"><a href="#创建并正确使用索引" class="headerlink" title="创建并正确使用索引"></a>创建并正确使用索引</h4><h4 id="数据拆分"><a href="#数据拆分" class="headerlink" title="数据拆分"></a>数据拆分</h4><ol>
+<li><p>垂直拆分：常用字段、不常用字段拆分</p>
+</li>
+<li><p>水平拆分：一张表的数据拆分成多张表存放</p>
+</li>
+</ol>
+<h3 id="部分SQL运行慢"><a href="#部分SQL运行慢" class="headerlink" title="部分SQL运行慢"></a>部分SQL运行慢</h3><h4 id="慢查询分析：开启慢查询日志，分析日志进行优化"><a href="#慢查询分析：开启慢查询日志，分析日志进行优化" class="headerlink" title="慢查询分析：开启慢查询日志，分析日志进行优化"></a>慢查询分析：开启慢查询日志，分析日志进行优化</h4><ul>
+<li>查询是否开启慢查询日志 SHOW VARIABLES LIKE &quot;%slow_query_log%&quot;;</li>
+<li>开启慢查询日志(重启失效) SET GLOBAL slow_query_log&#x3D;1;</li>
+<li>查询慢查询时间阈值 show VARIABLES LIKE &quot;%long_query_time%&quot;;</li>
+<li>设置慢查询时间阈值(重启失效，需要重新开启一个会话才生效) SET GLOBAL long_query_time&#x3D;3; </li>
+<li>慢查询次数 show GLOBAL STATUS LIKE &#39;%Slow_queries%&#39;;</li>
+</ul>
+<h4 id="使用mysqldumpslow做日志分析："><a href="#使用mysqldumpslow做日志分析：" class="headerlink" title="使用mysqldumpslow做日志分析："></a>使用mysqldumpslow做日志分析：</h4><ul>
+<li><p>s：是表示按照何种顺序排序</p>
+</li>
+<li><p>c：访问次数</p>
+</li>
+<li><p>l：锁定时间</p>
+</li>
+<li><p>r：返回记录</p>
+</li>
+<li><p>t：查询时间</p>
+</li>
+<li><p>al：平均锁定时间</p>
+</li>
+<li><p>ar：平均返回记录数</p>
+</li>
+<li><p>at：平均查询时间</p>
+</li>
+<li><p>t：即为返回前面多少条数据</p>
+</li>
+<li><p>g：后边搭配正则表达式，大小写不敏感</p>
+<ol>
+<li>得到返回记录集最多的10个SQL mysqldumpslow -s r -t 10 &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;xxx-slow.log </li>
+<li>得到访问次数最多的10个SQL mysqldumpslow -s c -t 10 &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;xxx-slow.log</li>
+<li>得到按照时间排序的前10条里面含有左连接的查询语句 mysqldumpslow -s t -t 10 -g &quot;left join&quot; &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;xxx-slow.log</li>
+<li>另外建议在使用这些命令时结合 | more使用，避免有太多数据 mysqldumpslow -s r -t 10 &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;xxx-slow.log | more</li>
+</ol>
+</li>
+</ul>
+<h4 id="使用show-profile分析SQL："><a href="#使用show-profile分析SQL：" class="headerlink" title="使用show profile分析SQL："></a>使用show profile分析SQL：</h4><ul>
+<li>查询是否开启 SHOW VARIABLES LIKE &#39;profiling&#39;; #开启 SET profiling&#x3D;on;</li>
+<li>查询最近执行sql语句(查询) show PROFILES; #查询某一条sql执行过程 show PROFILE cpu,block io for query 26;</li>
+</ul>
+<h4 id="全局日志查询："><a href="#全局日志查询：" class="headerlink" title="全局日志查询："></a>全局日志查询：</h4><pre><code>开启全局日志 SET GLOBAL general_log=1; 
+记录在表中 SET GLOBAL log_output=\&#39;TABLE\&#39;; 
+查询日志 SELECT \* FROM mysql.general_log;
+</code></pre>
+<h3 id="整个SQL运行慢"><a href="#整个SQL运行慢" class="headerlink" title="整个SQL运行慢"></a>整个SQL运行慢</h3><h4 id="读写分离："><a href="#读写分离：" class="headerlink" title="读写分离："></a>读写分离：</h4><ol>
+<li><p>应用层解决方案：通过应用层对数据源做路由来实现读写分离。</p>
+</li>
+<li><p>中间件解决方案：通过 MySQL 的中间件做主从集群。</p>
+</li>
+</ol>
+<h4 id="EXPLAIN命令："><a href="#EXPLAIN命令：" class="headerlink" title="EXPLAIN命令："></a>EXPLAIN命令：</h4><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278230182764.jpg"></p>
+<ul>
+<li><p><strong>id：相同按顺序执行，不同id越大优先级越高，越先执行</strong></p>
+</li>
+<li><p><strong>select_type:</strong></p>
+<ul>
+<li><p><strong>SIMPLE：简单的select查询，查询中不包含子查询或者union</strong></p>
+</li>
+<li><p><strong>PRIMARY：查询中若包含任何复杂的子部分，最外层查询则被标记为PRIMARY</strong></p>
+</li>
+<li><p><strong>SUBQUERY：在select或where列表中包含了子查询</strong></p>
+</li>
+<li><p><strong>DERIVED：在from列表中包含子查询被标记为derived（衍生），MySQL会递归执行这些子查询，把结果放在临时表中</strong></p>
+</li>
+<li><p><strong>UNION：使用了UNION，第二个select则被标记为UNION，若UNION包含在FROM子查询中，外层SELECT将被标记为：DERIVED</strong></p>
+</li>
+<li><p><strong>UNION RESULT：使用UNION获取结果的查询</strong></p>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278230552996.jpg"></p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278230650553.jpg"></p>
+<ul>
+<li><p><strong>table：表名</strong></p>
+</li>
+<li><p><strong>partitions：表分区</strong></p>
+</li>
+<li><p><strong>type：表示查询类型，从最好到最差：system&gt;const&gt;eq_ref&gt;ref&gt;range&gt;index&gt;ALL</strong></p>
+<ul>
+<li><p><strong>system：表示只有一行记录（等于系统表），这是const类型的特例，平时不会出现，这个可以忽略不计</strong></p>
+</li>
+<li><p><strong>const：表示通过索引一次就找到了，const出现在primary key或者unique索引，因为只匹配一条数据，所以很快，如将主键置于WHERE条件中查询，MYSQL就能将改查询转换为一个常量</strong></p>
+</li>
+<li><p><strong>eq_ref：唯一性索引扫描，常见于主键或唯一索引扫描</strong></p>
+</li>
+<li><p><strong>ref：非唯一性索引扫描，返回匹配某个单独值的所有行</strong></p>
+</li>
+<li><p><strong>range：检索指定范围的行，使用一个索引来选择行。key列显示使用了哪个索引，一般出现在where中使用between,&lt;,&gt;,in等范围查询</strong></p>
+</li>
+<li><p><strong>index：全索引扫描，index和all的区别为index类型只遍历索引树。这通常比all快，因为索引文件通常比数据文件小。</strong></p>
+</li>
+<li><p><strong>all：全表扫描，性能最差</strong></p>
+</li>
+</ul>
+</li>
+<li><p><strong>possible_key：可能使用的索引</strong></p>
+</li>
+<li><p><strong>key：实际使用的索引，查询中若使用了覆盖索引，则该索引仅出现在key列表中。（覆盖索引：查询的是索引字段）</strong></p>
+</li>
+<li><p><strong>key_len：表示索引中使用的字节数，长度越短越好</strong></p>
+</li>
+<li><p><strong>ref：显示索引的哪一列被使用了，列与索引的比较</strong></p>
+</li>
+<li><p><strong>rows：根据表统计信息及索引选用情况，大致估算出找到所需的记录所需要读取的行数</strong></p>
+</li>
+<li><p><strong>Extra：额外信息</strong></p>
+<ul>
+<li><p><strong>Using filesort：说明mysql会对数据使用一个外部的索引排序，而不是按照表内的索引顺序进行读取。MYSQL中无法利用索引完成的排序操作称为”文件排序”。</strong></p>
+</li>
+<li><p>**Using temporary：使用了临时表保存中间结果，MySQL在对查询结果排序时使用临时表。常见于排序order</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>by和分组查询group by**</p>
+<pre><code>* **Using Index：表示相应的select操作中使用了覆盖索引（Covering Index），避免访问了表的数据行，效率不错,如果同时出现了using where，表明索引被用来执行索引键值查找。如果没有同时出现using where，表明索引用来读取数据而非执行查找动作。**
+
+* **Using where：使用where子句**
+
+* **Using join buffer： 使用了连接缓存**
+
+* **Using impossible where：表示where子句总是false，查询不到任何数据**
+
+* **select tables optimized away：在没有group by子句的情况下基于索引优化MIN/MAX；对于MYISAM储存引擎优化COUNT(\*)操作，不必等到执行阶段再计算，查询执行计划生成的阶段即完成优化。**
+
+* **distinct：优化distinct操作，在找到第一匹配的元组后即停止查找同样值的动作**
+</code></pre>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278232895825.jpg"></p>
+<h2 id="高频面试题"><a href="#高频面试题" class="headerlink" title="高频面试题"></a>高频面试题</h2><h3 id="什么是索引"><a href="#什么是索引" class="headerlink" title="什么是索引"></a>什么是索引</h3><p>索引是一种数据结构，可以帮助我们快速进行数据查找。</p>
+<h3 id="索引是个什么样的数据结构"><a href="#索引是个什么样的数据结构" class="headerlink" title="索引是个什么样的数据结构"></a>索引是个什么样的数据结构</h3><p>索引的数据结构和具有储存引擎的实现有关，在MySQL中使用较多的索引有Hash索引，B+树索引等，而我们经常使用的InnoDB存储引擎的默认索引实现为：B+树索引。</p>
+<h3 id="Hash索引和B-树索引有什么区别或者说优劣"><a href="#Hash索引和B-树索引有什么区别或者说优劣" class="headerlink" title="Hash索引和B+树索引有什么区别或者说优劣"></a>Hash索引和B+树索引有什么区别或者说优劣</h3><p>hash索引底层就是hash表，进行查找时，调用一次hash函数就可以获取到相应的键值，之后进行回表查询获得实际数据；</p>
+<p>B+的底层现实是多路平衡查找树，对于每一次查询都是从根节点出发，查找叶子节点方可以获取的所查键值，然后根据查询判断是否需要回表查询数据。</p>
+<h4 id="不同："><a href="#不同：" class="headerlink" title="不同："></a>不同：</h4><p>hash索引进行等值查询(where xx&#x3D;xx)更快（一般情况下），但是却无法进行范围查询(模糊查询...)。</p>
+<p>因为在hash索引中经过hash函数建立索引之后，索引的顺序与原顺序无法保持一致，不能支持范围查询，而B+树的所有节点皆遵循（左节点小于父节点，右节点大于父节点，多叉树也类似），天然支持范围查询。</p>
+<p>hash索引不支持使用索引排序，原理同上。</p>
+<p>hash索引不支持模糊查询以及多列索引的最左前缀原则，原理也是因为hash函数的不可预测AAAA和AAAAB的索引没有相关性。</p>
+<p>hash索引任何时候都避免不了回表查询数据，而B+树索引在符合某些条件下(聚簇索引，覆盖索引等)的时候可以只通过索引完成查询。</p>
+<p>hash索引在等值查询上较快，但是不稳定，性能不可预测，当某个键值存在大量重复的时候，发生hash碰撞，此时效率可能极差，而B+树的查询比较稳定，对于所有查询都是从根节点到叶子节点，而树的高度较低。</p>
+<p><strong>因此，在大多数情况下，直接使用B+树索引可以获得稳定且较好的查询速度，而不需要使用hash索引。</strong></p>
+<h3 id="什么是聚簇索引"><a href="#什么是聚簇索引" class="headerlink" title="什么是聚簇索引"></a>什么是聚簇索引</h3><p>在B+树的索引中，叶子节点可能存储了当前的key值，也可能存储了当前的key值以及整行数据，这就是聚簇索引和非聚簇索引。</p>
+<p>在InnoDB中，只有主键索引是聚簇索引，如果没有主键，则挑选一个唯一键建立聚簇索引，如果没有唯一键，则隐式的生成一个键来建立聚簇索引。</p>
+<p><strong>当查询使用聚簇索引时，在对应的叶子节点，可以获取整行数据，因此不用再次进行回表查询。</strong></p>
+<h3 id="非聚簇索引一定要回表查询？"><a href="#非聚簇索引一定要回表查询？" class="headerlink" title="非聚簇索引一定要回表查询？"></a>非聚簇索引一定要回表查询？</h3><p>不一定，这涉及到查询语句所要求的字段是否全部命中了索引，那么就不必再进行回表查询。</p>
+<p>select age from employee where age &lt;<br>20;在age字段建立索引，查询age，无需回表查询，在索引的叶子节点上，已经包含了age信息。</p>
+<h3 id="在建立索引的时候，都需要考虑哪些因素"><a href="#在建立索引的时候，都需要考虑哪些因素" class="headerlink" title="在建立索引的时候，都需要考虑哪些因素"></a>在建立索引的时候，都需要考虑哪些因素</h3><p>字段使用的频率。经常作为条件进行查询的字段比较合适，如果需要建立联合索引的话，还需要考虑联合索引的顺序。</p>
+<h3 id="联合索引是什么？为什么需要注意联合索引中的顺序？"><a href="#联合索引是什么？为什么需要注意联合索引中的顺序？" class="headerlink" title="联合索引是什么？为什么需要注意联合索引中的顺序？"></a>联合索引是什么？为什么需要注意联合索引中的顺序？</h3><p>mysql可以使用多个字段同时建立一个索引，叫做联合索引，在联合索引中，如果想要命中索引，需要按照建立索引时的顺序挨个使用，否则无法命中索引。</p>
+<h3 id="怎么知道索引是否被使用？或者说怎么才能知道sql执行慢的原因？"><a href="#怎么知道索引是否被使用？或者说怎么才能知道sql执行慢的原因？" class="headerlink" title="怎么知道索引是否被使用？或者说怎么才能知道sql执行慢的原因？"></a>怎么知道索引是否被使用？或者说怎么才能知道sql执行慢的原因？</h3><p>explain查看执行计划。</p>
+<h3 id="什么时候索引会失效"><a href="#什么时候索引会失效" class="headerlink" title="什么时候索引会失效"></a>什么时候索引会失效</h3><ol>
+<li><p>使用不等号查询</p>
+</li>
+<li><p>列参与了数学运算或者函数</p>
+</li>
+<li><p>like &#39;%xxx&#39;</p>
+</li>
+<li><p>当mysql分析全表扫描比使用索引快的时候</p>
+</li>
+<li><p>当使⽤联合索引,前⾯⼀个条件为范围查询,后⾯的即使符合最左前缀原则,也⽆法使⽤索引</p>
+</li>
+</ol>
+<h3 id="索引有什么劣势"><a href="#索引有什么劣势" class="headerlink" title="索引有什么劣势"></a>索引有什么劣势</h3><ol>
+<li><p>实际上索引也是张表，该表保存了主键和索引字段，并指向实体表记录，所以索引也是要占用空间的。</p>
+</li>
+<li><p>虽然索引大大的提高查询速度，如对表进行INSERT、UPDATE和DELETE。因为更新表时，MYSQL不仅要保存数据，还要保存一下索引文件每次更新添加了索引类的字段，都会调整因为更新所带来的键值变化后的索引信息。</p>
+</li>
+</ol>
+<h4 id="表结构设计"><a href="#表结构设计" class="headerlink" title="表结构设计"></a>表结构设计</h4><p><strong>尽量设置一个主键</strong></p>
+<p><strong>主键使用自增ID</strong></p>
+<p><strong>字段不要定义为null</strong></p>
+<p><strong>存储密码使用char而不是使用varchar</strong></p>
+<h3 id="存储引擎相关"><a href="#存储引擎相关" class="headerlink" title="存储引擎相关"></a>存储引擎相关</h3><h4 id="MySQL支持哪些存储引擎"><a href="#MySQL支持哪些存储引擎" class="headerlink" title="MySQL支持哪些存储引擎"></a>MySQL支持哪些存储引擎</h4><p>InnoDB、MyISAM等等。</p>
+<h4 id="InnoDB和MyISAM的区别"><a href="#InnoDB和MyISAM的区别" class="headerlink" title="InnoDB和MyISAM的区别"></a>InnoDB和MyISAM的区别</h4><ol>
+<li><p>InnoDB支持事务MyISAM不支持。</p>
+</li>
+<li><p>InnoDB支持行级锁，而MyISAM只支持表级锁</p>
+</li>
+<li><p>InnoDB支持MVCC，MyISAM不支持</p>
+</li>
+<li><p>InnoDB支持外键，MyISAM不支持</p>
+</li>
+<li><p>InnoDB不支持全文索引，而MyISAM支持</p>
+</li>
+</ol>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278234762821.jpg"></p>
+<h3 id="零散问题"><a href="#零散问题" class="headerlink" title="零散问题"></a>零散问题</h3><h4 id="MySQL中varchar和char的区别"><a href="#MySQL中varchar和char的区别" class="headerlink" title="MySQL中varchar和char的区别"></a>MySQL中varchar和char的区别</h4><p>char是一个定长字段，假如申请了char(10)的空间，那么无论实际存储多少内容，该字段都占用10个字符；</p>
+<p>而varchar是变长的，也就是说申请的只是最大长度，占用空间为实际字符长度+1，最后一个字符存储使用了多长空间</p>
+<p>在检索效率上，char&gt;varchar，所以如果确定某个字段是定长的，可以使用char，否则尽量使用varchar。例如MD5密码，则应该使用char。</p>
+<h4 id="varchar-10-和int-10-的区别"><a href="#varchar-10-和int-10-的区别" class="headerlink" title="varchar(10)和int(10)的区别"></a>varchar(10)和int(10)的区别</h4><p>varchar的10代表了申请的空间⻓度,也是可以存储的数据的最⼤⻓度,⽽int的10只是代表了展⽰的⻓度,不⾜10位以0填充。</p>
+<p>也就是说,int(1)和int(10)所能存储的数字⼤⼩以及占⽤的空间都是相同的,只是在展⽰时按照⻓度展⽰。</p>
+<h4 id="MySQL的binlog有几种录入格式？"><a href="#MySQL的binlog有几种录入格式？" class="headerlink" title="MySQL的binlog有几种录入格式？"></a>MySQL的binlog有几种录入格式？</h4><p>1）statement：</p>
+<p>2）row：</p>
+<p>3）mixed：</p>
+<h4 id="超大分页怎么处理？"><a href="#超大分页怎么处理？" class="headerlink" title="超大分页怎么处理？"></a>超大分页怎么处理？</h4><p>select * from table where age &gt; 20 limit 1000000,10</p>
+<p>select * from table where id in (select id from table where age &gt; 20<br>limit 1000000,10)</p>
+<p>同时如果ID连续的好,我们还可以 select * from table where id &gt; 1000000<br>limit 10</p>
+<h4 id="数据库三大范式"><a href="#数据库三大范式" class="headerlink" title="数据库三大范式"></a>数据库三大范式</h4><ul>
+<li><p>第一范式：每个列都不可拆分。</p>
+</li>
+<li><p>第二范式：非主键列完全依赖于主键，而不能是依赖于主键的一部分。</p>
+</li>
+<li><p>第三范式：非主键只依赖于主键，不依赖于其他非主键。</p>
+</li>
+</ul>
+<p><strong>在设计数据库结构式，要尽量遵守三范式，如果不遵守，必须有足够的理由。</strong></p>
+<h2 id="MySQL读写分离"><a href="#MySQL读写分离" class="headerlink" title="MySQL读写分离"></a>MySQL读写分离</h2><h3 id="如何实现MySQL的读写分离"><a href="#如何实现MySQL的读写分离" class="headerlink" title="如何实现MySQL的读写分离"></a>如何实现MySQL的读写分离</h3><p>一个主库，多个从库。在主库写，然后主库会自动把数据同步到从库。</p>
+<h3 id="MySQL主从复制的原理"><a href="#MySQL主从复制的原理" class="headerlink" title="MySQL主从复制的原理"></a>MySQL主从复制的原理</h3><p>主库将变更写入binlog日志，然后从库连接主库后，从库有一个IO线程，将主库的binlog日志拷贝到自己本地，写入一个relay中继日志中。接着从库中有一个SQL线程会从中继日志中读取binlog，然后执行binlog日志中的内容，也就是在自己本地执行一遍SQL，</p>
+<p>这样就可以保证主从一致。</p>
+<h3 id="从库执行SQL是串行的，高并发下会有延迟问题"><a href="#从库执行SQL是串行的，高并发下会有延迟问题" class="headerlink" title="从库执行SQL是串行的，高并发下会有延迟问题"></a>从库执行SQL是串行的，高并发下会有延迟问题</h3><p><strong>MySQL主从同步延时问题</strong></p>
+<ol>
+<li><p>分库，将一个主库拆分为多个从库。</p>
+</li>
+<li><p>打开MySQL支持的并行复制。</p>
+</li>
+<li><p>重写代码，不要在写入之后马上查询。</p>
+</li>
+<li><p>如果必须要写入之后马上查询，对这个查询设置直连数据库。</p>
+</li>
+</ol>
+<h2 id="MySQL优化"><a href="#MySQL优化" class="headerlink" title="MySQL优化"></a>MySQL优化</h2><p>【优化总结口诀】</p>
+<p>全值匹配我最爱，最左前缀要遵守；</p>
+<p>带头大哥不能死，中间兄弟不能断；</p>
+<p>索引列上少计算，范围之后全失效；</p>
+<p>Like百分写最右，覆盖索引不写星；</p>
+<p>不等空值还有or，索引失效要少用；</p>
+<p>VARCHAR引号不可丢，SQL高级也不难！</p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278235835760.jpg"></p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278235919541.jpg"></p>
+<p> EXPLAIN</p>
+<ol>
+<li><p>SQL语句中IN包含的值不应过多</p>
+</li>
+<li><p>SELECT语句务必指明字段名称</p>
+</li>
+<li><p>当只需要一条数据的时候，使用limit 1</p>
+</li>
+<li><p>如果排序字段没有用到索引，就尽量少排序</p>
+</li>
+<li><p>如果限制条件中其他字段没有索引，尽量少用or</p>
+</li>
+<li><p>尽量用union all代替union</p>
+</li>
+<li><p>区分in和exists、not in和not exists(小表驱动大表)</p>
+</li>
+<li><p>B为小表：select * from 表A where id in (select id from 表B)</p>
+<p>A为小表：select * from 表A where exists(select * from 表B where 表B.id&#x3D;表A.id)</p>
+</li>
+<li><p>使用合理的分页方式以提高分页效率</p>
+<p> select id,name from product limit 866613, 20;</p>
+<p> 优化方法：可以将上一页排序字段最大值作为下一页的起点。</p>
+<p> select id,name from product where id&gt; 866612 limit 20;</p>
+</li>
+<li><p>分段查询</p>
+<p>分段查询，最终合并输出。</p>
+</li>
+<li><p>避免在where子句中进行null值判断</p>
+</li>
+<li><p>不建议使用%前缀模糊查询</p>
+<p>例如 LIKE &#39;%name%&#39;</p>
+</li>
+</ol>
+<p> <strong>解决办法：</strong></p>
+<pre><code>1. 使用全文索引:
+
+    创建全文索引SQL：ALTER TABLE \`dynamic_201606\` ADD FULLTEXT INDEX \`idx_user_name\` (\`user_name\`);
+
+    使用全文索引SQL：select id,fnum,fdst from dynamic_201606 where match(user_name) against(\&#39;zhangsan\&#39; in boolean mode);
+
+2. 使用覆盖索引：查询的字段建立索引
+</code></pre>
+<ol start="13">
+<li><p>避免在where子句中对字段进行表达式操作</p>
+</li>
+<li><p>避免进行隐式转换（字符串不加单引号导致索引失效）</p>
+<p>SELECT * FROM table WHERE type&#x3D;1;（type为varchar）</p>
+</li>
+<li><p>对于联合索引，要遵守最左前缀原则</p>
+<p>举例来说联合索引含有字段id,name,school，可以直接用id字段，也可以id,name这样的顺序，name,school无法使用这个索引,id,school只能使用id索引。（必须是连续的，中间不能断，WHERE子句中MYSQL优化器会优化顺序）。</p>
+</li>
+<li><p>注意范围查询语句</p>
+<p>对于联合索引，如果存在范围查询，比如between、&gt;、&lt;等条件，会造成后面索引字段失效。</p>
+</li>
+<li><p>关于join优化</p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278239298268.jpg"></p>
+<p>1）MySQL没有full join,可以使用union来实现。</p>
+<p>2）尽量使用inner join，因为inner join会自动选择小表作为驱动表。</p>
+<p>3）合理运用索引</p>
+<p>4）利用小表去驱动大表。</p>
+<p>5）巧用STRAIGHT_JOIN：只能在inner join下使用,STRAIGHT_JOIN左边表为驱动表。</p>
+</li>
+<li><p>ORDER BY优化：（MYSQL支持两种排序方式，filesort和Index）</p>
+<ul>
+<li><p>ORDER BY子句，尽量使用INDEX（索引）方式排序，避免使用filesort方式排序</p>
+</li>
+<li><p>尽可能在索引列上完成排序操作，遵循索引的最左前缀原则</p>
+</li>
+<li><p>ORDER BY子句的列满足索引最左前缀原则</p>
+</li>
+<li><p>WHERE子句列和ORDER BY子句列满足索引最左前缀原则</p>
+</li>
+<li><p>无法使用INDEX，FileSort有两种算法：</p>
+<p>  双路排序</p>
+<p>  单路排序</p>
+</li>
+</ul>
+</li>
+</ol>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278240457240.jpg"></p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278240554561.jpg"></p>
+<ol start="19">
+<li><p>GROUP BY优化：（和order by几乎相同）</p>
+<p>group by的实质是先排序后分组，遵循索引最左前缀原则</p>
+<p>当无法使用索引列，增大max_length_for_sort_data参数的设置+增大sort_buffer_size参数设置</p>
+<p>where优先级高于having，能在where限定的条件就不要用having了</p>
+</li>
+</ol>
+<h2 id="MySQL日志"><a href="#MySQL日志" class="headerlink" title="MySQL日志"></a>MySQL日志</h2><h3 id="MySQL逻辑架构"><a href="#MySQL逻辑架构" class="headerlink" title="MySQL逻辑架构"></a>MySQL逻辑架构</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278241125637.jpg"></p>
+<h4 id="MySQL逻辑架构-1"><a href="#MySQL逻辑架构-1" class="headerlink" title="MySQL逻辑架构"></a>MySQL逻辑架构</h4><p>MySQL的逻辑架构大致可分为三层：</p>
+<p>第一层：处理客户端连接，授权认证，安全校验。</p>
+<p>第二层：服务端server层，负责对SQL解释、分析、优化、执行操作引擎等。</p>
+<p>第三层：存储引擎，负责MySQL中数据的存储和提取。</p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/02/16279033382808.jpg" alt="MySQL数据更新流程"></p>
+<h3 id="MySQL日志-1"><a href="#MySQL日志-1" class="headerlink" title="MySQL日志"></a>MySQL日志</h3><h4 id="redo-log（重做日志）"><a href="#redo-log（重做日志）" class="headerlink" title="redo log（重做日志）"></a>redo log（重做日志）</h4><p><strong>redo log</strong>属于MySQL存储引擎<strong>innoDB</strong>的事务日志。</p>
+<p>MySQL的数据是存放在磁盘中的，每次读写数据都需要做磁盘IO操作，如果并发场景下性能就会很差。为此MySQL提供一个优化手段，引入缓存<strong>buffer pool</strong>。这个缓存中包含了磁盘中部分数据页（<strong>page</strong>）的映射，以此来缓解数据库的磁盘压力。</p>
+<p>当从数据库读数据时，首先从缓存中读取，如果缓存中没有，则从磁盘读取后放入缓存；当向数据库写数据时，先向缓存写入，此时缓存中的数据页变更，这个数据页称为<strong>脏页，buff pool</strong>中修改完数据后会按照设定的更新策略，定期刷到磁盘中，这个过程称为<strong>刷脏页</strong>。</p>
+<h5 id="MySQL宕机"><a href="#MySQL宕机" class="headerlink" title="MySQL宕机"></a>MySQL宕机</h5><p>如果刷脏页还未完成，可MySQL由于某些原因宕机重启，此时<strong>buffer pool</strong>中修改的数据还没有来得及刷到磁盘中，就会导致数据丢失，无法保证事务的持久性。</p>
+<p>为了解决这个问题引入了<strong>redo log</strong>，redo Log如其名侧重于重做！它记录的是数据库中每个页的修改，而不是某一行或某几行修改成怎样，可以用来恢复提交后的物理数据页，且只能恢复到最后一次提交的位置。</p>
+<p><strong>redo log</strong>用到了<strong>WAL（Write-Ahead Logging）</strong>技术，这个技术的核心就在于修改记录前，一定要先写日志，并保证日志先落盘，才能算事务提交完成。</p>
+<p>有了redo log再修改数据时，InnoDB引擎会把更新记录先写在redo log中，在修改<strong>Buffer Pool</strong>中的数据，当提交事务时，调用<strong>fsync</strong>把redo log刷入磁盘。至于缓存中更新的数据文件何时刷入磁盘，则由后台线程异步处理。</p>
+<p><strong>注意：</strong>此时redo log的事务状态为prepare，还未真正提交成功。要等到<strong>bin log</strong>日志写入磁盘完成才变更为<strong>commit</strong>，事务才算真正提交完成。</p>
+<p>这样一来即使刷脏页之前MySQL意外宕机也没关系，只要在重启时解析redo log中更改记录进行重放，重新刷盘即可。</p>
+<p><strong>大小固定</strong></p>
+<p>redo log采用固定大小，循环写入的格式，当redo log写满之后，重新从头开始如此循环写，形成一个环状。</p>
+<p>如此设计的原因：</p>
+<p>因为redo log记录的是数据页上的修改，如果<strong>Buffer Pool</strong>中数据页已经刷磁盘了，那么这些日志记录就失效了，新日志会将这些失效的记录进行覆盖擦除。</p>
+<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/02/16279035166872.jpg"></p>
+<ul>
+<li>图中的<strong>write pos</strong>表示redo log当前记录的日志序列号<strong>LSN</strong>(log sequence number)，写入还未刷盘，循环往后递增；<strong>check point</strong>表示redo log中修改记录已刷入磁盘后的LSN，循环往后递增，这个LSN之前的数据已经全落盘。</li>
+<li><strong>write pos</strong>到<strong>check point</strong>之间的部分是redo log空余的部分（绿色），用来记录新的日志；<strong>check point</strong>到<strong>write pos</strong>之间是redo log已经记录的数据页修改数据，此时数据页还未刷回磁盘的部分。当<strong>write pos</strong>追上<strong>check point</strong>时，会先推动<strong>check point</strong>向前移动，空出位置（刷盘）再记录新的日志。</li>
+</ul>
+<p><strong>注意：</strong><br>redo log日志满了，在擦除之前，需要确保这些要被擦除记录对应在内存中的数据页都已经刷到磁盘中了。擦除旧记录腾出新空间这段期间，是不能再接收新的更新请求的，此刻MySQL的性能会下降。所以在并发量大的情况下，合理调整redo log的文件大小非常重要。</p>
+<blockquote>
+<p>crash-safe<br>因为redo log的存在使得Innodb引擎具有了crash-safe的能力，即MySQL宕机重启，系统会自动去检查redo log，将修改还未写入磁盘的数据从redo log恢复到MySQL中。</p>
+</blockquote>
+<p>MySQL启动时，不管上次是正常关闭还是异常关闭，总是会进行恢复操作。会先检查数据页中的LSN，如果这个LSN 小于 redo log 中的LSN，即write pos位置，说明在redo log上记录着数据页上尚未完成的操作，接着就会从最近的一个check point出发，开始同步数据。</p>
+<p>简单理解，比如：redo log的LSN是500，数据页的LSN是300，表明重启前有部分数据未完全刷入到磁盘中，那么系统则将redo log中LSN序号300到500的记录进行重放刷盘。</p>
+<h4 id="undo-log（回滚日志）"><a href="#undo-log（回滚日志）" class="headerlink" title="undo log（回滚日志）"></a>undo log（回滚日志）</h4><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/02/16279037077440.jpg"></p>
+<p>undo log</p>
+<p><strong>undo log</strong>也是属于MySQL存储引擎InnoDB的事务日志。</p>
+<p>undo log属于逻辑日志，如其名主要起到回滚的作用，它是保证事务原子性的关键。记录的是数据修改前的状态，在数据修改的流程中，同时会记录一条与当前操作相反的逻辑日志到undo log中。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/02/16279037334256.jpg"></p>
+<p>同一个事物内的一条记录被多次修改，不会把每次数据修改前的状态都写入undo log；undo log只负责记录事务开始前要修改数据的原始版本，当我们再次对这行数据进行修改，所产生的修改记录会写入到redo log，undo log负责完成回滚，redo log负责完成前滚。</p>
+<p>回滚</p>
+<p>未提交的事务，即事务未执行commit。但该事务内修改的脏页中，可能有一部分脏块已经刷盘。如果此时数据库实例宕机重启，就需要用回滚来将先前那部分已经刷盘的脏块从磁盘上撤销。</p>
+<p>前滚</p>
+<p>未完全提交的事务，即事务已经执行commit，但该事务内修改的脏页中只有一部分数据被刷盘，另外一部分还在buffer pool缓存上，如果此时数据库实例宕机重启，就需要用前滚来完成未完全提交的事务。将先前那部分由于宕机在内存上的未来得及刷盘数据，从redo log中恢复出来并刷入磁盘。</p>
+<p><strong>数据库实例恢复时，先做前滚，后做回滚。</strong></p>
+<h4 id="bin-log（归档日志）"><a href="#bin-log（归档日志）" class="headerlink" title="bin log（归档日志）"></a>bin log（归档日志）</h4><p><strong>bin log</strong>是一种数据库Server层（和什么引擎无关），以二进制形式存储在磁盘中的逻辑日志。bin log记录了数据库所有DDL和DML操作（不包含 SELECT 和 SHOW等命令，因为这类操作对数据本身并没有修改）。</p>
+<p>默认情况下，二进制日志功能是关闭的。可以通过以下命令查看二进制日志是否开启：</p>
+<p>SHOW VARIABLES LIKE &#39;log_bin&#39;;</p>
+<p>bin log也被叫做归档日志，因为它不会像redo log那样循环写擦除之前的记录，而是会一直记录日志。一个bin log日志文件默认最大容量1G（也可以通过max_binlog_size参数修改），单个日志超过最大值，则会新创建一个文件继续写。</p>
+<p>show binary logs;</p>
+<p>bin log日志的内容格式其实就是执行SQL命令的反向逻辑，这点和undo log有点类似。一般来说开启bin log都会给日志文件设置过期时间（expire_logs_days参数，默认永久保存），要不然日志的体量会非常庞大。</p>
+<p>show variables like &#39;expire_logs_days&#39;;</p>
+<p>bin log主要应用于MySQL主从模式（master-slave）中，主从节点间的数据同步；以及基于时间点的数据还原。</p>
+<p><strong>bin log和redo log的区别</strong></p>
+<ul>
+<li><p>层次不同：redo log 是InnoDB存储引擎实现的，bin log是MySQL的服务器层实现的，但MySQL数据库中的任何存储引擎对于数据库的更改都会产生bin log。</p>
+</li>
+<li><p>作用不同：redo log 用于碰撞恢复（crash recovery），保证MySQL宕机也不会影响持久性；bin log用于时间点恢复（point-in-time recovery），保证服务器可以基于时间点恢复数据和主从复制。</p>
+</li>
+<li><p>内容不同：redo log 是物理日志，内容基于磁盘的页Page；bin log的内容是二进制，可以根据binlog_format参数自行设置。</p>
+</li>
+<li><p>写入方式不同：redo log 采用循环写的方式记录；binlog 通过追加的方式记录，当文件大小大于给定值后，后续的日志会记录到新的文件上。</p>
+</li>
+<li><p>刷盘时机不同：bin log在事务提交时写入；redo log 在事务开始时即开始写入。</p>
+</li>
+</ul>
+<p><strong>bin log 与 redo log功能并不冲突而是起到相辅相成的作用，需要二者同时记录，才能保证当数据库发生宕机重启时，数据不会丢失。</strong></p>
+<p><strong>relay log（中继日志）</strong></p>
+<p>relay log日志文件具有与bin log日志文件相同的格式，从上边MySQL主从复制的流程可以看出，relay log起到一个中转的作用，slave先从主库master读取二进制日志数据，写入从库本地，后续再异步由SQL线程读取解析relay log为对应的SQL命令执行。</p>
+<h4 id="slow-query-log"><a href="#slow-query-log" class="headerlink" title="slow query log"></a>slow query log</h4><p>慢查询日志（slow query log）: 用来记录在 MySQL中执行时间超过指定时间的查询语句，在 SQL<br>优化过程中会经常使用到。通过慢查询日志，我们可以查找出哪些查询语句的执行效率低，耗时严重。</p>
+<p>出于性能方面的考虑，一般只有在排查慢SQL、调试参数时才会开启，默认情况下，慢查询日志功能是关闭的。可以通过以下命令查看是否开启慢查询日志：</p>
+<p>SHOW VARIABLES LIKE &#39;slow_query%&#39;;</p>
+<h4 id="general-query-log"><a href="#general-query-log" class="headerlink" title="general query log"></a>general query log</h4><p>一般查询日志（general query log）：用来记录用户的所有操作，包括客户端何时连接了服务器、客户端发送的所有SQL以及其他事件，比如MySQL服务启动和关闭等等。MySQL服务器会按照它接收到语句的先后顺序写入日志文件。</p>
+<p>由于一般查询日志记录的内容过于详细，开启后 Log文件的体量会非常庞大，所以出于对性能的考虑，默认情况下，该日志功能是关闭的，通常会在排查故障需获得详细日志的时候才会临时开启。</p>
+<p>show variables like &#39;general_log&#39;;</p>
+<h4 id="error-log"><a href="#error-log" class="headerlink" title="error log"></a>error log</h4><p>错误日志（error log）: 应该是 MySQL 中最好理解的一种日志，主要记录 MySQL服务器每次启动和停止的时间以及诊断和出错信息。</p>
+<p>默认情况下，该日志功能是开启的，通过如下命令查找错误日志文件的存放路径。</p>
+<p>SHOW VARIABLES LIKE &#39;log_error&#39;;</p>
+<p><strong>注意：</strong>错误日志中记录的可并非全是错误信息，像 MySQL 如何启动 InnoDB的表空间文件、如何初始化自己的存储引擎，初始化 buffer pool等等，这些也记录在错误日志文件中。</p>
 ]]></content>
       <categories>
         <category>后端</category>
@@ -1498,512 +2004,6 @@ rabbitmq-plugins enable rabbitmq_management
       </tags>
   </entry>
   <entry>
-    <title>MySQL</title>
-    <url>/2021/07/31/MySQL/</url>
-    <content><![CDATA[<h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><pre><code>一个数据库事务通常包含对数据库进行读或写的一个操作序列。它的存在包含有以下两个目的：
-    1. 为数据库操作提供了一个从失败中恢复到正常状态的方法，同时提供了数据库即使在异常状态下仍能保持一致性的方法。
-    2. 当多个应用程序在并发访问数据库时，可以在这些应用程序之间提供一个隔离方法，以防止彼此的操作互相干扰。
-</code></pre>
-<span id="more"></span>
-<h3 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h3><ul>
-<li>原子性（Atomicity）：事务作为一个整体被执行，包含在其中的对数据库的操作要么全部被执行，要么都不执行。</li>
-<li>一致性（Consistency）：事务应确保数据库的状态从一个一致状态转变为另一个一致状态。一致状态的含义是数据库中的数据应满足完整性约束。</li>
-<li>隔离性（Isolation）：多个事务并发执行时，一个事务的执行不应影响其他事务的执行。</li>
-<li>持久性（Durability）：一个事务一旦提交，他对数据库的修改应该永久保存在数据库中。</li>
-</ul>
-<h3 id="数据库的读现象浅析"><a href="#数据库的读现象浅析" class="headerlink" title="数据库的读现象浅析"></a>数据库的读现象浅析</h3><pre><code>&quot;读现象&quot;是多个事务并发执行时，在读取数据方面可能碰到的状况。
-</code></pre>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278197683280.jpg"></p>
-<h4 id="脏读"><a href="#脏读" class="headerlink" title="脏读"></a>脏读</h4><p>脏读又称无效数据的读出，是指在数据库访问中，事务T1将某一值修改，然后事务T2读取该值，此后T1因为某种原因撤销对该值的修改，这就导致了T2所读取到的数据是无效的。</p>
-<p>事务一读取到事务二未提交数据。</p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278197917060.jpg"></p>
-<h4 id="不可重复读"><a href="#不可重复读" class="headerlink" title="不可重复读"></a>不可重复读</h4><p>在一个事务内，多次读同一个数据。在这个事务还没有结束时，另一个事务也访问该同一数据。那么，在第一个事务的两次读数据之间。由于第二个事务的修改，那么第一个事务读到的数据可能不一样，这样就发生了在一个事务内两次读到的数据是不一样的，因此称为不可重复读，即原始读取不可重复。</p>
-<p>在事务二提交之前，事务一不可重复读。</p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278198089221.jpg"></p>
-<h4 id="幻读"><a href="#幻读" class="headerlink" title="幻读"></a>幻读</h4><p>第一个事务对一个表中的数据进行了修改，比如这种修改涉及到表中的”全部数据行”。同时，第二个事务也修改这个表中的数据，这种修改是向表中插入”一行新数据”。那么，以后就会发生操作第一个事务的用户发现表中还有没有修改的数据行，就好象发生了幻觉一样.一般解决幻读的方法是增加范围锁RangeS，锁定检锁范围为只读，这样就避免了幻读。</p>
-<p>返回数据变多，幻读。</p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278198223940.jpg"></p>
-<p>“幻读(phantom read)”是不可重复读(Non-repeatablereads)的一种特殊场景：当事务没有获取范围锁的情况下执行SELECT ... WHERE操作可能会发生”幻影读(phantom read)”。</p>
-<h2 id="Mysql中的行级锁、表级锁、页级锁"><a href="#Mysql中的行级锁、表级锁、页级锁" class="headerlink" title="Mysql中的行级锁、表级锁、页级锁"></a>Mysql中的行级锁、表级锁、页级锁</h2><h3 id="行级锁"><a href="#行级锁" class="headerlink" title="行级锁"></a>行级锁</h3><p>行级锁是Mysql中锁粒度最细的锁，表示只针对当前操作的行为加锁。行级锁能大大减少数据库操作的冲突。其加锁粒度最小，但加锁的开销也最大。行级锁分为共享锁和排他锁。</p>
-<p>特点：开销大，加锁慢；会出现死锁；锁粒度最小，发生锁冲突的概率最低，并发度也最高。</p>
-<p>Innodb默认使用行级锁</p>
-<ul>
-<li>读锁（read lock）：也叫共享锁（shared lock），允许一个事务去读一行，阻止其他事务获得相同数据集的排他锁</li>
-<li>写锁（write lock）：也叫排他锁（exclusive lock），允许获得排他锁的事务更新数据，阻止其他事务取得相同数据集的共享锁和排他锁</li>
-</ul>
-<h4 id="行锁的实现算法"><a href="#行锁的实现算法" class="headerlink" title="行锁的实现算法"></a>行锁的实现算法</h4><ol>
-<li><p><strong>Record Lock 锁</strong></p>
-<p>单个行记录上的锁Record<br>Lock总是会去锁住索引记录，如果InnoDB存储引擎表建立的时候没有设置任何一个索引，这时InnoDB存储引擎会使用隐式的主键来进行锁定</p>
-</li>
-<li><p><strong>Gap Lock 锁</strong></p>
-<p> 当我们用范围条件而不是相等条件检索数据，并请求共享或排他锁时，InnoDB会给符合条件的已有数据记录的索引加锁，对于键值在条件范围内但并不存在的记录。<br> 优点：解决了事务并发的幻读问题不足：因为query执行过程中通过范围查找的话，他会锁定争个范围内所有的索引键值，即使这个键值并不存在。<br> 间隙锁有一个致命的弱点，就是当锁定一个范围键值之后，即使某些不存在的键值也会被无辜的锁定，而造成锁定的时候无法插入锁定键值范围内任何数据。在某些场景下这可能会对性能造成很大的危害。</p>
-</li>
-<li><p><strong>Next-key Lock 锁</strong></p>
-<p> 同时锁住数据+间隙锁(1+2),在Repeatable Read隔离级别下，Next-key Lock</p>
-</li>
-</ol>
-<p>算法是默认的行记录锁定算法。</p>
-<h3 id="表级锁"><a href="#表级锁" class="headerlink" title="表级锁"></a>表级锁</h3><p>表级锁是MySQL中锁定粒度最大的一种锁，表示对当前操作的整张表加锁，它实现简单，资源消耗较少，被大部分MySQL引擎支持。最常使用的MYISAM与INNODB都支持表级锁定。表级锁定分为<strong>表共享读锁（共享锁）</strong>与<strong>表独占写锁（排他锁）</strong>。</p>
-<p>特点：开销小，加锁快；不会出现死锁；锁定粒度大，发出锁冲突的概率最高，并发度最低。</p>
-<p>MyISAM默认使用表级锁</p>
-<ul>
-<li><p>读锁（read lock），也叫共享锁（shared lock）针对同一份数据，多个读操作可以同时进行而不会互相影响（select）</p>
-</li>
-<li><p>写锁（write lock），也叫排他锁（exclusive lock）当前操作没完成之前，会阻塞其它读和写操作（update、insert、delete）</p>
-</li>
-<li><p>意向共享锁（IS）：一个事务给一个数据行加共享锁时，必须先获得表的IS锁</p>
-</li>
-<li><p>意向排它锁（IX）：一个事务给一个数据行加排他锁时，必须先获得该表的IX锁</p>
-</li>
-</ul>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278200896050.jpg"></p>
-<p>读锁会阻塞写，但不会阻塞读。而写锁则会把读和写都阻塞。</p>
-<h4 id="表锁分析："><a href="#表锁分析：" class="headerlink" title="表锁分析："></a>表锁分析：</h4><p>查看哪些表被锁了：show open tables;</p>
-<p>分析表锁定：show status like &#39;table%&#39;;</p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278201278425.jpg"></p>
-<h3 id="页锁"><a href="#页锁" class="headerlink" title="页锁"></a>页锁</h3><p>开销和加锁时间介于行锁和表锁之间，会出现死锁，锁定粒度介于行锁和表锁之间，并发度一般。</p>
-<h3 id="Innodb中的行锁与表锁"><a href="#Innodb中的行锁与表锁" class="headerlink" title="Innodb中的行锁与表锁"></a>Innodb中的行锁与表锁</h3><p>InnoDB行锁是通过给索引上的索引项加锁来实现的，所以只有通过索引条件检索数据，InnoDB才使用行级锁，否则，InnoDB将使用表锁！(索引失效，行锁变表锁)</p>
-<p>当两个事务同时执行，一个锁住了主键索引在等待其他相关索引，一个锁定了非主键索引，在等待主键索引。这样就会发生死锁。</p>
-<p>发生死锁后，InnoDB一般都可以检测到，并使一个事务释放锁回退，另一个获取锁完成事务。</p>
-<p><strong>有多种方法可以避免死锁，这里只介绍常见的三种</strong></p>
-<pre><code>1. 如果不同程序会并发存取多个表，尽量约定以相同的顺序访问表，可以大大降低死锁机会。
-
-2. 在同一个事务中，尽可能做到一次锁定所需要的所有资源，减少死锁产生概率；
-
-3. 对于非常容易产生死锁的业务部分，可以尝试使用升级锁定颗粒度，通过表级锁定来减少死锁产生的概率；
-</code></pre>
-<h3 id="MySQL中的共享锁与排他锁"><a href="#MySQL中的共享锁与排他锁" class="headerlink" title="MySQL中的共享锁与排他锁"></a>MySQL中的共享锁与排他锁</h3><h4 id="共享锁-Share-Lock"><a href="#共享锁-Share-Lock" class="headerlink" title="共享锁(Share Lock)"></a>共享锁(Share Lock)</h4><p>共享锁又称为读锁，是读取操作创建的锁。其他用户可以并发读取数据，但任何事物都不能对数据进行修改，直到已释放所有共享锁。</p>
-<ul>
-<li>显式加锁 锁行：SELECT ... LOCK IN SHARE MODE; 锁表：LOCK TABLE XXX READ;(解锁UNLOCK TABLES)</li>
-</ul>
-<h4 id="排他锁（Exclusive-Lock）"><a href="#排他锁（Exclusive-Lock）" class="headerlink" title="排他锁（Exclusive Lock）"></a>排他锁（Exclusive Lock）</h4><p>排他锁又称写锁，如果事务T对数据A加上排他锁后，则其他事务不能再对A加任任何类型的读写。获准排他锁的事务既能读数据，又能修改数据。</p>
-<ul>
-<li>显式加锁 锁行：SELECT ... FOR UPDATE; 锁表：LOCK TABLE XXX WRITE;(解锁UNLOCK TABLES)</li>
-</ul>
-<h3 id="InnoDB的间隙锁："><a href="#InnoDB的间隙锁：" class="headerlink" title="InnoDB的间隙锁："></a>InnoDB的间隙锁：</h3><ul>
-<li>当我们用范围条件而不是相等条件检索数据，并请求共享或排他锁时，InnoDB会给符合条件的已有数据记录的索引项加锁；对于键值在条件范围内但并不存在的记录，叫做”间隙（GAP)”，InnoDB也会对这个”间隙”加锁，这种锁机制就是所谓的间隙锁（Next-Key锁）。</li>
-</ul>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278202632410.jpg"></p>
-<h3 id="深入理解乐观锁与悲观锁"><a href="#深入理解乐观锁与悲观锁" class="headerlink" title="深入理解乐观锁与悲观锁"></a>深入理解乐观锁与悲观锁</h3><pre><code>乐观并发控制(乐观锁)和悲观并发控制（悲观锁）是并发控制主要采用的技术手段。
-</code></pre>
-<h4 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h4><p>通过开启排他锁的方式实现了悲观锁</p>
-<h4 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h4><p>实现数据版本有两种方式，第一种是使用版本号，第二种是使用时间戳。</p>
-<h3 id="深入分析事务的隔离级别"><a href="#深入分析事务的隔离级别" class="headerlink" title="深入分析事务的隔离级别"></a>深入分析事务的隔离级别</h3><h4 id="未提交读-Read-uncommitted"><a href="#未提交读-Read-uncommitted" class="headerlink" title="未提交读(Read uncommitted)"></a>未提交读(Read uncommitted)</h4><p>读未提交是最低级的隔离级别。在这种事物隔离级别下，一个事务可以读到另一个事务未提交数据。</p>
-<h4 id="未提交读会导致脏读"><a href="#未提交读会导致脏读" class="headerlink" title="未提交读会导致脏读"></a>未提交读会导致脏读</h4><p>未提交读的数据库锁情况（实现原理） 事务在读数据的时候并未对数据加锁。<br>事务在修改数据的时候只对数据增加行级共享锁。</p>
-<h4 id="提交读-Read-committed"><a href="#提交读-Read-committed" class="headerlink" title="提交读(Read committed)"></a>提交读(Read committed)</h4><p>在一个事务修改数据过程中，如果事务还没提交，其他事务不能读该数据。</p>
-<p><strong>提交读不能解决不可重复读的读现象（重复读数据会变化）</strong></p>
-<p><strong>提交读的数据库锁情况</strong> 事务对当前被读取的数据加行级共享锁（当读到时才加锁），一旦读完该行，立即释放该行级共享锁；<br>事务在更新某数据的瞬间（就是发生更新的瞬间），必须先对其加行级排他锁，直到事务结束才释放。</p>
-<h4 id="可重复读-Repeatable-reads"><a href="#可重复读-Repeatable-reads" class="headerlink" title="可重复读(Repeatable reads)"></a>可重复读(Repeatable reads)</h4><p>这种隔离级别就叫可重复读（mysql默认隔离级别）</p>
-<p><strong>可重复读不能解决幻读</strong></p>
-<h5 id="MySQL如何解决幻读？"><a href="#MySQL如何解决幻读？" class="headerlink" title="MySQL如何解决幻读？"></a>MySQL如何解决幻读？</h5><p>SERIALIZABLE 串行化</p>
-<p>MVCC + Next-Key Lock</p>
-<p><strong>可重复读的数据库锁情况</strong><br>事务在读取某数据的瞬间（就是开始读取的瞬间），必须先对其加行级共享锁，直到事务结束才释放；<br>事务在更新某数据的瞬间（就是发生更新的瞬间），必须先对其加行级排他锁，直到事务结束才释放。</p>
-<h4 id="可序列化-Serializable"><a href="#可序列化-Serializable" class="headerlink" title="可序列化(Serializable)"></a>可序列化(Serializable)</h4><p>可序列化(Serializable)是最高的隔离级别，前面提到的所有的隔离级别都无法解决的幻读，在可序列化的隔离级别中可以解决。</p>
-<p><strong>可序列化的数据库锁情况</strong><br>事务在读取数据时，必须先对其加 表级共享锁，直到事务结束才释放； 事务在更新数据时，必须先对其加 表级排他锁，直到事务结束才释放。</p>
-<h2 id="MySQL性能优化"><a href="#MySQL性能优化" class="headerlink" title="MySQL性能优化"></a>MySQL性能优化</h2><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278204036880.jpg"></p>
-<h3 id="单条SQL运行慢"><a href="#单条SQL运行慢" class="headerlink" title="单条SQL运行慢"></a>单条SQL运行慢</h3><h4 id="创建并正确使用索引"><a href="#创建并正确使用索引" class="headerlink" title="创建并正确使用索引"></a>创建并正确使用索引</h4><h4 id="数据拆分"><a href="#数据拆分" class="headerlink" title="数据拆分"></a>数据拆分</h4><ol>
-<li><p>垂直拆分：常用字段、不常用字段拆分</p>
-</li>
-<li><p>水平拆分：一张表的数据拆分成多张表存放</p>
-</li>
-</ol>
-<h3 id="部分SQL运行慢"><a href="#部分SQL运行慢" class="headerlink" title="部分SQL运行慢"></a>部分SQL运行慢</h3><h4 id="慢查询分析：开启慢查询日志，分析日志进行优化"><a href="#慢查询分析：开启慢查询日志，分析日志进行优化" class="headerlink" title="慢查询分析：开启慢查询日志，分析日志进行优化"></a>慢查询分析：开启慢查询日志，分析日志进行优化</h4><ul>
-<li>查询是否开启慢查询日志 SHOW VARIABLES LIKE &quot;%slow_query_log%&quot;;</li>
-<li>开启慢查询日志(重启失效) SET GLOBAL slow_query_log&#x3D;1;</li>
-<li>查询慢查询时间阈值 show VARIABLES LIKE &quot;%long_query_time%&quot;;</li>
-<li>设置慢查询时间阈值(重启失效，需要重新开启一个会话才生效) SET GLOBAL long_query_time&#x3D;3; </li>
-<li>慢查询次数 show GLOBAL STATUS LIKE &#39;%Slow_queries%&#39;;</li>
-</ul>
-<h4 id="使用mysqldumpslow做日志分析："><a href="#使用mysqldumpslow做日志分析：" class="headerlink" title="使用mysqldumpslow做日志分析："></a>使用mysqldumpslow做日志分析：</h4><ul>
-<li><p>s：是表示按照何种顺序排序</p>
-</li>
-<li><p>c：访问次数</p>
-</li>
-<li><p>l：锁定时间</p>
-</li>
-<li><p>r：返回记录</p>
-</li>
-<li><p>t：查询时间</p>
-</li>
-<li><p>al：平均锁定时间</p>
-</li>
-<li><p>ar：平均返回记录数</p>
-</li>
-<li><p>at：平均查询时间</p>
-</li>
-<li><p>t：即为返回前面多少条数据</p>
-</li>
-<li><p>g：后边搭配正则表达式，大小写不敏感</p>
-<ol>
-<li>得到返回记录集最多的10个SQL mysqldumpslow -s r -t 10 &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;xxx-slow.log </li>
-<li>得到访问次数最多的10个SQL mysqldumpslow -s c -t 10 &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;xxx-slow.log</li>
-<li>得到按照时间排序的前10条里面含有左连接的查询语句 mysqldumpslow -s t -t 10 -g &quot;left join&quot; &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;xxx-slow.log</li>
-<li>另外建议在使用这些命令时结合 | more使用，避免有太多数据 mysqldumpslow -s r -t 10 &#x2F;var&#x2F;lib&#x2F;mysql&#x2F;xxx-slow.log | more</li>
-</ol>
-</li>
-</ul>
-<h4 id="使用show-profile分析SQL："><a href="#使用show-profile分析SQL：" class="headerlink" title="使用show profile分析SQL："></a>使用show profile分析SQL：</h4><ul>
-<li>查询是否开启 SHOW VARIABLES LIKE &#39;profiling&#39;; #开启 SET profiling&#x3D;on;</li>
-<li>查询最近执行sql语句(查询) show PROFILES; #查询某一条sql执行过程 show PROFILE cpu,block io for query 26;</li>
-</ul>
-<h4 id="全局日志查询："><a href="#全局日志查询：" class="headerlink" title="全局日志查询："></a>全局日志查询：</h4><pre><code>开启全局日志 SET GLOBAL general_log=1; 
-记录在表中 SET GLOBAL log_output=\&#39;TABLE\&#39;; 
-查询日志 SELECT \* FROM mysql.general_log;
-</code></pre>
-<h3 id="整个SQL运行慢"><a href="#整个SQL运行慢" class="headerlink" title="整个SQL运行慢"></a>整个SQL运行慢</h3><h4 id="读写分离："><a href="#读写分离：" class="headerlink" title="读写分离："></a>读写分离：</h4><ol>
-<li><p>应用层解决方案：通过应用层对数据源做路由来实现读写分离。</p>
-</li>
-<li><p>中间件解决方案：通过 MySQL 的中间件做主从集群。</p>
-</li>
-</ol>
-<h4 id="EXPLAIN命令："><a href="#EXPLAIN命令：" class="headerlink" title="EXPLAIN命令："></a>EXPLAIN命令：</h4><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278230182764.jpg"></p>
-<ul>
-<li><p><strong>id：相同按顺序执行，不同id越大优先级越高，越先执行</strong></p>
-</li>
-<li><p><strong>select_type:</strong></p>
-<ul>
-<li><p><strong>SIMPLE：简单的select查询，查询中不包含子查询或者union</strong></p>
-</li>
-<li><p><strong>PRIMARY：查询中若包含任何复杂的子部分，最外层查询则被标记为PRIMARY</strong></p>
-</li>
-<li><p><strong>SUBQUERY：在select或where列表中包含了子查询</strong></p>
-</li>
-<li><p><strong>DERIVED：在from列表中包含子查询被标记为derived（衍生），MySQL会递归执行这些子查询，把结果放在临时表中</strong></p>
-</li>
-<li><p><strong>UNION：使用了UNION，第二个select则被标记为UNION，若UNION包含在FROM子查询中，外层SELECT将被标记为：DERIVED</strong></p>
-</li>
-<li><p><strong>UNION RESULT：使用UNION获取结果的查询</strong></p>
-</li>
-</ul>
-</li>
-</ul>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278230552996.jpg"></p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278230650553.jpg"></p>
-<ul>
-<li><p><strong>table：表名</strong></p>
-</li>
-<li><p><strong>partitions：表分区</strong></p>
-</li>
-<li><p><strong>type：表示查询类型，从最好到最差：system&gt;const&gt;eq_ref&gt;ref&gt;range&gt;index&gt;ALL</strong></p>
-<ul>
-<li><p><strong>system：表示只有一行记录（等于系统表），这是const类型的特例，平时不会出现，这个可以忽略不计</strong></p>
-</li>
-<li><p><strong>const：表示通过索引一次就找到了，const出现在primary key或者unique索引，因为只匹配一条数据，所以很快，如将主键置于WHERE条件中查询，MYSQL就能将改查询转换为一个常量</strong></p>
-</li>
-<li><p><strong>eq_ref：唯一性索引扫描，常见于主键或唯一索引扫描</strong></p>
-</li>
-<li><p><strong>ref：非唯一性索引扫描，返回匹配某个单独值的所有行</strong></p>
-</li>
-<li><p><strong>range：检索指定范围的行，使用一个索引来选择行。key列显示使用了哪个索引，一般出现在where中使用between,&lt;,&gt;,in等范围查询</strong></p>
-</li>
-<li><p><strong>index：全索引扫描，index和all的区别为index类型只遍历索引树。这通常比all快，因为索引文件通常比数据文件小。</strong></p>
-</li>
-<li><p><strong>all：全表扫描，性能最差</strong></p>
-</li>
-</ul>
-</li>
-<li><p><strong>possible_key：可能使用的索引</strong></p>
-</li>
-<li><p><strong>key：实际使用的索引，查询中若使用了覆盖索引，则该索引仅出现在key列表中。（覆盖索引：查询的是索引字段）</strong></p>
-</li>
-<li><p><strong>key_len：表示索引中使用的字节数，长度越短越好</strong></p>
-</li>
-<li><p><strong>ref：显示索引的哪一列被使用了，列与索引的比较</strong></p>
-</li>
-<li><p><strong>rows：根据表统计信息及索引选用情况，大致估算出找到所需的记录所需要读取的行数</strong></p>
-</li>
-<li><p><strong>Extra：额外信息</strong></p>
-<ul>
-<li><p><strong>Using filesort：说明mysql会对数据使用一个外部的索引排序，而不是按照表内的索引顺序进行读取。MYSQL中无法利用索引完成的排序操作称为”文件排序”。</strong></p>
-</li>
-<li><p>**Using temporary：使用了临时表保存中间结果，MySQL在对查询结果排序时使用临时表。常见于排序order</p>
-</li>
-</ul>
-</li>
-</ul>
-<p>by和分组查询group by**</p>
-<pre><code>* **Using Index：表示相应的select操作中使用了覆盖索引（Covering Index），避免访问了表的数据行，效率不错,如果同时出现了using where，表明索引被用来执行索引键值查找。如果没有同时出现using where，表明索引用来读取数据而非执行查找动作。**
-
-* **Using where：使用where子句**
-
-* **Using join buffer： 使用了连接缓存**
-
-* **Using impossible where：表示where子句总是false，查询不到任何数据**
-
-* **select tables optimized away：在没有group by子句的情况下基于索引优化MIN/MAX；对于MYISAM储存引擎优化COUNT(\*)操作，不必等到执行阶段再计算，查询执行计划生成的阶段即完成优化。**
-
-* **distinct：优化distinct操作，在找到第一匹配的元组后即停止查找同样值的动作**
-</code></pre>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278232895825.jpg"></p>
-<h2 id="高频面试题"><a href="#高频面试题" class="headerlink" title="高频面试题"></a>高频面试题</h2><h3 id="什么是索引"><a href="#什么是索引" class="headerlink" title="什么是索引"></a>什么是索引</h3><p>索引是一种数据结构，可以帮助我们快速进行数据查找。</p>
-<h3 id="索引是个什么样的数据结构"><a href="#索引是个什么样的数据结构" class="headerlink" title="索引是个什么样的数据结构"></a>索引是个什么样的数据结构</h3><p>索引的数据结构和具有储存引擎的实现有关，在MySQL中使用较多的索引有Hash索引，B+树索引等，而我们经常使用的InnoDB存储引擎的默认索引实现为：B+树索引。</p>
-<h3 id="Hash索引和B-树索引有什么区别或者说优劣"><a href="#Hash索引和B-树索引有什么区别或者说优劣" class="headerlink" title="Hash索引和B+树索引有什么区别或者说优劣"></a>Hash索引和B+树索引有什么区别或者说优劣</h3><p>hash索引底层就是hash表，进行查找时，调用一次hash函数就可以获取到相应的键值，之后进行回表查询获得实际数据；</p>
-<p>B+的底层现实是多路平衡查找树，对于每一次查询都是从根节点出发，查找叶子节点方可以获取的所查键值，然后根据查询判断是否需要回表查询数据。</p>
-<h4 id="不同："><a href="#不同：" class="headerlink" title="不同："></a>不同：</h4><p>hash索引进行等值查询(where xx&#x3D;xx)更快（一般情况下），但是却无法进行范围查询(模糊查询...)。</p>
-<p>因为在hash索引中经过hash函数建立索引之后，索引的顺序与原顺序无法保持一致，不能支持范围查询，而B+树的所有节点皆遵循（左节点小于父节点，右节点大于父节点，多叉树也类似），天然支持范围查询。</p>
-<p>hash索引不支持使用索引排序，原理同上。</p>
-<p>hash索引不支持模糊查询以及多列索引的最左前缀原则，原理也是因为hash函数的不可预测AAAA和AAAAB的索引没有相关性。</p>
-<p>hash索引任何时候都避免不了回表查询数据，而B+树索引在符合某些条件下(聚簇索引，覆盖索引等)的时候可以只通过索引完成查询。</p>
-<p>hash索引在等值查询上较快，但是不稳定，性能不可预测，当某个键值存在大量重复的时候，发生hash碰撞，此时效率可能极差，而B+树的查询比较稳定，对于所有查询都是从根节点到叶子节点，而树的高度较低。</p>
-<p><strong>因此，在大多数情况下，直接使用B+树索引可以获得稳定且较好的查询速度，而不需要使用hash索引。</strong></p>
-<h3 id="什么是聚簇索引"><a href="#什么是聚簇索引" class="headerlink" title="什么是聚簇索引"></a>什么是聚簇索引</h3><p>在B+树的索引中，叶子节点可能存储了当前的key值，也可能存储了当前的key值以及整行数据，这就是聚簇索引和非聚簇索引。</p>
-<p>在InnoDB中，只有主键索引是聚簇索引，如果没有主键，则挑选一个唯一键建立聚簇索引，如果没有唯一键，则隐式的生成一个键来建立聚簇索引。</p>
-<p><strong>当查询使用聚簇索引时，在对应的叶子节点，可以获取整行数据，因此不用再次进行回表查询。</strong></p>
-<h3 id="非聚簇索引一定要回表查询？"><a href="#非聚簇索引一定要回表查询？" class="headerlink" title="非聚簇索引一定要回表查询？"></a>非聚簇索引一定要回表查询？</h3><p>不一定，这涉及到查询语句所要求的字段是否全部命中了索引，那么就不必再进行回表查询。</p>
-<p>select age from employee where age &lt;<br>20;在age字段建立索引，查询age，无需回表查询，在索引的叶子节点上，已经包含了age信息。</p>
-<h3 id="在建立索引的时候，都需要考虑哪些因素"><a href="#在建立索引的时候，都需要考虑哪些因素" class="headerlink" title="在建立索引的时候，都需要考虑哪些因素"></a>在建立索引的时候，都需要考虑哪些因素</h3><p>字段使用的频率。经常作为条件进行查询的字段比较合适，如果需要建立联合索引的话，还需要考虑联合索引的顺序。</p>
-<h3 id="联合索引是什么？为什么需要注意联合索引中的顺序？"><a href="#联合索引是什么？为什么需要注意联合索引中的顺序？" class="headerlink" title="联合索引是什么？为什么需要注意联合索引中的顺序？"></a>联合索引是什么？为什么需要注意联合索引中的顺序？</h3><p>mysql可以使用多个字段同时建立一个索引，叫做联合索引，在联合索引中，如果想要命中索引，需要按照建立索引时的顺序挨个使用，否则无法命中索引。</p>
-<h3 id="怎么知道索引是否被使用？或者说怎么才能知道sql执行慢的原因？"><a href="#怎么知道索引是否被使用？或者说怎么才能知道sql执行慢的原因？" class="headerlink" title="怎么知道索引是否被使用？或者说怎么才能知道sql执行慢的原因？"></a>怎么知道索引是否被使用？或者说怎么才能知道sql执行慢的原因？</h3><p>explain查看执行计划。</p>
-<h3 id="什么时候索引会失效"><a href="#什么时候索引会失效" class="headerlink" title="什么时候索引会失效"></a>什么时候索引会失效</h3><ol>
-<li><p>使用不等号查询</p>
-</li>
-<li><p>列参与了数学运算或者函数</p>
-</li>
-<li><p>like &#39;%xxx&#39;</p>
-</li>
-<li><p>当mysql分析全表扫描比使用索引快的时候</p>
-</li>
-<li><p>当使⽤联合索引,前⾯⼀个条件为范围查询,后⾯的即使符合最左前缀原则,也⽆法使⽤索引</p>
-</li>
-</ol>
-<h3 id="索引有什么劣势"><a href="#索引有什么劣势" class="headerlink" title="索引有什么劣势"></a>索引有什么劣势</h3><ol>
-<li><p>实际上索引也是张表，该表保存了主键和索引字段，并指向实体表记录，所以索引也是要占用空间的。</p>
-</li>
-<li><p>虽然索引大大的提高查询速度，如对表进行INSERT、UPDATE和DELETE。因为更新表时，MYSQL不仅要保存数据，还要保存一下索引文件每次更新添加了索引类的字段，都会调整因为更新所带来的键值变化后的索引信息。</p>
-</li>
-</ol>
-<h4 id="表结构设计"><a href="#表结构设计" class="headerlink" title="表结构设计"></a>表结构设计</h4><p><strong>尽量设置一个主键</strong></p>
-<p><strong>主键使用自增ID</strong></p>
-<p><strong>字段不要定义为null</strong></p>
-<p><strong>存储密码使用char而不是使用varchar</strong></p>
-<h3 id="存储引擎相关"><a href="#存储引擎相关" class="headerlink" title="存储引擎相关"></a>存储引擎相关</h3><h4 id="MySQL支持哪些存储引擎"><a href="#MySQL支持哪些存储引擎" class="headerlink" title="MySQL支持哪些存储引擎"></a>MySQL支持哪些存储引擎</h4><p>InnoDB、MyISAM等等。</p>
-<h4 id="InnoDB和MyISAM的区别"><a href="#InnoDB和MyISAM的区别" class="headerlink" title="InnoDB和MyISAM的区别"></a>InnoDB和MyISAM的区别</h4><ol>
-<li><p>InnoDB支持事务MyISAM不支持。</p>
-</li>
-<li><p>InnoDB支持行级锁，而MyISAM只支持表级锁</p>
-</li>
-<li><p>InnoDB支持MVCC，MyISAM不支持</p>
-</li>
-<li><p>InnoDB支持外键，MyISAM不支持</p>
-</li>
-<li><p>InnoDB不支持全文索引，而MyISAM支持</p>
-</li>
-</ol>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278234762821.jpg"></p>
-<h3 id="零散问题"><a href="#零散问题" class="headerlink" title="零散问题"></a>零散问题</h3><h4 id="MySQL中varchar和char的区别"><a href="#MySQL中varchar和char的区别" class="headerlink" title="MySQL中varchar和char的区别"></a>MySQL中varchar和char的区别</h4><p>char是一个定长字段，假如申请了char(10)的空间，那么无论实际存储多少内容，该字段都占用10个字符；</p>
-<p>而varchar是变长的，也就是说申请的只是最大长度，占用空间为实际字符长度+1，最后一个字符存储使用了多长空间</p>
-<p>在检索效率上，char&gt;varchar，所以如果确定某个字段是定长的，可以使用char，否则尽量使用varchar。例如MD5密码，则应该使用char。</p>
-<h4 id="varchar-10-和int-10-的区别"><a href="#varchar-10-和int-10-的区别" class="headerlink" title="varchar(10)和int(10)的区别"></a>varchar(10)和int(10)的区别</h4><p>varchar的10代表了申请的空间⻓度,也是可以存储的数据的最⼤⻓度,⽽int的10只是代表了展⽰的⻓度,不⾜10位以0填充。</p>
-<p>也就是说,int(1)和int(10)所能存储的数字⼤⼩以及占⽤的空间都是相同的,只是在展⽰时按照⻓度展⽰。</p>
-<h4 id="MySQL的binlog有几种录入格式？"><a href="#MySQL的binlog有几种录入格式？" class="headerlink" title="MySQL的binlog有几种录入格式？"></a>MySQL的binlog有几种录入格式？</h4><p>1）statement：</p>
-<p>2）row：</p>
-<p>3）mixed：</p>
-<h4 id="超大分页怎么处理？"><a href="#超大分页怎么处理？" class="headerlink" title="超大分页怎么处理？"></a>超大分页怎么处理？</h4><p>select * from table where age &gt; 20 limit 1000000,10</p>
-<p>select * from table where id in (select id from table where age &gt; 20<br>limit 1000000,10)</p>
-<p>同时如果ID连续的好,我们还可以 select * from table where id &gt; 1000000<br>limit 10</p>
-<h4 id="数据库三大范式"><a href="#数据库三大范式" class="headerlink" title="数据库三大范式"></a>数据库三大范式</h4><ul>
-<li><p>第一范式：每个列都不可拆分。</p>
-</li>
-<li><p>第二范式：非主键列完全依赖于主键，而不能是依赖于主键的一部分。</p>
-</li>
-<li><p>第三范式：非主键只依赖于主键，不依赖于其他非主键。</p>
-</li>
-</ul>
-<p><strong>在设计数据库结构式，要尽量遵守三范式，如果不遵守，必须有足够的理由。</strong></p>
-<h2 id="MySQL读写分离"><a href="#MySQL读写分离" class="headerlink" title="MySQL读写分离"></a>MySQL读写分离</h2><h3 id="如何实现MySQL的读写分离"><a href="#如何实现MySQL的读写分离" class="headerlink" title="如何实现MySQL的读写分离"></a>如何实现MySQL的读写分离</h3><p>一个主库，多个从库。在主库写，然后主库会自动把数据同步到从库。</p>
-<h3 id="MySQL主从复制的原理"><a href="#MySQL主从复制的原理" class="headerlink" title="MySQL主从复制的原理"></a>MySQL主从复制的原理</h3><p>主库将变更写入binlog日志，然后从库连接主库后，从库有一个IO线程，将主库的binlog日志拷贝到自己本地，写入一个relay中继日志中。接着从库中有一个SQL线程会从中继日志中读取binlog，然后执行binlog日志中的内容，也就是在自己本地执行一遍SQL，</p>
-<p>这样就可以保证主从一致。</p>
-<h3 id="从库执行SQL是串行的，高并发下会有延迟问题"><a href="#从库执行SQL是串行的，高并发下会有延迟问题" class="headerlink" title="从库执行SQL是串行的，高并发下会有延迟问题"></a>从库执行SQL是串行的，高并发下会有延迟问题</h3><p><strong>MySQL主从同步延时问题</strong></p>
-<ol>
-<li><p>分库，将一个主库拆分为多个从库。</p>
-</li>
-<li><p>打开MySQL支持的并行复制。</p>
-</li>
-<li><p>重写代码，不要在写入之后马上查询。</p>
-</li>
-<li><p>如果必须要写入之后马上查询，对这个查询设置直连数据库。</p>
-</li>
-</ol>
-<h2 id="MySQL优化"><a href="#MySQL优化" class="headerlink" title="MySQL优化"></a>MySQL优化</h2><p>【优化总结口诀】</p>
-<p>全值匹配我最爱，最左前缀要遵守；</p>
-<p>带头大哥不能死，中间兄弟不能断；</p>
-<p>索引列上少计算，范围之后全失效；</p>
-<p>Like百分写最右，覆盖索引不写星；</p>
-<p>不等空值还有or，索引失效要少用；</p>
-<p>VARCHAR引号不可丢，SQL高级也不难！</p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278235835760.jpg"></p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278235919541.jpg"></p>
-<p> EXPLAIN</p>
-<ol>
-<li><p>SQL语句中IN包含的值不应过多</p>
-</li>
-<li><p>SELECT语句务必指明字段名称</p>
-</li>
-<li><p>当只需要一条数据的时候，使用limit 1</p>
-</li>
-<li><p>如果排序字段没有用到索引，就尽量少排序</p>
-</li>
-<li><p>如果限制条件中其他字段没有索引，尽量少用or</p>
-</li>
-<li><p>尽量用union all代替union</p>
-</li>
-<li><p>区分in和exists、not in和not exists(小表驱动大表)</p>
-</li>
-<li><p>B为小表：select * from 表A where id in (select id from 表B)</p>
-<p>A为小表：select * from 表A where exists(select * from 表B where 表B.id&#x3D;表A.id)</p>
-</li>
-<li><p>使用合理的分页方式以提高分页效率</p>
-<p> select id,name from product limit 866613, 20;</p>
-<p> 优化方法：可以将上一页排序字段最大值作为下一页的起点。</p>
-<p> select id,name from product where id&gt; 866612 limit 20;</p>
-</li>
-<li><p>分段查询</p>
-<p>分段查询，最终合并输出。</p>
-</li>
-<li><p>避免在where子句中进行null值判断</p>
-</li>
-<li><p>不建议使用%前缀模糊查询</p>
-<p>例如 LIKE &#39;%name%&#39;</p>
-</li>
-</ol>
-<p> <strong>解决办法：</strong></p>
-<pre><code>1. 使用全文索引:
-
-    创建全文索引SQL：ALTER TABLE \`dynamic_201606\` ADD FULLTEXT INDEX \`idx_user_name\` (\`user_name\`);
-
-    使用全文索引SQL：select id,fnum,fdst from dynamic_201606 where match(user_name) against(\&#39;zhangsan\&#39; in boolean mode);
-
-2. 使用覆盖索引：查询的字段建立索引
-</code></pre>
-<ol start="13">
-<li><p>避免在where子句中对字段进行表达式操作</p>
-</li>
-<li><p>避免进行隐式转换（字符串不加单引号导致索引失效）</p>
-<p>SELECT * FROM table WHERE type&#x3D;1;（type为varchar）</p>
-</li>
-<li><p>对于联合索引，要遵守最左前缀原则</p>
-<p>举例来说联合索引含有字段id,name,school，可以直接用id字段，也可以id,name这样的顺序，name,school无法使用这个索引,id,school只能使用id索引。（必须是连续的，中间不能断，WHERE子句中MYSQL优化器会优化顺序）。</p>
-</li>
-<li><p>注意范围查询语句</p>
-<p>对于联合索引，如果存在范围查询，比如between、&gt;、&lt;等条件，会造成后面索引字段失效。</p>
-</li>
-<li><p>关于join优化</p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278239298268.jpg"></p>
-<p>1）MySQL没有full join,可以使用union来实现。</p>
-<p>2）尽量使用inner join，因为inner join会自动选择小表作为驱动表。</p>
-<p>3）合理运用索引</p>
-<p>4）利用小表去驱动大表。</p>
-<p>5）巧用STRAIGHT_JOIN：只能在inner join下使用,STRAIGHT_JOIN左边表为驱动表。</p>
-</li>
-<li><p>ORDER BY优化：（MYSQL支持两种排序方式，filesort和Index）</p>
-<ul>
-<li><p>ORDER BY子句，尽量使用INDEX（索引）方式排序，避免使用filesort方式排序</p>
-</li>
-<li><p>尽可能在索引列上完成排序操作，遵循索引的最左前缀原则</p>
-</li>
-<li><p>ORDER BY子句的列满足索引最左前缀原则</p>
-</li>
-<li><p>WHERE子句列和ORDER BY子句列满足索引最左前缀原则</p>
-</li>
-<li><p>无法使用INDEX，FileSort有两种算法：</p>
-<p>  双路排序</p>
-<p>  单路排序</p>
-</li>
-</ul>
-</li>
-</ol>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278240457240.jpg"></p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278240554561.jpg"></p>
-<ol start="19">
-<li><p>GROUP BY优化：（和order by几乎相同）</p>
-<p>group by的实质是先排序后分组，遵循索引最左前缀原则</p>
-<p>当无法使用索引列，增大max_length_for_sort_data参数的设置+增大sort_buffer_size参数设置</p>
-<p>where优先级高于having，能在where限定的条件就不要用having了</p>
-</li>
-</ol>
-<h2 id="MySQL日志"><a href="#MySQL日志" class="headerlink" title="MySQL日志"></a>MySQL日志</h2><h3 id="MySQL逻辑架构"><a href="#MySQL逻辑架构" class="headerlink" title="MySQL逻辑架构"></a>MySQL逻辑架构</h3><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/01/16278241125637.jpg"></p>
-<h4 id="MySQL逻辑架构-1"><a href="#MySQL逻辑架构-1" class="headerlink" title="MySQL逻辑架构"></a>MySQL逻辑架构</h4><p>MySQL的逻辑架构大致可分为三层：</p>
-<p>第一层：处理客户端连接，授权认证，安全校验。</p>
-<p>第二层：服务端server层，负责对SQL解释、分析、优化、执行操作引擎等。</p>
-<p>第三层：存储引擎，负责MySQL中数据的存储和提取。</p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/02/16279033382808.jpg" alt="MySQL数据更新流程"></p>
-<h3 id="MySQL日志-1"><a href="#MySQL日志-1" class="headerlink" title="MySQL日志"></a>MySQL日志</h3><h4 id="redo-log（重做日志）"><a href="#redo-log（重做日志）" class="headerlink" title="redo log（重做日志）"></a>redo log（重做日志）</h4><p><strong>redo log</strong>属于MySQL存储引擎<strong>innoDB</strong>的事务日志。</p>
-<p>MySQL的数据是存放在磁盘中的，每次读写数据都需要做磁盘IO操作，如果并发场景下性能就会很差。为此MySQL提供一个优化手段，引入缓存<strong>buffer pool</strong>。这个缓存中包含了磁盘中部分数据页（<strong>page</strong>）的映射，以此来缓解数据库的磁盘压力。</p>
-<p>当从数据库读数据时，首先从缓存中读取，如果缓存中没有，则从磁盘读取后放入缓存；当向数据库写数据时，先向缓存写入，此时缓存中的数据页变更，这个数据页称为<strong>脏页，buff pool</strong>中修改完数据后会按照设定的更新策略，定期刷到磁盘中，这个过程称为<strong>刷脏页</strong>。</p>
-<h5 id="MySQL宕机"><a href="#MySQL宕机" class="headerlink" title="MySQL宕机"></a>MySQL宕机</h5><p>如果刷脏页还未完成，可MySQL由于某些原因宕机重启，此时<strong>buffer pool</strong>中修改的数据还没有来得及刷到磁盘中，就会导致数据丢失，无法保证事务的持久性。</p>
-<p>为了解决这个问题引入了<strong>redo log</strong>，redo Log如其名侧重于重做！它记录的是数据库中每个页的修改，而不是某一行或某几行修改成怎样，可以用来恢复提交后的物理数据页，且只能恢复到最后一次提交的位置。</p>
-<p><strong>redo log</strong>用到了<strong>WAL（Write-Ahead Logging）</strong>技术，这个技术的核心就在于修改记录前，一定要先写日志，并保证日志先落盘，才能算事务提交完成。</p>
-<p>有了redo log再修改数据时，InnoDB引擎会把更新记录先写在redo log中，在修改<strong>Buffer Pool</strong>中的数据，当提交事务时，调用<strong>fsync</strong>把redo log刷入磁盘。至于缓存中更新的数据文件何时刷入磁盘，则由后台线程异步处理。</p>
-<p><strong>注意：</strong>此时redo log的事务状态为prepare，还未真正提交成功。要等到<strong>bin log</strong>日志写入磁盘完成才变更为<strong>commit</strong>，事务才算真正提交完成。</p>
-<p>这样一来即使刷脏页之前MySQL意外宕机也没关系，只要在重启时解析redo log中更改记录进行重放，重新刷盘即可。</p>
-<p><strong>大小固定</strong></p>
-<p>redo log采用固定大小，循环写入的格式，当redo log写满之后，重新从头开始如此循环写，形成一个环状。</p>
-<p>如此设计的原因：</p>
-<p>因为redo log记录的是数据页上的修改，如果<strong>Buffer Pool</strong>中数据页已经刷磁盘了，那么这些日志记录就失效了，新日志会将这些失效的记录进行覆盖擦除。</p>
-<p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/02/16279035166872.jpg"></p>
-<ul>
-<li>图中的<strong>write pos</strong>表示redo log当前记录的日志序列号<strong>LSN</strong>(log sequence number)，写入还未刷盘，循环往后递增；<strong>check point</strong>表示redo log中修改记录已刷入磁盘后的LSN，循环往后递增，这个LSN之前的数据已经全落盘。</li>
-<li><strong>write pos</strong>到<strong>check point</strong>之间的部分是redo log空余的部分（绿色），用来记录新的日志；<strong>check point</strong>到<strong>write pos</strong>之间是redo log已经记录的数据页修改数据，此时数据页还未刷回磁盘的部分。当<strong>write pos</strong>追上<strong>check point</strong>时，会先推动<strong>check point</strong>向前移动，空出位置（刷盘）再记录新的日志。</li>
-</ul>
-<p><strong>注意：</strong><br>redo log日志满了，在擦除之前，需要确保这些要被擦除记录对应在内存中的数据页都已经刷到磁盘中了。擦除旧记录腾出新空间这段期间，是不能再接收新的更新请求的，此刻MySQL的性能会下降。所以在并发量大的情况下，合理调整redo log的文件大小非常重要。</p>
-<blockquote>
-<p>crash-safe<br>因为redo log的存在使得Innodb引擎具有了crash-safe的能力，即MySQL宕机重启，系统会自动去检查redo log，将修改还未写入磁盘的数据从redo log恢复到MySQL中。</p>
-</blockquote>
-<p>MySQL启动时，不管上次是正常关闭还是异常关闭，总是会进行恢复操作。会先检查数据页中的LSN，如果这个LSN 小于 redo log 中的LSN，即write pos位置，说明在redo log上记录着数据页上尚未完成的操作，接着就会从最近的一个check point出发，开始同步数据。</p>
-<p>简单理解，比如：redo log的LSN是500，数据页的LSN是300，表明重启前有部分数据未完全刷入到磁盘中，那么系统则将redo log中LSN序号300到500的记录进行重放刷盘。</p>
-<h4 id="undo-log（回滚日志）"><a href="#undo-log（回滚日志）" class="headerlink" title="undo log（回滚日志）"></a>undo log（回滚日志）</h4><p><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/02/16279037077440.jpg"></p>
-<p>undo log</p>
-<p><strong>undo log</strong>也是属于MySQL存储引擎InnoDB的事务日志。</p>
-<p>undo log属于逻辑日志，如其名主要起到回滚的作用，它是保证事务原子性的关键。记录的是数据修改前的状态，在数据修改的流程中，同时会记录一条与当前操作相反的逻辑日志到undo log中。<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/08/02/16279037334256.jpg"></p>
-<p>同一个事物内的一条记录被多次修改，不会把每次数据修改前的状态都写入undo log；undo log只负责记录事务开始前要修改数据的原始版本，当我们再次对这行数据进行修改，所产生的修改记录会写入到redo log，undo log负责完成回滚，redo log负责完成前滚。</p>
-<p>回滚</p>
-<p>未提交的事务，即事务未执行commit。但该事务内修改的脏页中，可能有一部分脏块已经刷盘。如果此时数据库实例宕机重启，就需要用回滚来将先前那部分已经刷盘的脏块从磁盘上撤销。</p>
-<p>前滚</p>
-<p>未完全提交的事务，即事务已经执行commit，但该事务内修改的脏页中只有一部分数据被刷盘，另外一部分还在buffer pool缓存上，如果此时数据库实例宕机重启，就需要用前滚来完成未完全提交的事务。将先前那部分由于宕机在内存上的未来得及刷盘数据，从redo log中恢复出来并刷入磁盘。</p>
-<p><strong>数据库实例恢复时，先做前滚，后做回滚。</strong></p>
-<h4 id="bin-log（归档日志）"><a href="#bin-log（归档日志）" class="headerlink" title="bin log（归档日志）"></a>bin log（归档日志）</h4><p><strong>bin log</strong>是一种数据库Server层（和什么引擎无关），以二进制形式存储在磁盘中的逻辑日志。bin log记录了数据库所有DDL和DML操作（不包含 SELECT 和 SHOW等命令，因为这类操作对数据本身并没有修改）。</p>
-<p>默认情况下，二进制日志功能是关闭的。可以通过以下命令查看二进制日志是否开启：</p>
-<p>SHOW VARIABLES LIKE &#39;log_bin&#39;;</p>
-<p>bin log也被叫做归档日志，因为它不会像redo log那样循环写擦除之前的记录，而是会一直记录日志。一个bin log日志文件默认最大容量1G（也可以通过max_binlog_size参数修改），单个日志超过最大值，则会新创建一个文件继续写。</p>
-<p>show binary logs;</p>
-<p>bin log日志的内容格式其实就是执行SQL命令的反向逻辑，这点和undo log有点类似。一般来说开启bin log都会给日志文件设置过期时间（expire_logs_days参数，默认永久保存），要不然日志的体量会非常庞大。</p>
-<p>show variables like &#39;expire_logs_days&#39;;</p>
-<p>bin log主要应用于MySQL主从模式（master-slave）中，主从节点间的数据同步；以及基于时间点的数据还原。</p>
-<p><strong>bin log和redo log的区别</strong></p>
-<ul>
-<li><p>层次不同：redo log 是InnoDB存储引擎实现的，bin log是MySQL的服务器层实现的，但MySQL数据库中的任何存储引擎对于数据库的更改都会产生bin log。</p>
-</li>
-<li><p>作用不同：redo log 用于碰撞恢复（crash recovery），保证MySQL宕机也不会影响持久性；bin log用于时间点恢复（point-in-time recovery），保证服务器可以基于时间点恢复数据和主从复制。</p>
-</li>
-<li><p>内容不同：redo log 是物理日志，内容基于磁盘的页Page；bin log的内容是二进制，可以根据binlog_format参数自行设置。</p>
-</li>
-<li><p>写入方式不同：redo log 采用循环写的方式记录；binlog 通过追加的方式记录，当文件大小大于给定值后，后续的日志会记录到新的文件上。</p>
-</li>
-<li><p>刷盘时机不同：bin log在事务提交时写入；redo log 在事务开始时即开始写入。</p>
-</li>
-</ul>
-<p><strong>bin log 与 redo log功能并不冲突而是起到相辅相成的作用，需要二者同时记录，才能保证当数据库发生宕机重启时，数据不会丢失。</strong></p>
-<p><strong>relay log（中继日志）</strong></p>
-<p>relay log日志文件具有与bin log日志文件相同的格式，从上边MySQL主从复制的流程可以看出，relay log起到一个中转的作用，slave先从主库master读取二进制日志数据，写入从库本地，后续再异步由SQL线程读取解析relay log为对应的SQL命令执行。</p>
-<h4 id="slow-query-log"><a href="#slow-query-log" class="headerlink" title="slow query log"></a>slow query log</h4><p>慢查询日志（slow query log）: 用来记录在 MySQL中执行时间超过指定时间的查询语句，在 SQL<br>优化过程中会经常使用到。通过慢查询日志，我们可以查找出哪些查询语句的执行效率低，耗时严重。</p>
-<p>出于性能方面的考虑，一般只有在排查慢SQL、调试参数时才会开启，默认情况下，慢查询日志功能是关闭的。可以通过以下命令查看是否开启慢查询日志：</p>
-<p>SHOW VARIABLES LIKE &#39;slow_query%&#39;;</p>
-<h4 id="general-query-log"><a href="#general-query-log" class="headerlink" title="general query log"></a>general query log</h4><p>一般查询日志（general query log）：用来记录用户的所有操作，包括客户端何时连接了服务器、客户端发送的所有SQL以及其他事件，比如MySQL服务启动和关闭等等。MySQL服务器会按照它接收到语句的先后顺序写入日志文件。</p>
-<p>由于一般查询日志记录的内容过于详细，开启后 Log文件的体量会非常庞大，所以出于对性能的考虑，默认情况下，该日志功能是关闭的，通常会在排查故障需获得详细日志的时候才会临时开启。</p>
-<p>show variables like &#39;general_log&#39;;</p>
-<h4 id="error-log"><a href="#error-log" class="headerlink" title="error log"></a>error log</h4><p>错误日志（error log）: 应该是 MySQL 中最好理解的一种日志，主要记录 MySQL服务器每次启动和停止的时间以及诊断和出错信息。</p>
-<p>默认情况下，该日志功能是开启的，通过如下命令查找错误日志文件的存放路径。</p>
-<p>SHOW VARIABLES LIKE &#39;log_error&#39;;</p>
-<p><strong>注意：</strong>错误日志中记录的可并非全是错误信息，像 MySQL 如何启动 InnoDB的表空间文件、如何初始化自己的存储引擎，初始化 buffer pool等等，这些也记录在错误日志文件中。</p>
-]]></content>
-      <categories>
-        <category>后端</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Redisson分布式锁（使用注解方式）</title>
     <url>/2022/05/30/Redisson%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%EF%BC%88%E4%BD%BF%E7%94%A8%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%EF%BC%89/</url>
     <content><![CDATA[<h2 id="引入pom依赖"><a href="#引入pom依赖" class="headerlink" title="引入pom依赖"></a>引入pom依赖</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.redisson&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;redisson-spring-boot-starter&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;3.13.1&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
@@ -2018,49 +2018,6 @@ rabbitmq-plugins enable rabbitmq_management
       </categories>
       <tags>
         <tag>分布式</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SpringBoot+Elasticsearch实战</title>
-    <url>/2021/10/26/SpringBoot%20ES%E5%AE%9E%E6%88%98/</url>
-    <content><![CDATA[<h2 id="一、引入依赖"><a href="#一、引入依赖" class="headerlink" title="一、引入依赖"></a>一、引入依赖</h2><p>本文使用的SpringBoot版本为2.5.4，elasticsearch版本为7.15.0</p>
-<span id="more"></span>
-<h3 id="1-pom文件如下"><a href="#1-pom文件如下" class="headerlink" title="1. pom文件如下"></a>1. pom文件如下</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;</span><br><span class="line">    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;</span><br><span class="line">    &lt;parent&gt;</span><br><span class="line">        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;</span><br><span class="line">        &lt;version&gt;2.5.4&lt;/version&gt;</span><br><span class="line">        &lt;relativePath/&gt; &lt;!-- lookup parent from repository --&gt;</span><br><span class="line">    &lt;/parent&gt;</span><br><span class="line">    &lt;groupId&gt;com.yh&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;es-demo&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;</span><br><span class="line">    &lt;name&gt;es-demo&lt;/name&gt;</span><br><span class="line">    &lt;description&gt;es-demo&lt;/description&gt;</span><br><span class="line">    &lt;properties&gt;</span><br><span class="line">        &lt;java.version&gt;1.8&lt;/java.version&gt;</span><br><span class="line">        &lt;elasticsearch.version&gt;7.15.0&lt;/elasticsearch.version&gt;</span><br><span class="line">    &lt;/properties&gt;</span><br><span class="line">    &lt;dependencies&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-boot-configuration-processor&lt;/artifactId&gt;</span><br><span class="line">            &lt;optional&gt;true&lt;/optional&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;lombok&lt;/artifactId&gt;</span><br><span class="line">            &lt;optional&gt;true&lt;/optional&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;</span><br><span class="line">            &lt;scope&gt;test&lt;/scope&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;!--使用的rest-high-level-client--&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.elasticsearch.client&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;elasticsearch-rest-high-level-client&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;$&#123;elasticsearch.version&#125;&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.elasticsearch&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;elasticsearch&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;$&#123;elasticsearch.version&#125;&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;com.alibaba&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;fastjson&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;1.2.70&lt;/version&gt;</span><br><span class="line">            &lt;scope&gt;test&lt;/scope&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">    &lt;/dependencies&gt;</span><br><span class="line"></span><br><span class="line">    &lt;build&gt;</span><br><span class="line">        &lt;plugins&gt;</span><br><span class="line">            &lt;plugin&gt;</span><br><span class="line">                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">                &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">                &lt;configuration&gt;</span><br><span class="line">                    &lt;excludes&gt;</span><br><span class="line">                        &lt;exclude&gt;</span><br><span class="line">                            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;</span><br><span class="line">                            &lt;artifactId&gt;lombok&lt;/artifactId&gt;</span><br><span class="line">                        &lt;/exclude&gt;</span><br><span class="line">                    &lt;/excludes&gt;</span><br><span class="line">                &lt;/configuration&gt;</span><br><span class="line">            &lt;/plugin&gt;</span><br><span class="line">        &lt;/plugins&gt;</span><br><span class="line">    &lt;/build&gt;</span><br><span class="line"></span><br><span class="line">&lt;/project&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h3 id="2-application-yml配置如下"><a href="#2-application-yml配置如下" class="headerlink" title="2. application.yml配置如下"></a>2. application.yml配置如下</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">elasticsearch:</span><br><span class="line">  host-arr:</span><br><span class="line">    - 127.0.0.1:9200</span><br></pre></td></tr></table></figure>
-<h2 id="二、ES-SpringBoot配置"><a href="#二、ES-SpringBoot配置" class="headerlink" title="二、ES SpringBoot配置"></a>二、ES SpringBoot配置</h2><h3 id="1-配置ES服务器地址"><a href="#1-配置ES服务器地址" class="headerlink" title="1. 配置ES服务器地址"></a>1. 配置ES服务器地址</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package com.yh.esdemo.config;</span><br><span class="line"></span><br><span class="line">import lombok.Getter;</span><br><span class="line">import lombok.Setter;</span><br><span class="line">import org.springframework.boot.context.properties.ConfigurationProperties;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author : yh</span><br><span class="line"> * @date : 2021/8/30 20:35</span><br><span class="line"> */</span><br><span class="line">@Component</span><br><span class="line">@Getter</span><br><span class="line">@Setter</span><br><span class="line">@ConfigurationProperties(prefix = &quot;elasticsearch&quot;)</span><br><span class="line">public class EsHostConfig &#123;</span><br><span class="line"></span><br><span class="line">    private String[] hostArr;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="2-配置RestHighLevelClient"><a href="#2-配置RestHighLevelClient" class="headerlink" title="2. 配置RestHighLevelClient"></a>2. 配置RestHighLevelClient</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package com.yh.esdemo.config;</span><br><span class="line"></span><br><span class="line">import org.apache.http.HttpHost;</span><br><span class="line">import org.elasticsearch.client.RestClient;</span><br><span class="line">import org.elasticsearch.client.RestHighLevelClient;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.context.annotation.Bean;</span><br><span class="line">import org.springframework.context.annotation.Configuration;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 定义RestClient Bean</span><br><span class="line"> *</span><br><span class="line"> * @author : yh</span><br><span class="line"> * @date : 2021/8/30 20:32</span><br><span class="line"> */</span><br><span class="line">@Configuration</span><br><span class="line">public class EsRestClientConfig &#123;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    private EsHostConfig esHostConfig;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public RestHighLevelClient restHighLevelClient() &#123;</span><br><span class="line">        String[] hostArr = esHostConfig.getHostArr();</span><br><span class="line">        int size = hostArr.length;</span><br><span class="line">        HttpHost[] httpHostArr = new HttpHost[size];</span><br><span class="line">        for (int i = 0; i &lt; size; i++) &#123;</span><br><span class="line">            String[] split = hostArr[i].split(&quot;:&quot;);</span><br><span class="line">            httpHostArr[i] = new HttpHost(split[0], Integer.parseInt(split[1]), &quot;http&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        return new RestHighLevelClient(RestClient.builder(httpHostArr));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><em><strong>配置完成后只需在相关业务中注入RestHighLevelClient即可使用</strong></em></p>
-<h2 id="三、ES基本使用"><a href="#三、ES基本使用" class="headerlink" title="三、ES基本使用"></a>三、ES基本使用</h2><h3 id="索引操作"><a href="#索引操作" class="headerlink" title="索引操作"></a>索引操作</h3><h4 id="1-创建索引"><a href="#1-创建索引" class="headerlink" title="1. 创建索引"></a>1. 创建索引</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void addIndex() throws Exception &#123;</span><br><span class="line">    //获取 IndicesClient ，用于创建 Index</span><br><span class="line">    IndicesClient indices = restHighLevelClient.indices();</span><br><span class="line">    //定义一个 CreateIndexRequest ，参数为索引的名称</span><br><span class="line">    CreateIndexRequest createIndexRequest = new CreateIndexRequest(&quot;yh_customer&quot;);</span><br><span class="line">    //CreateIndexRequest配置相关参数 number_of_shards：分片数  number_of_replicas：每个分片的副本数</span><br><span class="line">    createIndexRequest.settings(</span><br><span class="line">            Settings.builder()</span><br><span class="line">                    .put(&quot;index.number_of_shards&quot;, 1)</span><br><span class="line">                    .put(&quot;index.number_of_replicas&quot;, 0)</span><br><span class="line">    );</span><br><span class="line">    Map&lt;String, Object&gt; name = new HashMap&lt;&gt;();</span><br><span class="line">    name.put(&quot;type&quot;, &quot;text&quot;);</span><br><span class="line">    name.put(&quot;analyzer&quot;, &quot;ik_max_word&quot;);//指定分词器</span><br><span class="line">    name.put(&quot;search_analyzer&quot;, &quot;ik_smart&quot;);</span><br><span class="line">    Map&lt;String, Object&gt; timestamp = new HashMap&lt;&gt;();</span><br><span class="line">    timestamp.put(&quot;type&quot;, &quot;date&quot;);</span><br><span class="line">    timestamp.put(&quot;format&quot;, &quot;yyyy-MM-dd HH:mm:ss&quot;);//指定时间格式</span><br><span class="line">    Map&lt;String, Object&gt; uuid = new HashMap&lt;&gt;();</span><br><span class="line">    uuid.put(&quot;type&quot;, &quot;keyword&quot;);</span><br><span class="line">    Map&lt;String, Object&gt; properties = new HashMap&lt;&gt;();</span><br><span class="line">    properties.put(&quot;name&quot;, name);</span><br><span class="line">    properties.put(&quot;timestamp&quot;, timestamp);</span><br><span class="line">    properties.put(&quot;uuid&quot;, uuid);</span><br><span class="line">    Map&lt;String, Object&gt; mapping = new HashMap&lt;&gt;();</span><br><span class="line">    mapping.put(&quot;properties&quot;, properties);</span><br><span class="line">    //创建mapping  mapping可以理解为此索引中数据的数据结构</span><br><span class="line">    createIndexRequest.mapping(mapping);</span><br><span class="line">    //创建索引 此方法同步返回结果  异步使用 createAsync</span><br><span class="line">    CreateIndexResponse createIndexResponse = indices.create(createIndexRequest, RequestOptions.DEFAULT);</span><br><span class="line">    //创建结果（true/false）</span><br><span class="line">    System.out.println(createIndexResponse.isAcknowledged());</span><br><span class="line">    //输出创建成功的索引名称</span><br><span class="line">    System.out.println(createIndexResponse.index());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>最终输出:<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352546351035.jpg" alt="16352546351035"></p>
-<h4 id="2-删除索引"><a href="#2-删除索引" class="headerlink" title="2. 删除索引"></a>2. 删除索引</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void delIndex() throws Exception &#123;</span><br><span class="line">    IndicesClient indices = restHighLevelClient.indices();</span><br><span class="line">    DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(&quot;yh_customer&quot;);</span><br><span class="line">    AcknowledgedResponse deleteIndexResponse = indices.delete(deleteIndexRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(deleteIndexResponse.isAcknowledged());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="增删改查"><a href="#增删改查" class="headerlink" title="增删改查"></a>增删改查</h3><h4 id="1-添加数据（单个）"><a href="#1-添加数据（单个）" class="headerlink" title="1. 添加数据（单个）"></a>1. 添加数据（单个）</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void addDoc() throws Exception &#123;</span><br><span class="line">    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);</span><br><span class="line">    String timestamp = simpleDateFormat.format(new Date());</span><br><span class="line">    Map&lt;String, Object&gt; jsonMap = new HashMap&lt;&gt;();</span><br><span class="line">    jsonMap.put(&quot;uuid&quot;, &quot;534523dqw4qweq24324&quot;);</span><br><span class="line">    jsonMap.put(&quot;name&quot;, &quot;张三&quot;);</span><br><span class="line">    jsonMap.put(&quot;timestamp&quot;, timestamp);</span><br><span class="line">    //创建 IndexRequest 指定id</span><br><span class="line">    IndexRequest indexRequest = new IndexRequest(&quot;yh_customer&quot;).id(&quot;1&quot;).source(jsonMap);</span><br><span class="line">    IndexResponse indexResponse = restHighLevelClient.index(indexRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(indexResponse);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>最终输出：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352570339401.jpg" alt="16352570339401"></p>
-<h4 id="2-批量添加数据"><a href="#2-批量添加数据" class="headerlink" title="2. 批量添加数据"></a>2. 批量添加数据</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">    @Test</span><br><span class="line">    public void bulkTest() &#123;</span><br><span class="line">        //批量添加使用 BulkRequest</span><br><span class="line">        BulkRequest bulkRequest = new BulkRequest();</span><br><span class="line">        for (int i = 0; i &lt; 100; i++) &#123;</span><br><span class="line">            Customer customer = new Customer(UUID.randomUUID().toString().replace(&quot;-&quot;, &quot;&quot;), i + &quot;号客户&quot;, LocalDateTime.now());</span><br><span class="line">            //String data = JSONObject.toJSONString(customer);</span><br><span class="line">            String data = JSONObject.toJSONStringWithDateFormat(customer, &quot;yyyy-MM-dd HH:mm:ss&quot;);</span><br><span class="line">            IndexRequest request = new IndexRequest(&quot;yh_customer&quot;).source(data, XContentType.JSON);</span><br><span class="line">            bulkRequest.add(request);</span><br><span class="line">        &#125;</span><br><span class="line">        //同步</span><br><span class="line">//        try &#123;</span><br><span class="line">//            BulkResponse bulk = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);</span><br><span class="line">//            boolean hasFailures = bulk.hasFailures();</span><br><span class="line">//            if (hasFailures) &#123;</span><br><span class="line">//                List&lt;BulkItemResponse&gt; collect = Arrays.stream(bulk.getItems()).filter(BulkItemResponse::isFailed).collect(Collectors.toList());</span><br><span class="line">//                System.out.println(collect.size());</span><br><span class="line">//                String msg = bulk.buildFailureMessage();</span><br><span class="line">//                System.out.println(msg);</span><br><span class="line">//            &#125;</span><br><span class="line">//        &#125; catch (IOException e) &#123;</span><br><span class="line">//            e.printStackTrace();</span><br><span class="line">//        &#125;</span><br><span class="line"></span><br><span class="line">        //异步</span><br><span class="line">        restHighLevelClient.bulkAsync(bulkRequest, RequestOptions.DEFAULT, new ActionListener&lt;BulkResponse&gt;() &#123;</span><br><span class="line">            //成功回调</span><br><span class="line">            @Override</span><br><span class="line">            public void onResponse(BulkResponse bulkItemResponses) &#123;</span><br><span class="line">                System.out.println(&quot;success&quot;);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            //失败回调</span><br><span class="line">            @Override</span><br><span class="line">            public void onFailure(Exception e) &#123;</span><br><span class="line">                System.out.println(&quot;failure&quot;);</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            TimeUnit.MINUTES.sleep(5);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>最终输出：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352575817746.jpg" alt="16352575817746"></p>
-<h4 id="3-修改数据"><a href="#3-修改数据" class="headerlink" title="3. 修改数据"></a>3. 修改数据</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void updateDoc() throws Exception &#123;</span><br><span class="line">    UpdateRequest updateRequest = new UpdateRequest(&quot;yh_customer&quot;, &quot;1&quot;);</span><br><span class="line">    Map&lt;String, Object&gt; jsonMap = new HashMap&lt;&gt;();</span><br><span class="line">    jsonMap.put(&quot;name&quot;, &quot;李四&quot;);</span><br><span class="line">    updateRequest.doc(jsonMap);</span><br><span class="line">    UpdateResponse update = restHighLevelClient.update(updateRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(update);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>最终输出:<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352577179296.jpg" alt="16352577179296"></p>
-<h4 id="4-获取数据"><a href="#4-获取数据" class="headerlink" title="4. 获取数据"></a>4. 获取数据</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void get() throws Exception &#123;</span><br><span class="line">    GetRequest getRequest = new GetRequest(&quot;yh_customer&quot;);</span><br><span class="line">    getRequest.id(&quot;1&quot;);</span><br><span class="line">    GetResponse getResponse = restHighLevelClient.get(getRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(getResponse);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>最终输出：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352579192385.jpg" alt="16352579192385"></p>
-<h4 id="5-直接获取source"><a href="#5-直接获取source" class="headerlink" title="5. 直接获取source"></a>5. 直接获取source</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void getSource() throws Exception &#123;</span><br><span class="line">    GetSourceRequest getRequest = new GetSourceRequest(&quot;yh_customer&quot;, &quot;1&quot;);</span><br><span class="line">    GetSourceResponse source = restHighLevelClient.getSource(getRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(source);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>最终输出：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352580418359.jpg" alt="16352580418359"></p>
-<h3 id="判断是否存在"><a href="#判断是否存在" class="headerlink" title="判断是否存在"></a>判断是否存在</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void exists() throws Exception &#123;</span><br><span class="line">    GetRequest getRequest = new GetRequest(&quot;yh_customer&quot;);</span><br><span class="line">    getRequest.id(&quot;1&quot;);</span><br><span class="line">    boolean exists = restHighLevelClient.exists(getRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(exists);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>最终输出:<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352578138427.jpg" alt="16352578138427"></p>
-<h2 id="四、ES简单搜索"><a href="#四、ES简单搜索" class="headerlink" title="四、ES简单搜索"></a>四、ES简单搜索</h2><h3 id="根据条件搜索"><a href="#根据条件搜索" class="headerlink" title="根据条件搜索"></a>根据条件搜索</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void search() throws Exception &#123;</span><br><span class="line">    SearchRequest searchRequest = new SearchRequest(&quot;yh_customer&quot;);//没有参数，查询所有索引</span><br><span class="line">    //构建搜索条件</span><br><span class="line">    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();</span><br><span class="line">    //根据name字段搜索</span><br><span class="line">    searchSourceBuilder.query(QueryBuilders.matchQuery(&quot;name&quot;, &quot;1&quot;));</span><br><span class="line">    searchRequest.source(searchSourceBuilder);</span><br><span class="line">    SearchResponse search = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);</span><br><span class="line">    //返回命中数据</span><br><span class="line">    SearchHits hits = search.getHits();</span><br><span class="line">    for (SearchHit hit : hits.getHits()) &#123;</span><br><span class="line">        String sourceAsString = hit.getSourceAsString();</span><br><span class="line">        Customer customer = JSONObject.parseObject(sourceAsString, Customer.class);</span><br><span class="line">        System.out.println(customer);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>最终输出:<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352583920483.jpg" alt="16352583920483"></p>
-<h3 id="查询所有"><a href="#查询所有" class="headerlink" title="查询所有"></a>查询所有</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void simpleSearch() throws Exception &#123;</span><br><span class="line">    //创建搜索request</span><br><span class="line">    SearchRequest searchRequest = new SearchRequest(&quot;bank&quot;);</span><br><span class="line">    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();</span><br><span class="line">    searchSourceBuilder.query(QueryBuilders.matchAllQuery());//检索所有字段</span><br><span class="line">    SearchRequest request = searchRequest.source(searchSourceBuilder);</span><br><span class="line">    SearchResponse search = restHighLevelClient.search(request, RequestOptions.DEFAULT);</span><br><span class="line">    SearchHits hits = search.getHits();//命中条数</span><br><span class="line">    System.out.println(&quot;总条数：&quot; + hits.getTotalHits().value);</span><br><span class="line">    for (SearchHit hit : hits) &#123;//默认只检索出10条</span><br><span class="line">        Staff staff = JSONObject.parseObject(hit.getSourceAsString(), Staff.class);</span><br><span class="line">        System.out.println(staff);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>最终输出：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/27/16353396396063.jpg" alt="16353396396063"></p>
-<h2 id="五、ES聚合搜索"><a href="#五、ES聚合搜索" class="headerlink" title="五、ES聚合搜索"></a>五、ES聚合搜索</h2><p><em><strong>需要先导入官方提供的测试数据（使用kibana）</strong></em></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">    @Test</span><br><span class="line">    public void aggSearch() throws Exception &#123;</span><br><span class="line">        //创建搜索request</span><br><span class="line">        SearchRequest searchRequest = new SearchRequest(&quot;bank&quot;);</span><br><span class="line">        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();</span><br><span class="line">        //查询条件</span><br><span class="line">        searchSourceBuilder.query(QueryBuilders.matchAllQuery());</span><br><span class="line">        //统计各个年龄的平均工资</span><br><span class="line">        searchSourceBuilder.aggregation(AggregationBuilders.terms(&quot;ageAgg&quot;).field(&quot;age&quot;).subAggregation(AggregationBuilders.avg(&quot;balanceAvgAgg&quot;).field(&quot;balance&quot;)));</span><br><span class="line">        //所有人平均工资</span><br><span class="line">        searchSourceBuilder.aggregation(AggregationBuilders.avg(&quot;allBalanceAvgAgg&quot;).field(&quot;balance&quot;));</span><br><span class="line">        //构建request</span><br><span class="line">        SearchRequest request = searchRequest.source(searchSourceBuilder);</span><br><span class="line">        //search</span><br><span class="line">        SearchResponse searchResponse = restHighLevelClient.search(request, RequestOptions.DEFAULT);</span><br><span class="line">        //Aggregations aggregations = searchResponse.getAggregations();</span><br><span class="line">        //Aggregation接口有很多实现类  Avg（平均值）</span><br><span class="line">//        Avg avg = aggregations.get(&quot;balanceAgg&quot;);</span><br><span class="line">//        System.out.println(avg.getValue());</span><br><span class="line">        Aggregations aggregations = searchResponse.getAggregations();</span><br><span class="line">        Terms ageAgg = aggregations.get(&quot;ageAgg&quot;);</span><br><span class="line">        List&lt;? extends Terms.Bucket&gt; buckets = ageAgg.getBuckets();</span><br><span class="line">        for (Terms.Bucket bucket : buckets) &#123;//只查出了10条数据</span><br><span class="line">            System.out.println(&quot;年龄:&quot; + bucket.getKey());</span><br><span class="line">            System.out.println(&quot;人数:&quot; + bucket.getDocCount());</span><br><span class="line">            Avg avg = bucket.getAggregations().get(&quot;balanceAvgAgg&quot;);</span><br><span class="line">            System.out.println(&quot;平均工资:&quot; + avg.getValue());</span><br><span class="line">            System.out.println(&quot;=================================&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        Avg avg = aggregations.get(&quot;allBalanceAvgAgg&quot;);</span><br><span class="line">        System.out.println(&quot;所有人平均工资:&quot; + avg.getValue());</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>最终输出：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">年龄:31</span><br><span class="line">人数:61</span><br><span class="line">平均工资:28312.918032786885</span><br><span class="line">=================================</span><br><span class="line">年龄:39</span><br><span class="line">人数:60</span><br><span class="line">平均工资:25269.583333333332</span><br><span class="line">=================================</span><br><span class="line">年龄:26</span><br><span class="line">人数:59</span><br><span class="line">平均工资:23194.813559322032</span><br><span class="line">=================================</span><br><span class="line">年龄:32</span><br><span class="line">人数:52</span><br><span class="line">平均工资:23951.346153846152</span><br><span class="line">=================================</span><br><span class="line">年龄:35</span><br><span class="line">人数:52</span><br><span class="line">平均工资:22136.69230769231</span><br><span class="line">=================================</span><br><span class="line">年龄:36</span><br><span class="line">人数:52</span><br><span class="line">平均工资:22174.71153846154</span><br><span class="line">=================================</span><br><span class="line">年龄:22</span><br><span class="line">人数:51</span><br><span class="line">平均工资:24731.07843137255</span><br><span class="line">=================================</span><br><span class="line">年龄:28</span><br><span class="line">人数:51</span><br><span class="line">平均工资:28273.882352941175</span><br><span class="line">=================================</span><br><span class="line">年龄:33</span><br><span class="line">人数:50</span><br><span class="line">平均工资:25093.94</span><br><span class="line">=================================</span><br><span class="line">年龄:34</span><br><span class="line">人数:49</span><br><span class="line">平均工资:26809.95918367347</span><br><span class="line">=================================</span><br><span class="line">所有人平均工资:25714.837</span><br></pre></td></tr></table></figure>
-<p>demo地址：<a href="https://github.com/yangh124/es-demo">https://github.com/yangh124/es-demo</a></p>
-]]></content>
-      <categories>
-        <category>后端</category>
-      </categories>
-      <tags>
-        <tag>elastic search</tag>
-        <tag>实战</tag>
       </tags>
   </entry>
   <entry>
@@ -2161,6 +2118,49 @@ rabbitmq-plugins enable rabbitmq_management
       <categories>
         <category>脚本语言</category>
       </categories>
+  </entry>
+  <entry>
+    <title>SpringBoot+Elasticsearch实战</title>
+    <url>/2021/10/26/SpringBoot%20ES%E5%AE%9E%E6%88%98/</url>
+    <content><![CDATA[<h2 id="一、引入依赖"><a href="#一、引入依赖" class="headerlink" title="一、引入依赖"></a>一、引入依赖</h2><p>本文使用的SpringBoot版本为2.5.4，elasticsearch版本为7.15.0</p>
+<span id="more"></span>
+<h3 id="1-pom文件如下"><a href="#1-pom文件如下" class="headerlink" title="1. pom文件如下"></a>1. pom文件如下</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;</span><br><span class="line">    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;</span><br><span class="line">    &lt;parent&gt;</span><br><span class="line">        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">        &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;</span><br><span class="line">        &lt;version&gt;2.5.4&lt;/version&gt;</span><br><span class="line">        &lt;relativePath/&gt; &lt;!-- lookup parent from repository --&gt;</span><br><span class="line">    &lt;/parent&gt;</span><br><span class="line">    &lt;groupId&gt;com.yh&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;es-demo&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;</span><br><span class="line">    &lt;name&gt;es-demo&lt;/name&gt;</span><br><span class="line">    &lt;description&gt;es-demo&lt;/description&gt;</span><br><span class="line">    &lt;properties&gt;</span><br><span class="line">        &lt;java.version&gt;1.8&lt;/java.version&gt;</span><br><span class="line">        &lt;elasticsearch.version&gt;7.15.0&lt;/elasticsearch.version&gt;</span><br><span class="line">    &lt;/properties&gt;</span><br><span class="line">    &lt;dependencies&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-boot-configuration-processor&lt;/artifactId&gt;</span><br><span class="line">            &lt;optional&gt;true&lt;/optional&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;lombok&lt;/artifactId&gt;</span><br><span class="line">            &lt;optional&gt;true&lt;/optional&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;</span><br><span class="line">            &lt;scope&gt;test&lt;/scope&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;!--使用的rest-high-level-client--&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.elasticsearch.client&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;elasticsearch-rest-high-level-client&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;$&#123;elasticsearch.version&#125;&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;org.elasticsearch&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;elasticsearch&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;$&#123;elasticsearch.version&#125;&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">        &lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;com.alibaba&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;fastjson&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;1.2.70&lt;/version&gt;</span><br><span class="line">            &lt;scope&gt;test&lt;/scope&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br><span class="line">    &lt;/dependencies&gt;</span><br><span class="line"></span><br><span class="line">    &lt;build&gt;</span><br><span class="line">        &lt;plugins&gt;</span><br><span class="line">            &lt;plugin&gt;</span><br><span class="line">                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;</span><br><span class="line">                &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;</span><br><span class="line">                &lt;configuration&gt;</span><br><span class="line">                    &lt;excludes&gt;</span><br><span class="line">                        &lt;exclude&gt;</span><br><span class="line">                            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;</span><br><span class="line">                            &lt;artifactId&gt;lombok&lt;/artifactId&gt;</span><br><span class="line">                        &lt;/exclude&gt;</span><br><span class="line">                    &lt;/excludes&gt;</span><br><span class="line">                &lt;/configuration&gt;</span><br><span class="line">            &lt;/plugin&gt;</span><br><span class="line">        &lt;/plugins&gt;</span><br><span class="line">    &lt;/build&gt;</span><br><span class="line"></span><br><span class="line">&lt;/project&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="2-application-yml配置如下"><a href="#2-application-yml配置如下" class="headerlink" title="2. application.yml配置如下"></a>2. application.yml配置如下</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">elasticsearch:</span><br><span class="line">  host-arr:</span><br><span class="line">    - 127.0.0.1:9200</span><br></pre></td></tr></table></figure>
+<h2 id="二、ES-SpringBoot配置"><a href="#二、ES-SpringBoot配置" class="headerlink" title="二、ES SpringBoot配置"></a>二、ES SpringBoot配置</h2><h3 id="1-配置ES服务器地址"><a href="#1-配置ES服务器地址" class="headerlink" title="1. 配置ES服务器地址"></a>1. 配置ES服务器地址</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package com.yh.esdemo.config;</span><br><span class="line"></span><br><span class="line">import lombok.Getter;</span><br><span class="line">import lombok.Setter;</span><br><span class="line">import org.springframework.boot.context.properties.ConfigurationProperties;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * @author : yh</span><br><span class="line"> * @date : 2021/8/30 20:35</span><br><span class="line"> */</span><br><span class="line">@Component</span><br><span class="line">@Getter</span><br><span class="line">@Setter</span><br><span class="line">@ConfigurationProperties(prefix = &quot;elasticsearch&quot;)</span><br><span class="line">public class EsHostConfig &#123;</span><br><span class="line"></span><br><span class="line">    private String[] hostArr;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-配置RestHighLevelClient"><a href="#2-配置RestHighLevelClient" class="headerlink" title="2. 配置RestHighLevelClient"></a>2. 配置RestHighLevelClient</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package com.yh.esdemo.config;</span><br><span class="line"></span><br><span class="line">import org.apache.http.HttpHost;</span><br><span class="line">import org.elasticsearch.client.RestClient;</span><br><span class="line">import org.elasticsearch.client.RestHighLevelClient;</span><br><span class="line">import org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line">import org.springframework.context.annotation.Bean;</span><br><span class="line">import org.springframework.context.annotation.Configuration;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 定义RestClient Bean</span><br><span class="line"> *</span><br><span class="line"> * @author : yh</span><br><span class="line"> * @date : 2021/8/30 20:32</span><br><span class="line"> */</span><br><span class="line">@Configuration</span><br><span class="line">public class EsRestClientConfig &#123;</span><br><span class="line"></span><br><span class="line">    @Autowired</span><br><span class="line">    private EsHostConfig esHostConfig;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public RestHighLevelClient restHighLevelClient() &#123;</span><br><span class="line">        String[] hostArr = esHostConfig.getHostArr();</span><br><span class="line">        int size = hostArr.length;</span><br><span class="line">        HttpHost[] httpHostArr = new HttpHost[size];</span><br><span class="line">        for (int i = 0; i &lt; size; i++) &#123;</span><br><span class="line">            String[] split = hostArr[i].split(&quot;:&quot;);</span><br><span class="line">            httpHostArr[i] = new HttpHost(split[0], Integer.parseInt(split[1]), &quot;http&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        return new RestHighLevelClient(RestClient.builder(httpHostArr));</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><em><strong>配置完成后只需在相关业务中注入RestHighLevelClient即可使用</strong></em></p>
+<h2 id="三、ES基本使用"><a href="#三、ES基本使用" class="headerlink" title="三、ES基本使用"></a>三、ES基本使用</h2><h3 id="索引操作"><a href="#索引操作" class="headerlink" title="索引操作"></a>索引操作</h3><h4 id="1-创建索引"><a href="#1-创建索引" class="headerlink" title="1. 创建索引"></a>1. 创建索引</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void addIndex() throws Exception &#123;</span><br><span class="line">    //获取 IndicesClient ，用于创建 Index</span><br><span class="line">    IndicesClient indices = restHighLevelClient.indices();</span><br><span class="line">    //定义一个 CreateIndexRequest ，参数为索引的名称</span><br><span class="line">    CreateIndexRequest createIndexRequest = new CreateIndexRequest(&quot;yh_customer&quot;);</span><br><span class="line">    //CreateIndexRequest配置相关参数 number_of_shards：分片数  number_of_replicas：每个分片的副本数</span><br><span class="line">    createIndexRequest.settings(</span><br><span class="line">            Settings.builder()</span><br><span class="line">                    .put(&quot;index.number_of_shards&quot;, 1)</span><br><span class="line">                    .put(&quot;index.number_of_replicas&quot;, 0)</span><br><span class="line">    );</span><br><span class="line">    Map&lt;String, Object&gt; name = new HashMap&lt;&gt;();</span><br><span class="line">    name.put(&quot;type&quot;, &quot;text&quot;);</span><br><span class="line">    name.put(&quot;analyzer&quot;, &quot;ik_max_word&quot;);//指定分词器</span><br><span class="line">    name.put(&quot;search_analyzer&quot;, &quot;ik_smart&quot;);</span><br><span class="line">    Map&lt;String, Object&gt; timestamp = new HashMap&lt;&gt;();</span><br><span class="line">    timestamp.put(&quot;type&quot;, &quot;date&quot;);</span><br><span class="line">    timestamp.put(&quot;format&quot;, &quot;yyyy-MM-dd HH:mm:ss&quot;);//指定时间格式</span><br><span class="line">    Map&lt;String, Object&gt; uuid = new HashMap&lt;&gt;();</span><br><span class="line">    uuid.put(&quot;type&quot;, &quot;keyword&quot;);</span><br><span class="line">    Map&lt;String, Object&gt; properties = new HashMap&lt;&gt;();</span><br><span class="line">    properties.put(&quot;name&quot;, name);</span><br><span class="line">    properties.put(&quot;timestamp&quot;, timestamp);</span><br><span class="line">    properties.put(&quot;uuid&quot;, uuid);</span><br><span class="line">    Map&lt;String, Object&gt; mapping = new HashMap&lt;&gt;();</span><br><span class="line">    mapping.put(&quot;properties&quot;, properties);</span><br><span class="line">    //创建mapping  mapping可以理解为此索引中数据的数据结构</span><br><span class="line">    createIndexRequest.mapping(mapping);</span><br><span class="line">    //创建索引 此方法同步返回结果  异步使用 createAsync</span><br><span class="line">    CreateIndexResponse createIndexResponse = indices.create(createIndexRequest, RequestOptions.DEFAULT);</span><br><span class="line">    //创建结果（true/false）</span><br><span class="line">    System.out.println(createIndexResponse.isAcknowledged());</span><br><span class="line">    //输出创建成功的索引名称</span><br><span class="line">    System.out.println(createIndexResponse.index());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出:<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352546351035.jpg" alt="16352546351035"></p>
+<h4 id="2-删除索引"><a href="#2-删除索引" class="headerlink" title="2. 删除索引"></a>2. 删除索引</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void delIndex() throws Exception &#123;</span><br><span class="line">    IndicesClient indices = restHighLevelClient.indices();</span><br><span class="line">    DeleteIndexRequest deleteIndexRequest = new DeleteIndexRequest(&quot;yh_customer&quot;);</span><br><span class="line">    AcknowledgedResponse deleteIndexResponse = indices.delete(deleteIndexRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(deleteIndexResponse.isAcknowledged());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="增删改查"><a href="#增删改查" class="headerlink" title="增删改查"></a>增删改查</h3><h4 id="1-添加数据（单个）"><a href="#1-添加数据（单个）" class="headerlink" title="1. 添加数据（单个）"></a>1. 添加数据（单个）</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void addDoc() throws Exception &#123;</span><br><span class="line">    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss&quot;);</span><br><span class="line">    String timestamp = simpleDateFormat.format(new Date());</span><br><span class="line">    Map&lt;String, Object&gt; jsonMap = new HashMap&lt;&gt;();</span><br><span class="line">    jsonMap.put(&quot;uuid&quot;, &quot;534523dqw4qweq24324&quot;);</span><br><span class="line">    jsonMap.put(&quot;name&quot;, &quot;张三&quot;);</span><br><span class="line">    jsonMap.put(&quot;timestamp&quot;, timestamp);</span><br><span class="line">    //创建 IndexRequest 指定id</span><br><span class="line">    IndexRequest indexRequest = new IndexRequest(&quot;yh_customer&quot;).id(&quot;1&quot;).source(jsonMap);</span><br><span class="line">    IndexResponse indexResponse = restHighLevelClient.index(indexRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(indexResponse);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352570339401.jpg" alt="16352570339401"></p>
+<h4 id="2-批量添加数据"><a href="#2-批量添加数据" class="headerlink" title="2. 批量添加数据"></a>2. 批量添加数据</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">    @Test</span><br><span class="line">    public void bulkTest() &#123;</span><br><span class="line">        //批量添加使用 BulkRequest</span><br><span class="line">        BulkRequest bulkRequest = new BulkRequest();</span><br><span class="line">        for (int i = 0; i &lt; 100; i++) &#123;</span><br><span class="line">            Customer customer = new Customer(UUID.randomUUID().toString().replace(&quot;-&quot;, &quot;&quot;), i + &quot;号客户&quot;, LocalDateTime.now());</span><br><span class="line">            //String data = JSONObject.toJSONString(customer);</span><br><span class="line">            String data = JSONObject.toJSONStringWithDateFormat(customer, &quot;yyyy-MM-dd HH:mm:ss&quot;);</span><br><span class="line">            IndexRequest request = new IndexRequest(&quot;yh_customer&quot;).source(data, XContentType.JSON);</span><br><span class="line">            bulkRequest.add(request);</span><br><span class="line">        &#125;</span><br><span class="line">        //同步</span><br><span class="line">//        try &#123;</span><br><span class="line">//            BulkResponse bulk = restHighLevelClient.bulk(bulkRequest, RequestOptions.DEFAULT);</span><br><span class="line">//            boolean hasFailures = bulk.hasFailures();</span><br><span class="line">//            if (hasFailures) &#123;</span><br><span class="line">//                List&lt;BulkItemResponse&gt; collect = Arrays.stream(bulk.getItems()).filter(BulkItemResponse::isFailed).collect(Collectors.toList());</span><br><span class="line">//                System.out.println(collect.size());</span><br><span class="line">//                String msg = bulk.buildFailureMessage();</span><br><span class="line">//                System.out.println(msg);</span><br><span class="line">//            &#125;</span><br><span class="line">//        &#125; catch (IOException e) &#123;</span><br><span class="line">//            e.printStackTrace();</span><br><span class="line">//        &#125;</span><br><span class="line"></span><br><span class="line">        //异步</span><br><span class="line">        restHighLevelClient.bulkAsync(bulkRequest, RequestOptions.DEFAULT, new ActionListener&lt;BulkResponse&gt;() &#123;</span><br><span class="line">            //成功回调</span><br><span class="line">            @Override</span><br><span class="line">            public void onResponse(BulkResponse bulkItemResponses) &#123;</span><br><span class="line">                System.out.println(&quot;success&quot;);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            //失败回调</span><br><span class="line">            @Override</span><br><span class="line">            public void onFailure(Exception e) &#123;</span><br><span class="line">                System.out.println(&quot;failure&quot;);</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        try &#123;</span><br><span class="line">            TimeUnit.MINUTES.sleep(5);</span><br><span class="line">        &#125; catch (InterruptedException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352575817746.jpg" alt="16352575817746"></p>
+<h4 id="3-修改数据"><a href="#3-修改数据" class="headerlink" title="3. 修改数据"></a>3. 修改数据</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void updateDoc() throws Exception &#123;</span><br><span class="line">    UpdateRequest updateRequest = new UpdateRequest(&quot;yh_customer&quot;, &quot;1&quot;);</span><br><span class="line">    Map&lt;String, Object&gt; jsonMap = new HashMap&lt;&gt;();</span><br><span class="line">    jsonMap.put(&quot;name&quot;, &quot;李四&quot;);</span><br><span class="line">    updateRequest.doc(jsonMap);</span><br><span class="line">    UpdateResponse update = restHighLevelClient.update(updateRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(update);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出:<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352577179296.jpg" alt="16352577179296"></p>
+<h4 id="4-获取数据"><a href="#4-获取数据" class="headerlink" title="4. 获取数据"></a>4. 获取数据</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void get() throws Exception &#123;</span><br><span class="line">    GetRequest getRequest = new GetRequest(&quot;yh_customer&quot;);</span><br><span class="line">    getRequest.id(&quot;1&quot;);</span><br><span class="line">    GetResponse getResponse = restHighLevelClient.get(getRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(getResponse);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352579192385.jpg" alt="16352579192385"></p>
+<h4 id="5-直接获取source"><a href="#5-直接获取source" class="headerlink" title="5. 直接获取source"></a>5. 直接获取source</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void getSource() throws Exception &#123;</span><br><span class="line">    GetSourceRequest getRequest = new GetSourceRequest(&quot;yh_customer&quot;, &quot;1&quot;);</span><br><span class="line">    GetSourceResponse source = restHighLevelClient.getSource(getRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(source);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352580418359.jpg" alt="16352580418359"></p>
+<h3 id="判断是否存在"><a href="#判断是否存在" class="headerlink" title="判断是否存在"></a>判断是否存在</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void exists() throws Exception &#123;</span><br><span class="line">    GetRequest getRequest = new GetRequest(&quot;yh_customer&quot;);</span><br><span class="line">    getRequest.id(&quot;1&quot;);</span><br><span class="line">    boolean exists = restHighLevelClient.exists(getRequest, RequestOptions.DEFAULT);</span><br><span class="line">    System.out.println(exists);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出:<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352578138427.jpg" alt="16352578138427"></p>
+<h2 id="四、ES简单搜索"><a href="#四、ES简单搜索" class="headerlink" title="四、ES简单搜索"></a>四、ES简单搜索</h2><h3 id="根据条件搜索"><a href="#根据条件搜索" class="headerlink" title="根据条件搜索"></a>根据条件搜索</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void search() throws Exception &#123;</span><br><span class="line">    SearchRequest searchRequest = new SearchRequest(&quot;yh_customer&quot;);//没有参数，查询所有索引</span><br><span class="line">    //构建搜索条件</span><br><span class="line">    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();</span><br><span class="line">    //根据name字段搜索</span><br><span class="line">    searchSourceBuilder.query(QueryBuilders.matchQuery(&quot;name&quot;, &quot;1&quot;));</span><br><span class="line">    searchRequest.source(searchSourceBuilder);</span><br><span class="line">    SearchResponse search = restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT);</span><br><span class="line">    //返回命中数据</span><br><span class="line">    SearchHits hits = search.getHits();</span><br><span class="line">    for (SearchHit hit : hits.getHits()) &#123;</span><br><span class="line">        String sourceAsString = hit.getSourceAsString();</span><br><span class="line">        Customer customer = JSONObject.parseObject(sourceAsString, Customer.class);</span><br><span class="line">        System.out.println(customer);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出:<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/26/16352583920483.jpg" alt="16352583920483"></p>
+<h3 id="查询所有"><a href="#查询所有" class="headerlink" title="查询所有"></a>查询所有</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public void simpleSearch() throws Exception &#123;</span><br><span class="line">    //创建搜索request</span><br><span class="line">    SearchRequest searchRequest = new SearchRequest(&quot;bank&quot;);</span><br><span class="line">    SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();</span><br><span class="line">    searchSourceBuilder.query(QueryBuilders.matchAllQuery());//检索所有字段</span><br><span class="line">    SearchRequest request = searchRequest.source(searchSourceBuilder);</span><br><span class="line">    SearchResponse search = restHighLevelClient.search(request, RequestOptions.DEFAULT);</span><br><span class="line">    SearchHits hits = search.getHits();//命中条数</span><br><span class="line">    System.out.println(&quot;总条数：&quot; + hits.getTotalHits().value);</span><br><span class="line">    for (SearchHit hit : hits) &#123;//默认只检索出10条</span><br><span class="line">        Staff staff = JSONObject.parseObject(hit.getSourceAsString(), Staff.class);</span><br><span class="line">        System.out.println(staff);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出：<br><img src="https://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2021/10/27/16353396396063.jpg" alt="16353396396063"></p>
+<h2 id="五、ES聚合搜索"><a href="#五、ES聚合搜索" class="headerlink" title="五、ES聚合搜索"></a>五、ES聚合搜索</h2><p><em><strong>需要先导入官方提供的测试数据（使用kibana）</strong></em></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">    @Test</span><br><span class="line">    public void aggSearch() throws Exception &#123;</span><br><span class="line">        //创建搜索request</span><br><span class="line">        SearchRequest searchRequest = new SearchRequest(&quot;bank&quot;);</span><br><span class="line">        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();</span><br><span class="line">        //查询条件</span><br><span class="line">        searchSourceBuilder.query(QueryBuilders.matchAllQuery());</span><br><span class="line">        //统计各个年龄的平均工资</span><br><span class="line">        searchSourceBuilder.aggregation(AggregationBuilders.terms(&quot;ageAgg&quot;).field(&quot;age&quot;).subAggregation(AggregationBuilders.avg(&quot;balanceAvgAgg&quot;).field(&quot;balance&quot;)));</span><br><span class="line">        //所有人平均工资</span><br><span class="line">        searchSourceBuilder.aggregation(AggregationBuilders.avg(&quot;allBalanceAvgAgg&quot;).field(&quot;balance&quot;));</span><br><span class="line">        //构建request</span><br><span class="line">        SearchRequest request = searchRequest.source(searchSourceBuilder);</span><br><span class="line">        //search</span><br><span class="line">        SearchResponse searchResponse = restHighLevelClient.search(request, RequestOptions.DEFAULT);</span><br><span class="line">        //Aggregations aggregations = searchResponse.getAggregations();</span><br><span class="line">        //Aggregation接口有很多实现类  Avg（平均值）</span><br><span class="line">//        Avg avg = aggregations.get(&quot;balanceAgg&quot;);</span><br><span class="line">//        System.out.println(avg.getValue());</span><br><span class="line">        Aggregations aggregations = searchResponse.getAggregations();</span><br><span class="line">        Terms ageAgg = aggregations.get(&quot;ageAgg&quot;);</span><br><span class="line">        List&lt;? extends Terms.Bucket&gt; buckets = ageAgg.getBuckets();</span><br><span class="line">        for (Terms.Bucket bucket : buckets) &#123;//只查出了10条数据</span><br><span class="line">            System.out.println(&quot;年龄:&quot; + bucket.getKey());</span><br><span class="line">            System.out.println(&quot;人数:&quot; + bucket.getDocCount());</span><br><span class="line">            Avg avg = bucket.getAggregations().get(&quot;balanceAvgAgg&quot;);</span><br><span class="line">            System.out.println(&quot;平均工资:&quot; + avg.getValue());</span><br><span class="line">            System.out.println(&quot;=================================&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        Avg avg = aggregations.get(&quot;allBalanceAvgAgg&quot;);</span><br><span class="line">        System.out.println(&quot;所有人平均工资:&quot; + avg.getValue());</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>最终输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">年龄:31</span><br><span class="line">人数:61</span><br><span class="line">平均工资:28312.918032786885</span><br><span class="line">=================================</span><br><span class="line">年龄:39</span><br><span class="line">人数:60</span><br><span class="line">平均工资:25269.583333333332</span><br><span class="line">=================================</span><br><span class="line">年龄:26</span><br><span class="line">人数:59</span><br><span class="line">平均工资:23194.813559322032</span><br><span class="line">=================================</span><br><span class="line">年龄:32</span><br><span class="line">人数:52</span><br><span class="line">平均工资:23951.346153846152</span><br><span class="line">=================================</span><br><span class="line">年龄:35</span><br><span class="line">人数:52</span><br><span class="line">平均工资:22136.69230769231</span><br><span class="line">=================================</span><br><span class="line">年龄:36</span><br><span class="line">人数:52</span><br><span class="line">平均工资:22174.71153846154</span><br><span class="line">=================================</span><br><span class="line">年龄:22</span><br><span class="line">人数:51</span><br><span class="line">平均工资:24731.07843137255</span><br><span class="line">=================================</span><br><span class="line">年龄:28</span><br><span class="line">人数:51</span><br><span class="line">平均工资:28273.882352941175</span><br><span class="line">=================================</span><br><span class="line">年龄:33</span><br><span class="line">人数:50</span><br><span class="line">平均工资:25093.94</span><br><span class="line">=================================</span><br><span class="line">年龄:34</span><br><span class="line">人数:49</span><br><span class="line">平均工资:26809.95918367347</span><br><span class="line">=================================</span><br><span class="line">所有人平均工资:25714.837</span><br></pre></td></tr></table></figure>
+<p>demo地址：<a href="https://github.com/yangh124/es-demo">https://github.com/yangh124/es-demo</a></p>
+]]></content>
+      <categories>
+        <category>后端</category>
+      </categories>
+      <tags>
+        <tag>elastic search</tag>
+        <tag>实战</tag>
+      </tags>
   </entry>
   <entry>
     <title>SpringBoot+RabbitMQ实战</title>
@@ -2338,6 +2338,65 @@ rabbitmq-plugins enable rabbitmq_management
       </categories>
       <tags>
         <tag>k8s</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>索引的创建与设计原则</title>
+    <url>/2022/01/15/%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/</url>
+    <content><![CDATA[<h2 id="索引的声明与使用"><a href="#索引的声明与使用" class="headerlink" title="索引的声明与使用"></a>索引的声明与使用</h2><h3 id="索引的分类"><a href="#索引的分类" class="headerlink" title="索引的分类"></a>索引的分类</h3><ul>
+<li>从<strong>功能逻辑</strong>上说，索引主要有四种，分别为普通索引、唯一索引、主键索引、全文索引。</li>
+<li>按照<strong>物理实现方式</strong>，索引可以分为两种：聚簇索引和非聚簇索引。</li>
+<li>按照<strong>作用字段个数</strong>进行划分，分成单列索引和联合索引。</li>
+</ul>
+<h2 id="MySQL8-0索引新特性"><a href="#MySQL8-0索引新特性" class="headerlink" title="MySQL8.0索引新特性"></a>MySQL8.0索引新特性</h2><h3 id="支持降序索引"><a href="#支持降序索引" class="headerlink" title="支持降序索引"></a>支持降序索引</h3><p>降序索引以降序存储键值。虽然在语法上，从MySQL4版本开始就支持降序索引语法了。但实际上该DESC定义是被忽略的，直到MySQL8才开始真正支持降序索引（仅限于InnoDB存储引擎）。<br>MySQL在8.0之前创建仍然是升序索引，使用时进行反向扫描，这大大降低了数据库的效率。<br><code> CREATE TABLE ts1(a int,b int,index idx_a_b(a ASC,b DESC))</code></p>
+<h3 id="隐藏索引"><a href="#隐藏索引" class="headerlink" title="隐藏索引"></a>隐藏索引</h3><p><code> ALTER TABLE tablename ALTER INDEX index_name INVISIBLE; #隐藏索引</code><br><code> ALTER TABLE tablename ALTER INDEX index_name VISIBLE; #显示索引</code><br><strong>隐藏显示索引可用与查看使用索引的效率提升</strong></p>
+<h2 id="索引的设计原则"><a href="#索引的设计原则" class="headerlink" title="索引的设计原则"></a>索引的设计原则</h2><h3 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h3><p>创建表</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 课程表</span><br><span class="line">CREATE TABLE `course` (</span><br><span class="line">  `id` int NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `course_id` int NOT NULL,</span><br><span class="line">  `course_name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</span><br><span class="line"></span><br><span class="line"># 学生表</span><br><span class="line">CREATE TABLE `student_info` (</span><br><span class="line">  `id` int NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `student_id` int NOT NULL,</span><br><span class="line">  `name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,</span><br><span class="line">  `course_id` int NOT NULL,</span><br><span class="line">  `class_id` int DEFAULT NULL,</span><br><span class="line">  `create_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB AUTO_INCREMENT=1000001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</span><br></pre></td></tr></table></figure>
+<p>生成随机数函数</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成随机数函数</span><br><span class="line">CREATE DEFINER=`root`@`%` FUNCTION `rand_num`( from_num INT,to_num INT) RETURNS int</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	SET i = FLOOR(from_num+RAND()*(to_num-from_num +1));</span><br><span class="line">	RETURN i;</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+<p>生成随机字符串函数</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 生成随机字符串</span><br><span class="line">CREATE DEFINER=`root`@`%` FUNCTION `rand_string`(n INT) RETURNS varchar(255) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci</span><br><span class="line">BEGIN</span><br><span class="line">    DECLARE chars_str varchar(100) DEFAULT &#x27;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&#x27;;</span><br><span class="line">    DECLARE return_str varchar(255) DEFAULT &#x27;&#x27;;</span><br><span class="line">    DECLARE i INT DEFAULT 0;</span><br><span class="line">    WHILE i &lt; n DO</span><br><span class="line">        SET return_str = concat(return_str,substring(chars_str , FLOOR(1 + RAND()*62 ),1));</span><br><span class="line">        SET i = i +1;</span><br><span class="line">    END WHILE;</span><br><span class="line">    RETURN return_str;</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+<p>生成课程表数据储存过程</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成课程表数据储存过程</span><br><span class="line">CREATE DEFINER=`root`@`%` PROCEDURE `insert_course`( max_num INT )</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	</span><br><span class="line">	SET autocommit = 0;</span><br><span class="line">	REPEAT</span><br><span class="line">			</span><br><span class="line">			SET i = i + 1;</span><br><span class="line">		INSERT INTO course ( course_id, course_name )</span><br><span class="line">		VALUES</span><br><span class="line">			(</span><br><span class="line">				rand_num ( 10000, 10100 ),</span><br><span class="line">			rand_string ( 6 ));</span><br><span class="line">		UNTIL i = max_num </span><br><span class="line">	END REPEAT;</span><br><span class="line">	COMMIT;</span><br><span class="line">	</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+<p>生成学生表数据存储过程</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成学生表存储过程</span><br><span class="line">CREATE DEFINER=`root`@`%` PROCEDURE `insert_stu`( max_num INT )</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	</span><br><span class="line">	SET autocommit = 0;</span><br><span class="line">	REPEAT</span><br><span class="line">			</span><br><span class="line">			SET i = i + 1;</span><br><span class="line">		INSERT INTO student_info ( course_id, class_id,student_id,name ) VALUES(</span><br><span class="line">		rand_num(10000,10100),rand_num(10000,10200),rand_num(10000,20000),rand_string(6)</span><br><span class="line">		);</span><br><span class="line">		UNTIL i = max_num </span><br><span class="line">	END REPEAT;</span><br><span class="line">	COMMIT;</span><br><span class="line">	</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
+<p>调用存储过程</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CALL insert_stu(1000000);</span><br><span class="line">CALL insert_course(100);</span><br></pre></td></tr></table></figure>
+<h3 id="哪些情况适合创建索引"><a href="#哪些情况适合创建索引" class="headerlink" title="哪些情况适合创建索引"></a>哪些情况适合创建索引</h3><ol>
+<li>字段的数值有唯一性限制：<blockquote>
+<p>业务上具有唯一特性的字段，即使是组合字段，也必须创建组合索引（来源：Alibaba）</p>
+</blockquote>
+</li>
+<li>频繁作为where查询条件的字段</li>
+<li>经常 group by 和 order by 的字段</li>
+<li>update、delete的where条件</li>
+<li>distinct字段需要创建索引</li>
+<li>多表join连接操作时，创建索引的注意事项<blockquote>
+<p>连接表尽量不超过3张；对where条件创建索引，并且该字段在多张表中的类型必须一致（隐式转换（使用了函数，索引失效））；</p>
+</blockquote>
+</li>
+<li>使用列的类型小的创建索引</li>
+<li>使用字符串前缀创建索引</li>
+<li>区分度高（散列性高）的列适合创建索引</li>
+<li>使用最频繁的列放到联合索引的左侧</li>
+<li>在多个列都要创建索引时，联合索引优于单值索引</li>
+</ol>
+<h3 id="哪些情况不适合创建索引"><a href="#哪些情况不适合创建索引" class="headerlink" title="哪些情况不适合创建索引"></a>哪些情况不适合创建索引</h3><ol>
+<li>在where中使用不到的字段不要创建索引</li>
+<li>数据量小的表最好不要创建索引</li>
+<li>有大量重复数据的列不要建立索引</li>
+<li>避免对经常更新的表创建过多的索引</li>
+<li>不建议用无序的值作为索引</li>
+<li>删除不再使用的或者很少使用的索引</li>
+<li>不要定义冗余或重复的索引</li>
+</ol>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>索引是一把双刃剑，可以提高查询效率，但是也会降低插入和更新的速度并占用磁盘空间。</p>
+]]></content>
+      <categories>
+        <category>后端</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
       </tags>
   </entry>
   <entry>
@@ -2833,65 +2892,6 @@ rabbitmq-plugins enable rabbitmq_management
       <tags>
         <tag>Java</tag>
         <tag>算法</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>索引的创建与设计原则</title>
-    <url>/2022/01/15/%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/</url>
-    <content><![CDATA[<h2 id="索引的声明与使用"><a href="#索引的声明与使用" class="headerlink" title="索引的声明与使用"></a>索引的声明与使用</h2><h3 id="索引的分类"><a href="#索引的分类" class="headerlink" title="索引的分类"></a>索引的分类</h3><ul>
-<li>从<strong>功能逻辑</strong>上说，索引主要有四种，分别为普通索引、唯一索引、主键索引、全文索引。</li>
-<li>按照<strong>物理实现方式</strong>，索引可以分为两种：聚簇索引和非聚簇索引。</li>
-<li>按照<strong>作用字段个数</strong>进行划分，分成单列索引和联合索引。</li>
-</ul>
-<h2 id="MySQL8-0索引新特性"><a href="#MySQL8-0索引新特性" class="headerlink" title="MySQL8.0索引新特性"></a>MySQL8.0索引新特性</h2><h3 id="支持降序索引"><a href="#支持降序索引" class="headerlink" title="支持降序索引"></a>支持降序索引</h3><p>降序索引以降序存储键值。虽然在语法上，从MySQL4版本开始就支持降序索引语法了。但实际上该DESC定义是被忽略的，直到MySQL8才开始真正支持降序索引（仅限于InnoDB存储引擎）。<br>MySQL在8.0之前创建仍然是升序索引，使用时进行反向扫描，这大大降低了数据库的效率。<br><code> CREATE TABLE ts1(a int,b int,index idx_a_b(a ASC,b DESC))</code></p>
-<h3 id="隐藏索引"><a href="#隐藏索引" class="headerlink" title="隐藏索引"></a>隐藏索引</h3><p><code> ALTER TABLE tablename ALTER INDEX index_name INVISIBLE; #隐藏索引</code><br><code> ALTER TABLE tablename ALTER INDEX index_name VISIBLE; #显示索引</code><br><strong>隐藏显示索引可用与查看使用索引的效率提升</strong></p>
-<h2 id="索引的设计原则"><a href="#索引的设计原则" class="headerlink" title="索引的设计原则"></a>索引的设计原则</h2><h3 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h3><p>创建表</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 课程表</span><br><span class="line">CREATE TABLE `course` (</span><br><span class="line">  `id` int NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `course_id` int NOT NULL,</span><br><span class="line">  `course_name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</span><br><span class="line"></span><br><span class="line"># 学生表</span><br><span class="line">CREATE TABLE `student_info` (</span><br><span class="line">  `id` int NOT NULL AUTO_INCREMENT,</span><br><span class="line">  `student_id` int NOT NULL,</span><br><span class="line">  `name` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,</span><br><span class="line">  `course_id` int NOT NULL,</span><br><span class="line">  `class_id` int DEFAULT NULL,</span><br><span class="line">  `create_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,</span><br><span class="line">  PRIMARY KEY (`id`)</span><br><span class="line">) ENGINE=InnoDB AUTO_INCREMENT=1000001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</span><br></pre></td></tr></table></figure>
-<p>生成随机数函数</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成随机数函数</span><br><span class="line">CREATE DEFINER=`root`@`%` FUNCTION `rand_num`( from_num INT,to_num INT) RETURNS int</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	SET i = FLOOR(from_num+RAND()*(to_num-from_num +1));</span><br><span class="line">	RETURN i;</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
-<p>生成随机字符串函数</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 生成随机字符串</span><br><span class="line">CREATE DEFINER=`root`@`%` FUNCTION `rand_string`(n INT) RETURNS varchar(255) CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci</span><br><span class="line">BEGIN</span><br><span class="line">    DECLARE chars_str varchar(100) DEFAULT &#x27;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&#x27;;</span><br><span class="line">    DECLARE return_str varchar(255) DEFAULT &#x27;&#x27;;</span><br><span class="line">    DECLARE i INT DEFAULT 0;</span><br><span class="line">    WHILE i &lt; n DO</span><br><span class="line">        SET return_str = concat(return_str,substring(chars_str , FLOOR(1 + RAND()*62 ),1));</span><br><span class="line">        SET i = i +1;</span><br><span class="line">    END WHILE;</span><br><span class="line">    RETURN return_str;</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
-<p>生成课程表数据储存过程</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成课程表数据储存过程</span><br><span class="line">CREATE DEFINER=`root`@`%` PROCEDURE `insert_course`( max_num INT )</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	</span><br><span class="line">	SET autocommit = 0;</span><br><span class="line">	REPEAT</span><br><span class="line">			</span><br><span class="line">			SET i = i + 1;</span><br><span class="line">		INSERT INTO course ( course_id, course_name )</span><br><span class="line">		VALUES</span><br><span class="line">			(</span><br><span class="line">				rand_num ( 10000, 10100 ),</span><br><span class="line">			rand_string ( 6 ));</span><br><span class="line">		UNTIL i = max_num </span><br><span class="line">	END REPEAT;</span><br><span class="line">	COMMIT;</span><br><span class="line">	</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
-<p>生成学生表数据存储过程</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 生成学生表存储过程</span><br><span class="line">CREATE DEFINER=`root`@`%` PROCEDURE `insert_stu`( max_num INT )</span><br><span class="line">BEGIN</span><br><span class="line">	DECLARE</span><br><span class="line">		i INT DEFAULT 0;</span><br><span class="line">	</span><br><span class="line">	SET autocommit = 0;</span><br><span class="line">	REPEAT</span><br><span class="line">			</span><br><span class="line">			SET i = i + 1;</span><br><span class="line">		INSERT INTO student_info ( course_id, class_id,student_id,name ) VALUES(</span><br><span class="line">		rand_num(10000,10100),rand_num(10000,10200),rand_num(10000,20000),rand_string(6)</span><br><span class="line">		);</span><br><span class="line">		UNTIL i = max_num </span><br><span class="line">	END REPEAT;</span><br><span class="line">	COMMIT;</span><br><span class="line">	</span><br><span class="line">END</span><br></pre></td></tr></table></figure>
-<p>调用存储过程</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CALL insert_stu(1000000);</span><br><span class="line">CALL insert_course(100);</span><br></pre></td></tr></table></figure>
-<h3 id="哪些情况适合创建索引"><a href="#哪些情况适合创建索引" class="headerlink" title="哪些情况适合创建索引"></a>哪些情况适合创建索引</h3><ol>
-<li>字段的数值有唯一性限制：<blockquote>
-<p>业务上具有唯一特性的字段，即使是组合字段，也必须创建组合索引（来源：Alibaba）</p>
-</blockquote>
-</li>
-<li>频繁作为where查询条件的字段</li>
-<li>经常 group by 和 order by 的字段</li>
-<li>update、delete的where条件</li>
-<li>distinct字段需要创建索引</li>
-<li>多表join连接操作时，创建索引的注意事项<blockquote>
-<p>连接表尽量不超过3张；对where条件创建索引，并且该字段在多张表中的类型必须一致（隐式转换（使用了函数，索引失效））；</p>
-</blockquote>
-</li>
-<li>使用列的类型小的创建索引</li>
-<li>使用字符串前缀创建索引</li>
-<li>区分度高（散列性高）的列适合创建索引</li>
-<li>使用最频繁的列放到联合索引的左侧</li>
-<li>在多个列都要创建索引时，联合索引优于单值索引</li>
-</ol>
-<h3 id="哪些情况不适合创建索引"><a href="#哪些情况不适合创建索引" class="headerlink" title="哪些情况不适合创建索引"></a>哪些情况不适合创建索引</h3><ol>
-<li>在where中使用不到的字段不要创建索引</li>
-<li>数据量小的表最好不要创建索引</li>
-<li>有大量重复数据的列不要建立索引</li>
-<li>避免对经常更新的表创建过多的索引</li>
-<li>不建议用无序的值作为索引</li>
-<li>删除不再使用的或者很少使用的索引</li>
-<li>不要定义冗余或重复的索引</li>
-</ol>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>索引是一把双刃剑，可以提高查询效率，但是也会降低插入和更新的速度并占用磁盘空间。</p>
-]]></content>
-      <categories>
-        <category>后端</category>
-      </categories>
-      <tags>
-        <tag>MySQL</tag>
       </tags>
   </entry>
   <entry>
