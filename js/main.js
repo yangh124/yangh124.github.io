@@ -56,12 +56,13 @@ $(document).ready(function() {
      */
     if (menu.length) {
       $(window).on("scroll", function() {
-        var topDistance = menu.offset().top;
+        var topDistance = document.documentElement.scrollTop;// menu.offset().top;
 
         // hide only the navigation links on desktop
-        if (!nav.is(":visible") && topDistance < 50) {
+        const distanceLimit = 50;
+        if (!nav.is(":visible") && topDistance < distanceLimit) {
           nav.show();
-        } else if (nav.is(":visible") && topDistance > 100) {
+        } else if (nav.is(":visible") && topDistance >= distanceLimit) {
           nav.hide();
         }
 
