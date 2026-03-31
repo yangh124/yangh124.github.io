@@ -45,7 +45,7 @@
 <meta property="og:image" content="http://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2024/03/02/17093738164622.png">
 <meta property="og:image" content="http://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2024/03/02/17093738164652.png">
 <meta property="article:published_time" content="2024-03-26T16:00:00.000Z">
-<meta property="article:modified_time" content="2026-03-10T13:31:26.965Z">
+<meta property="article:modified_time" content="2026-03-31T13:52:07.916Z">
 <meta property="article:author" content="yangh">
 <meta property="article:tag" content="Camunda">
 <meta name="twitter:card" content="summary">
@@ -185,7 +185,7 @@
       
         <time datetime="2024-03-26T16:00:00.000Z" class="dt-published" itemprop="datePublished">2024-03-27</time>
         
-        (Updated: <time datetime="2026-03-10T13:31:26.965Z" class="dt-updated" itemprop="dateModified">2026-03-10</time>)
+        (Updated: <time datetime="2026-03-31T13:52:07.916Z" class="dt-updated" itemprop="dateModified">2026-03-31</time>)
         
       
     </div>
@@ -216,10 +216,9 @@
 <li>CMMN ： Case Management Mode And Notation 案例管理模型和符号</li>
 <li>DMN ： Decision Management And Notation 决策管理和符号</li>
 </ul>
-<h2 id="Camunda-组件"><a href="#Camunda-组件" class="headerlink" title="Camunda 组件"></a>Camunda 组件</h2><p><img src="http://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2024/03/02/17093738164107.png" alt="Camunda 组件"></p>
-<p>)</p>
+<h2 id="Camunda-组件"><a href="#Camunda-组件" class="headerlink" title="Camunda 组件"></a>Camunda 组件</h2><p><img src="http://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2024/03/02/17093738164107.png" alt="Camunda 组件"></p>
 <h3 id="Process-Engine-Infrastructure"><a href="#Process-Engine-Infrastructure" class="headerlink" title="Process Engine &amp; Infrastructure"></a>Process Engine &amp; Infrastructure</h3><ul>
-<li>流程引擎 流程引擎是负责执行BPMN 2.0流程、CMMN 1.1案例和DMN 1.3决策的Java库。它有一个轻量级的POJO核心，并使用关系数据库来持久性。 orm映射由mybatis映射框架提供。</li>
+<li>流程引擎是负责执行BPMN 2.0流程、CMMN 1.1案例和DMN 1.3决策的Java库。它有一个轻量级的POJO核心，并使用关系数据库来持久性。 orm映射由mybatis映射框架提供。</li>
 <li>Spring 框架集成</li>
 <li>CDI&#x2F;Java EE 集成</li>
 <li>Runtime 容器集成 (与应用服务器基础架构集成。)</li>
@@ -240,13 +239,16 @@
 <h3 id="Process-Instances"><a href="#Process-Instances" class="headerlink" title="Process Instances"></a>Process Instances</h3><p>流程实例是流程定义的单个执行。流程实例与流程定义的关系与面向对象编程中对象与类的关系相同（在这个类比中，流程实例扮演对象的角色，流程定义扮演类的角色）。</p>
 <h3 id="Executions"><a href="#Executions" class="headerlink" title="Executions"></a>Executions</h3><p>如果你的流程实例包含多个执行路径（例如并行网关），你必须能够区分流程实例内当前的活动路径。在下面的例子中，两个用户任务“receive payment”和“ship order”可以同时执行。</p>
 <p><img src="http://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2024/03/02/17093738164126.png" alt="Executions"></p>
-<p>在内部实现中，流程引擎在流程实例遇到并行网关时会创建两个并发的执行，每个并发的执行都有一个执行路径。 或者“作用域”（scopes）也会创建新的执行，例如，如果流程引擎到达一个嵌入式<strong>子流程</strong>，就会创建执行。 或者<strong>多实例</strong>也会创建新的执行。</p>
-<p>执行是分层次的，一个流程实例内的所有执行组成一棵树，流程实例是树上的根节点。注意：流程实例本身就是一个执行。执行属于变量范围, 意味着动态数据可以与之关联。</p>
-<h3 id="Activity-Instances"><a href="#Activity-Instances" class="headerlink" title="Activity Instances"></a>Activity Instances</h3><p>活动实例的概念与执行的概念相似，但采取了不同的视角。执行可以被想象成在流程中移动的 “token”，而活动实例则代表一个活动（任务、子流程…）的单个实例。因此，活动实例的概念更加倾向“面向状态（state-oriented）”。</p>
-<p>活动实例也构成一棵树，遵循 BPMN 2.0 所提供的范围标准。处于 “同一层次的子流程”（即，同一范围的一部分，包含在同一子流程中）的活动，其活动实例会处于树的同一层次。</p>
-<h3 id="Jobs-and-Job-Definitions"><a href="#Jobs-and-Job-Definitions" class="headerlink" title="Jobs and Job Definitions"></a>Jobs and Job Definitions</h3><p>Camunda流程引擎包括一个名为“Job执行器（Job Executor）”的组件。Job执行器是一个调度组件，负责执行异步的后台Job。</p>
-<p>当一个流程被部署时，流程引擎为流程中的每个活动创建一个Job定义，该定义将在运行时创建Job。这允许你在流程中查询关于计时器和异步延续的信息。</p>
-<h3 id="Process-Variables"><a href="#Process-Variables" class="headerlink" title="Process Variables"></a>Process Variables</h3><p>流程变量可用于向流程运行时状态或更具体地说，变量作用域（scopes）添加数据。一般来说，变量由名称和值组成。例如，如果一个活动设置了一个名为var的变量，后续活动可以使用这个名称来访问它。变量的值是Java对象。</p>
+<p>在内部实现中，流程引擎在流程实例遇到并行网关时会创建两个并行的执行，每个并行的执行都有一个执行路径。 还会为不同的“作用域”（scopes）创建新的执行，例如，如果流程引擎到达一个嵌入式<strong>子流程</strong>，就会创建执行。 或者<strong>多实例</strong>也会创建新的执行。</p>
+<p>执行是分层次的，一个流程实例内的所有执行组成一棵树，流程实例是树上的根节点。注意：流程实例本身就是一个执行。执行流本身就是变量作用域，也就是说，动态数据可以直接绑定在执行流上（每个执行流都能存变量，动态数据可以跟执行流关联在一起）。</p>
+<h3 id="Activity-Instances"><a href="#Activity-Instances" class="headerlink" title="Activity Instances"></a>Activity Instances</h3><p>活动实例（Activity Instance）的概念与执行流（Execution）类似，但观察视角不同。</p>
+<p>如果把执行流想象成在流程中移动的令牌，那么活动实例代表的是<strong>一个活动（任务、子流程等）的单次运行实例</strong>。</p>
+<p>因此，活动实例的概念更偏向<strong>状态视角</strong>。</p>
+<p>活动实例同样会构成一棵树，其结构遵循 BPMN 2.0 定义的作用域结构。</p>
+<p>位于<strong>同一子流程层级</strong>（即属于同一作用域、被包含在同一个子流程中）的活动，它们的活动实例在树中也处于<strong>同一层级</strong>。</p>
+<h3 id="Jobs-and-Job-Definitions"><a href="#Jobs-and-Job-Definitions" class="headerlink" title="Jobs and Job Definitions"></a>Jobs and Job Definitions</h3><p>Camunda流程引擎包括一个名为“Job执行器（Job Executor）”的组件。Job执行器是一个调度组件，负责执行异步的后台任务。</p>
+<p>当一个流程被部署时，流程引擎为流程中的每个活动创建一个Job定义，该定义将在运行时创建Job。这使得你可以查询流程中定时器与异步继续执行相关的信息。</p>
+<h3 id="Process-Variables"><a href="#Process-Variables" class="headerlink" title="Process Variables"></a>Process Variables</h3><p>流程变量可用于向流程运行时状态或更具体地说——作用域（scopes）添加数据。一般来说，变量由名称和值组成。例如，如果一个活动设置了一个名为var的变量，后续活动可以使用这个名称来访问它。变量的值是Java对象。</p>
 <h2 id="流程引擎-API"><a href="#流程引擎-API" class="headerlink" title="流程引擎 API"></a>流程引擎 API</h2><p><img src="http://yh-blog-files.oss-cn-hangzhou.aliyuncs.com/2024/03/02/17093738164141.png" alt="image"></p>
 <h3 id="RepositoryService"><a href="#RepositoryService" class="headerlink" title="RepositoryService"></a>RepositoryService</h3><p>这个服务提供了管理和操纵部署和流程定义的操作，包括：</p>
 <ul>
@@ -343,7 +345,7 @@
 <p>根据规范的要求，每个创建的执行实例的父执行实例都将具有以下变量：</p>
 <ul>
 <li><strong>nrOfInstances</strong>: 实例的总数量</li>
-<li><strong>nrOfActiveInstances</strong>: 当前活动的，即尚未完成的实例的数量。对于一个连续的多实例，这将永远是1。</li>
+<li><strong>nrOfActiveInstances</strong>: 当前活动尚未完成的实例的数量。对于一个连续的多实例，这将永远是1。</li>
 <li><strong>nrOfCompletedInstances</strong>: 已经完成的实例的数量。</li>
 </ul>
 <p>这些值可以通过调用 “execution.getVariable(x) “方法检索。</p>
